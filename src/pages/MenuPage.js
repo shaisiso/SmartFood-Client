@@ -77,7 +77,7 @@ const MenuPage = () => {
                         dishesToDisplay.map((item, index) =>
                             <div className="col-lg-6 menu-item filter-starters" key={index}>
                                 <div className="menu-content">
-                                    <div className='menu-name'>{item.name}</div><span>${item.price}</span>
+                                    <div className='menu-name'>{item.name}</div><span>₪{item.price}</span>
                                 </div>
                                 <div className="menu-ingredients">
                                     {item.description}
