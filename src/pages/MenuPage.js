@@ -10,22 +10,23 @@ const MenuPage = () => {
     const [menu, setMenu] = useState([])
     const [dishesToDisplay, setDishesToDisplay] = useState(menu);
     const [radioValue, setRadioValue] = useState(-1);
-    async function getData(){
-        var res = await Axios.get(`${WEB_URL}/api/menu`)
-        setMenu(res.data)
-        setDishesToDisplay(res.data)
-    }
-    // const getData = ()=>{
-    //     Axios.get(`${WEB_URL}/api/menu`)
-    //     .then(res=>{
-    //         setMenu(res.data)
-    //         setDishesToDisplay(res.data)
-    //     }).catch(err=>{
-    //         console.log(`${WEB_URL}/api/menu`)
-    //         console.log(err)
-    //         alert('Error')
-    //     })
+    // async function getData(){
+    //     var res = await Axios.get(`${webUrl}:${serverPort}/api/menu`)
+    //     setMenu(res.data)
+    //     setDishesToDisplay(res.data)
     // }
+
+    const getData = ()=>{
+        Axios.get(`${WEB_URL}/api/menu`)
+        .then(res=>{
+            setMenu(res.data)
+            setDishesToDisplay(res.data)
+        }).catch(err=>{
+            console.log(`${WEB_URL}/api/menu`)
+            console.log(err)
+            alert('Error')
+        })
+    }
 
     const mounted = useRef();
     useEffect(() => {
