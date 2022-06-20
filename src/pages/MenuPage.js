@@ -22,6 +22,7 @@ const MenuPage = () => {
             setMenu(res.data)
             setDishesToDisplay(res.data)
         }).catch(err=>{
+            console.log(`${WEB_URL}/api/menu`)
             console.log(err)
             alert('Error')
         })
