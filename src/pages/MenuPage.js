@@ -15,7 +15,6 @@ const MenuPage = () => {
         setMenu(res.data)
         setDishesToDisplay(res.data)
     }
-
     // const getData = ()=>{
     //     Axios.get(`${WEB_URL}/api/menu`)
     //     .then(res=>{
