@@ -3,12 +3,12 @@ import React from 'react';
 import HungryImg from '../assets/hungry.jpg'
 import EmployeeImg from '../assets/employee.webp'
 import ReservationImg from '../assets/reservation.jpg'
-import { Card, Button } from 'react-bootstrap';
+import { Card } from 'react-bootstrap';
 //import Card from '../components/Card';
 
 const Homepage = () => {
     return (
-        <div className="row gy-4 justify-content-center  pb-5">
+        <div className="row mt-5 gy-4 justify-content-center  pb-5">
             <div className="col col-6  col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
                     <Card.Img variant="top" src={HungryImg} />

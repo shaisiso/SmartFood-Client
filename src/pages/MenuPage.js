@@ -1,8 +1,7 @@
 import BackgroundImg from '../assets/background.jpg'
 import { useEffect, useRef, useState } from 'react';
-import { ButtonGroup, ToggleButton } from 'react-bootstrap';
 import Axios from 'axios';
-import { serverPort, WEB_URL } from '../utility/Utils';
+import {  WEB_URL } from '../utility/Utils';
 const categories = ['Starters', 'Salads', 'Main Dishes']
 
 
@@ -87,7 +86,6 @@ const MenuPage = () => {
                         )
                     }
                 </div>
-
             </div>
         </section>
     );
