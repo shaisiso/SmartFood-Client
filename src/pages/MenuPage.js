@@ -1,7 +1,7 @@
 import BackgroundImg from '../assets/background.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import {  WEB_URL } from '../utility/Utils';
+import {  API_URL } from '../utility/Utils';
 const categories = ['Starters', 'Salads', 'Main Dishes']
 
 
@@ -16,12 +16,12 @@ const MenuPage = () => {
     // }
 
     const getData = ()=>{
-        Axios.get(`${WEB_URL}/api/menu`)
+        Axios.get(`${API_URL}/api/menu`)
         .then(res=>{
             setMenu(res.data)
             setDishesToDisplay(res.data)
         }).catch(err=>{
-            console.log(`${WEB_URL}/api/menu`)
+            console.log(`${API_URL}/api/menu`)
             console.log(err)
             alert('Error')
         })
