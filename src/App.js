@@ -4,13 +4,15 @@ import Footer from './components/Footer';
 import Homepage from './pages/Homepage';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPage from './pages/MenuPage';
-import NavbarRes from './components/NavbarRes';
+import NavbarRestaurant from './components/NavbarRestaurant';
 import RestaurantImg from './assets/res4.png'
 import Header from './components/Header';
+import TableReservation from './pages/TableReservation';
+
 function App() {
   return (
     <Router>
-      <NavbarRes />
+      <NavbarRestaurant />
       <div className="pt-1 " style={{ backgroundImage: `url(${RestaurantImg})`, backgroundPosition: 'top center',
                minHeight:'87vh', backgroundRepeat: 'repeat'  }}>
         <div className="container-fluid p-5">
@@ -21,6 +23,9 @@ function App() {
             </Route>
             <Route path="/menu"
               element={<MenuPage />}>
+            </Route>
+            <Route path="/reservation"
+              element={<TableReservation />}>
             </Route>
           </Routes>
         </div>

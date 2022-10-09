@@ -29,7 +29,7 @@ const Homepage = () => {
                 <Card className="text-center" style={{ width: '18rem' }}>
                     <Card.Img variant="top" src={EmployeeImg} />
                     <Card.Body>
-                        <Card.Title >Employees entrance</Card.Title>
+                        <Card.Title >Employees Entrance</Card.Title>
                     </Card.Body>
                 </Card>
             </div>

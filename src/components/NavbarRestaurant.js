@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { useState } from 'react';
 
 
-const NavbarRes = () => {
+const NavbarRestaurant = () => {
     const [active, setActive] = useState(0);
     const handleSelect = (eventKey) => setActive(eventKey);
     return (
@@ -16,7 +16,7 @@ const NavbarRes = () => {
                 <Navbar.Toggle className="navbar-nav ms-auto" />
                 <Navbar.Collapse >
                     <Nav className="me-auto" activeKey={active}>
-                        <Nav.Link eventKey="1" as={Link} to="/">Book a Table</Nav.Link>
+                        <Nav.Link eventKey="1" as={Link} to="/reservation">Book a Table</Nav.Link>
                         <Nav.Item>
                             <Nav.Link eventKey="2" as={Link} to="/">Order Now</Nav.Link>
                         </Nav.Item>
@@ -40,4 +40,4 @@ const NavbarRes = () => {
     );
 };
 
-export default NavbarRes;
+export default NavbarRestaurant;

@@ -2,8 +2,8 @@ import BackgroundImg from '../assets/background.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
 import {  API_URL } from '../utility/Utils';
-const categories = ['Starters', 'Salads', 'Main Dishes']
 
+const categories = ['Starters', 'Salads', 'Main Dishes']
 
 const MenuPage = () => {
     const [menu, setMenu] = useState([])
