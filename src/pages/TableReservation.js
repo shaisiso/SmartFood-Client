@@ -25,7 +25,7 @@ const TableReservation =()=> {
 
     }
     return (
-        <div className="container col col-lg-6 col-sm-10 p-3" style={{ backgroundColor: "#ffffff60", }}>
+        <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff60", }}>
             <div className="section-title">
                 <h1 style={{ color: "black" }}>Table Reservation</h1>
             </div>
@@ -39,10 +39,10 @@ const TableReservation =()=> {
                     </div>
                 </div>
                 <div className="row form-group mt-3">
-                    <div className="col-md-6 ">
+                    <div className="col-md-6 form-group">
                         <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required />
                     </div>
-                    <div className="col-md-6 ">
+                    <div className="col-md-6 form-group mt-3 mt-md-0">
                         <input type="email" className="form-control" name="email" id="email" placeholder=" Email"/>
                     </div>
                 </div>
@@ -61,18 +61,15 @@ const TableReservation =()=> {
                                         <option key={key} value={item}>{item}:00</option>
                                     ))
                                 }
-
                             </Form.Select>
                         </div>
 
                     </div>
                 </div>
-
-
                 <div className="form-group mt-3">
-                    <textarea className="form-control" name="message" rows="5" placeholder="Additional details" required></textarea>
+                    <textarea className="form-control" name="message" rows="4" placeholder="Additional details" required></textarea>
                 </div>
-                <div className="text-center my-3">
+                <div className="text-center mt-4">
                     <input type="submit" value="Send Reservation Request"
                         className="btn btn-primary btn-user btn-block"
                     />
