@@ -4,6 +4,7 @@ import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 
+import { ColorRing } from 'react-loader-spinner'
 
 const MenuPage = () => {
     const [categories, setCategories] = useState([])
@@ -11,6 +12,7 @@ const MenuPage = () => {
     const [dishesToDisplay, setDishesToDisplay] = useState(menu);
     const [radioValue, setRadioValue] = useState(-1);
     const [errorMessage, setErrorMessage] = useState('');
+    const [loaded, setLoaded] = useState(false)
     // async function getData(){
     //     var res = await Axios.get(`${webUrl}:${serverPort}/api/menu`)
     //     setMenu(res.data)
@@ -31,8 +33,8 @@ const MenuPage = () => {
                 setErrorMessage(errMsg)
             })
     }
-    const getData = () => {
-        Axios.get(`${API_URL}/api/menu`)
+     const getData = async() => {
+       await Axios.get(`${API_URL}/api/menu`)
             .then(res => {
                 let data = res.data.map(item => {
                     let category = item.category.split("_")
@@ -53,6 +55,7 @@ const MenuPage = () => {
                 }
                 setErrorMessage(errMsg)
             })
+        setLoaded(true)
     }
 
     const mounted = useRef();
@@ -77,7 +80,25 @@ const MenuPage = () => {
     }
 
     return (
+
         <section id="menu" className="menu" style={{ backgroundImage: `url(${BackgroundImg})` }}>
+            {
+                loaded === false?
+                    <div className="text-center ">
+                        <ColorRing
+                            visible={true}
+                            height="80"
+                            width="80"
+                            ariaLabel="blocks-loading"
+                            wrapperStyle={{}}
+                            wrapperClass="blocks-wrapper"
+                            colors={['#00bfff', '#4dd2ff', '#9ae5ff', '#80dfff', '#34ccff']}
+                        />
+                    </div>
+                    :
+                    null
+            }
+
             <div className="container">
                 <div className="section-title">
                     <h2 className="hRestaurant">Check our tasty <span>Menu</span></h2>
