@@ -27,7 +27,7 @@ const TableReservation =()=> {
     return (
         <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff60", }}>
             <div className="section-title">
-                <h1 style={{ color: "black" }}>Table Reservation</h1>
+                <h1 className="hRestaurant" style={{ color: "black" }}>Table Reservation</h1>
             </div>
             <form onSubmit={onSubmit}>
                 <div className="row">

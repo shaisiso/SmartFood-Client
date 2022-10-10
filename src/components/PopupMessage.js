@@ -2,7 +2,7 @@ import React from 'react';
 import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { Link } from "react-router-dom";
-import { useState } from 'react';
+//import { useState } from 'react';
 import { ReactComponent as ErrorSvg } from "../assets/pop-error.svg";
 import { ReactComponent as SuccessSvg } from "../assets/pop-success.svg";
 import { ReactComponent as InfoSvg } from "../assets/pop-info.svg";
@@ -50,10 +50,10 @@ const PopupMessage = (props) => {
 
         {close => (
             <div className="p-0 m-0" id="exampleModal" tableindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-lg m-0 p-0">
+                <div className="modal-dialog modal-xl my-0 p-0 mx-0">
                     <div className="modal-content  m-0 p-0">
                         <div className="modal-header">
-                            <h5 className="modal-title text-black" id="exampleModalLabel">{props.title}</h5>
+                            <h4 className="modal-title text-black" id="exampleModalLabel">{props.title}</h4>
                             <button className="btn-close" onClick={close} data-bs-dismiss="modal" aria-label="Close" />
                         </div>
                         <div className="modal-body">

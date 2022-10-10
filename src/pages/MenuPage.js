@@ -2,6 +2,7 @@ import BackgroundImg from '../assets/background.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
+import PopupMessage from '../components/PopupMessage';
 
 
 const MenuPage = () => {
@@ -9,6 +10,7 @@ const MenuPage = () => {
     const [menu, setMenu] = useState([])
     const [dishesToDisplay, setDishesToDisplay] = useState(menu);
     const [radioValue, setRadioValue] = useState(-1);
+    const [errorMessage, setErrorMessage] = useState('');
     // async function getData(){
     //     var res = await Axios.get(`${webUrl}:${serverPort}/api/menu`)
     //     setMenu(res.data)
@@ -19,8 +21,14 @@ const MenuPage = () => {
             .then(res => {
                 setCategories(res.data)
             }).catch(err => {
-                // TODO: Change to popup error message
-                alert('Error')
+                var errMsg;
+                if (err.response.data) {
+                    errMsg = err.response.data.message;
+                }
+                else {
+                    errMsg = err.message
+                }
+                setErrorMessage(errMsg)
             })
     }
     const getData = () => {
@@ -34,11 +42,16 @@ const MenuPage = () => {
                     return item
                 })
                 setMenu(data)
-
                 setDishesToDisplay(data)
             }).catch(err => {
-                // TODO: Change to popup error message
-                alert('Error')
+                var errMsg;
+                if (err.response.data) {
+                    errMsg = err.response.data.message;
+                }
+                else {
+                    errMsg = err.message
+                }
+                setErrorMessage(errMsg)
             })
     }
 
@@ -67,7 +80,7 @@ const MenuPage = () => {
         <section id="menu" className="menu" style={{ backgroundImage: `url(${BackgroundImg})` }}>
             <div className="container">
                 <div className="section-title">
-                    <h2>Check our tasty <span>Menu</span></h2>
+                    <h2 className="hRestaurant">Check our tasty <span>Menu</span></h2>
                 </div>
                 <div className="row">
                     <div className="col-lg-12 d-flex justify-content-center">
@@ -103,6 +116,23 @@ const MenuPage = () => {
                     }
                 </div>
             </div>
+            {
+                errorMessage ?
+                    <PopupMessage
+                        title="Error"
+                        body={
+                            <div className="text-black" style={{ fontSize: '1.2rem' }}>{errorMessage}</div>
+                        }
+                        onClose={() => {
+                            setErrorMessage('')
+                        }}
+                        status='error'
+                    >
+
+                    </PopupMessage>
+                    :
+                    null
+            }
         </section>
     );
 };
