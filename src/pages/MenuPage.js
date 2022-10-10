@@ -33,8 +33,8 @@ const MenuPage = () => {
                 setErrorMessage(errMsg)
             })
     }
-     const getData = async() => {
-       await Axios.get(`${API_URL}/api/menu`)
+    const getData = async () => {
+        await Axios.get(`${API_URL}/api/menu`)
             .then(res => {
                 let data = res.data.map(item => {
                     let category = item.category.split("_")
@@ -82,22 +82,15 @@ const MenuPage = () => {
     return (
 
         <section id="menu" className="menu" style={{ backgroundImage: `url(${BackgroundImg})` }}>
-            {
-                loaded === false?
-                    <div className="text-center ">
-                        <ColorRing
-                            visible={true}
-                            height="80"
-                            width="80"
-                            ariaLabel="blocks-loading"
-                            wrapperStyle={{}}
-                            wrapperClass="blocks-wrapper"
-                            colors={['#00bfff', '#4dd2ff', '#9ae5ff', '#80dfff', '#34ccff']}
-                        />
-                    </div>
-                    :
-                    null
-            }
+            <div className="text-center ">
+                <ColorRing
+                    visible={!loaded}
+                    ariaLabel="blocks-loading"
+                    wrapperClass="blocks-wrapper"
+                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                />
+                
+            </div>
 
             <div className="container">
                 <div className="section-title">
