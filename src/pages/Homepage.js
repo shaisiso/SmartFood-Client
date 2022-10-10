@@ -4,7 +4,8 @@ import HungryImg from '../assets/hungry.jpg'
 import EmployeeImg from '../assets/employee.webp'
 import ReservationImg from '../assets/reservation.jpg'
 import { Card } from 'react-bootstrap';
-//import Card from '../components/Card';
+import { Link } from "react-router-dom";
+
 
 const Homepage = () => {
     return (
@@ -13,23 +14,25 @@ const Homepage = () => {
                 <Card className="text-center" style={{ width: '18rem' }}>
                     <Card.Img variant="top" src={HungryImg} />
                     <Card.Body>
-                        <Card.Title >I'm Hungry</Card.Title>
+                        <Card.Title onClick>I'm Hungry</Card.Title>
                     </Card.Body>
                 </Card>
             </div>
             <div className="col col-6  col-sm-4  d-flex justify-content-center ">
-                <Card className="text-center" style={{ width: '18rem' }}>
-                    <Card.Img variant="top" src={ReservationImg} />
-                    <Card.Body>
-                        <Card.Title >Book a Table</Card.Title>
-                    </Card.Body>
-                </Card>
+                <Link to="/reservation">
+                    <Card className="text-center" style={{ width: '18rem' }}>
+                        <Card.Img variant="top" src={ReservationImg} />
+                        <Card.Body>
+                            <Card.Title >Book a Table</Card.Title>
+                        </Card.Body>
+                    </Card>
+                </Link>
             </div>
             <div className="col col-6 col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
                     <Card.Img variant="top" src={EmployeeImg} />
                     <Card.Body>
-                        <Card.Title >Employees Entrance</Card.Title>
+                        <Card.Title  >Employees Entrance</Card.Title>
                     </Card.Body>
                 </Card>
             </div>

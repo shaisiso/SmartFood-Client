@@ -17,14 +17,12 @@ const getMaxDate = () => {
 
 const TableReservation =()=> {
     const [chosenDate, setChosenDate] = useState(getCurrentDate());
-
-    const onSubmit = () => {
-        console.log(`${getCurrentDate()}`)
-        // console.log(new Date().toLocaleDateString("en-US"))
-        //console.log(`${new Date().toLocaleDateString()}`)
-    }
     const onChangeDate=(event)=>{
         setChosenDate(event.target.value)
+    }
+    const onSubmit = () => {
+        console.log(`${getCurrentDate()}`)
+
     }
     return (
         <div className="container col col-lg-6 col-sm-10 p-3" style={{ backgroundColor: "#ffffff60", }}>
@@ -53,7 +51,7 @@ const TableReservation =()=> {
                         <div className="col-md-6 form-group">
                             <input type="date" style={{ textAlign: "left" }} className="form-control" 
                             name="date" value={chosenDate} onChange={onChangeDate} required 
-                            min={formatDate(new Date())} max={getMaxDate()} />
+                            min={getCurrentDate()} max={getMaxDate()} />
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <Form.Select aria-label="Default select example" >
