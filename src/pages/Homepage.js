@@ -1,7 +1,7 @@
 import React from 'react';
 
 import HungryImg from '../assets/hungry.jpg'
-import EmployeeImg from '../assets/employee.webp'
+import EmployeeImg from '../assets/employee.jpg'
 import ReservationImg from '../assets/reservation.jpg'
 import { Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
