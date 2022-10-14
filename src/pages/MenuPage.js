@@ -13,11 +13,7 @@ const MenuPage = () => {
     const [radioValue, setRadioValue] = useState(-1);
     const [errorMessage, setErrorMessage] = useState('');
     const [loaded, setLoaded] = useState(false)
-    // async function getData(){
-    //     var res = await Axios.get(`${webUrl}:${serverPort}/api/menu`)
-    //     setMenu(res.data)
-    //     setDishesToDisplay(res.data)
-    // }
+
     const getCategories = () => {
         Axios.get(`${API_URL}/api/menu/categories`)
             .then(res => {
@@ -86,12 +82,9 @@ const MenuPage = () => {
                 <ColorRing
                     visible={!loaded}
                     ariaLabel="blocks-loading"
-                    wrapperClass="blocks-wrapper"
                     colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
                 />
-                
             </div>
-
             <div className="container">
                 <div className="section-title">
                     <h2 className="hRestaurant">Check our tasty <span>Menu</span></h2>
