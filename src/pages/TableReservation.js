@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer } from "../utility/Utils";
+import { formatDateForBrowser, formatDateForServer,formatDateWithSlash } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -56,15 +56,18 @@ const TableReservation = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
+        var date = new Date(chosenDate)
         var reservation = {
             person: personDetails,
-            date: formatDateForServer(new Date(chosenDate)),
+            date: formatDateForServer(date),
             hour: chosenHour,
             numberOfDiners: numberOfDiners
         }
         await Axios.post(`${API_URL}/api/reservation`, reservation)
             .then((data) => {
-                setPopupMessage({ title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you.'] })
+                setPopupMessage({ title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
+                `Phone Number: ${personDetails.phoneNumber}`,`At: ${chosenHour} ${formatDateWithSlash(date)}`,
+            `Diners: ${numberOfDiners}`] })
                 cleanForm()
             }).catch(err => {
                 console.log(err)

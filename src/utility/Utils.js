@@ -24,3 +24,9 @@ export function formatDateForServer(date){
 
     return `${day}-${month}-${year}`
 }
+export function formatDateWithSlash(date){
+    let year = date.getFullYear();
+    let month = date.getMonth()+1;
+    let day = date.getDate();
+    return `${day}/${month}/${year}`
+}
