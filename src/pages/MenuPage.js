@@ -3,7 +3,6 @@ import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
-
 import { ColorRing } from 'react-loader-spinner'
 
 const MenuPage = () => {

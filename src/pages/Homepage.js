@@ -12,21 +12,21 @@ const Homepage = () => {
         <div className="row mt-5 gy-4 justify-content-center  pb-5">
             <div className="col col-6  col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
-                    <Card.Img variant="top" src={HungryImg} alt="Hungry man"/>
+                    <Card.Img variant="top" src={HungryImg} alt="Hungry man" />
                     <Card.Body>
                         <Card.Title onClick>I'm Hungry</Card.Title>
                     </Card.Body>
                 </Card>
             </div>
-            <div className="col col-6  col-sm-4  d-flex justify-content-center ">
-                <Link to="/reservation">
-                    <Card className="text-center" style={{ width: '18rem' }}>
+            <div className="col col-6  col-sm-4  d-flex  justify-content-center ">
+                <Card className="text-center" style={{ width: '18rem' }}>
+                    <Card.Link as ={Link} to="/reservation">
                         <Card.Img variant="top" src={ReservationImg} alt="Table Reservation" />
                         <Card.Body>
                             <Card.Title >Book a Table</Card.Title>
                         </Card.Body>
-                    </Card>
-                </Link>
+                    </Card.Link>
+                </Card>
             </div>
             <div className="col col-6 col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
