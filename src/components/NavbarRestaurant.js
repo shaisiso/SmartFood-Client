@@ -18,7 +18,7 @@ const NavbarRestaurant = () => {
                     <Nav className="me-auto" activeKey={active}>
                         <Nav.Link eventKey="1" as={Link} to="/reservation">Book a Table</Nav.Link>
                         <Nav.Item>
-                            <Nav.Link eventKey="2" as={Link} to="/">Order Now</Nav.Link>
+                            <Nav.Link eventKey="2" as={Link} to="/order">Order Now</Nav.Link>
                         </Nav.Item>
                         <Nav.Item>
                             <Nav.Link eventKey="3" as={Link} to="/menu">Menu</Nav.Link>
