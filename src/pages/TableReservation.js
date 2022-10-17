@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer,formatDateWithSlash } from "../utility/Utils";
+import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -56,6 +56,11 @@ const TableReservation = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
+        if (!fieldsAreValid()){
+            setShowLoader(false)
+            return
+        }
+        
         var date = new Date(chosenDate)
         var reservation = {
             person: personDetails,
@@ -65,9 +70,11 @@ const TableReservation = () => {
         }
         await Axios.post(`${API_URL}/api/reservation`, reservation)
             .then((data) => {
-                setPopupMessage({ title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
-                `Phone Number: ${personDetails.phoneNumber}`,`At: ${chosenHour} ${formatDateWithSlash(date)}`,
-            `Diners: ${numberOfDiners}`] })
+                setPopupMessage({
+                    title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
+                        `Phone Number: ${personDetails.phoneNumber}`, `At: ${chosenHour} ${formatDateWithSlash(date)}`,
+                        `Diners: ${numberOfDiners}`]
+                })
                 cleanForm()
             }).catch(err => {
                 console.log(err)
@@ -83,6 +90,24 @@ const TableReservation = () => {
                 setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setShowLoader(false)
+    }
+    const fieldsAreValid = () => {
+        // TODO: implelment validation
+        var errors = []
+        if (!isValidPhone(personDetails.phoneNumber))
+            errors.push('Phone number must be 10 consecutive digits in format: 05xxxxxxxxx')
+
+        if (!isValidName(personDetails.name))
+            errors.push('Name must have at least 2 letters and contain only letters in english.')
+
+        if (!isDateInFuture(new Date(chosenDate), chosenHour))
+            errors.push('Date and hour should be in future.')
+
+        if(errors.length > 0 ){
+            setPopupMessage({title: 'Error', messages: errors})
+            return false
+        }
+        return true
     }
     const cleanForm = () => {
         setPersonDetails({ name: '', phoneNumber: '', email: '' })
@@ -126,7 +151,7 @@ const TableReservation = () => {
                                 min={getCurrentDate()} max={getMaxDate()} />
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
-                            <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}> 
+                            <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
                                 <option disabled>Choose Hour</option>
                                 {
                                     hoursList.map((item, key) => (
