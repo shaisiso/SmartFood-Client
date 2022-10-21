@@ -7,7 +7,7 @@ import Card from 'react-bootstrap/Card';
 import { ColorRing } from 'react-loader-spinner'
 import Table from 'react-bootstrap/Table';
 import PopupMessage from '../components/PopupMessage';
-
+import { categoryForReading } from '../utility/Utils';
 function CustomToggle({ children, eventKey, name }) {
     const decoratedOnClick = useAccordionButton(eventKey, () =>
         console.log('totally custom!'),
@@ -66,48 +66,80 @@ const OrderPage = () => {
 
     }
     const clickOnItem = menuItem => {
-        setChosenItems([...chosenItems, menuItem])
+        var oldChosen = chosenItems
+        menuItem.quantity = 1
+        const newState = chosenItems.map(obj => {
+            if (obj.itemId === menuItem.itemId) {
+                return { ...obj, quantity: obj.quantity + 1, price: obj.price + menuItem.price };
+            }
+            return obj;
+        });
+        var oldItemIndex = oldChosen.findIndex(i => i.itemId === menuItem.itemId)
+        if (oldItemIndex === -1) {
+            newState.push(menuItem)
+        }
+        setChosenItems(newState)
+
+    }
+    const onChangeQuantity = (event, item) => {
+        let newQuantity = event.target.value
+        let itemPrice = menu[categoryForReading(item.category)]
+            .find(i => i.itemId === item.itemId)
+            .price
+        const newState = chosenItems.map(obj => {
+            if (obj.itemId === item.itemId) {
+                return { ...obj, quantity: newQuantity, price: newQuantity*itemPrice };
+            }
+            return obj;
+        });
+        setChosenItems(newState)
     }
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItems.filter(item => item !== itemToDelete))
     }
     return (
         <div className="row ">
-            <ColorRing
-                visible={showLoader}
-                ariaLabel="blocks-loading"
-                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
-            />
-            <div className="col col-lg-6 col-sm-12  p-2">
 
-                <Accordion>
-                    {
-                        categories.map((category, key) =>
-                            <Card key={key}>
-                                <Card.Header>
-                                    <CustomToggle eventKey={key} name={category}>+</CustomToggle>
-                                </Card.Header>
-                                <Accordion.Collapse eventKey={key} >
-                                    <Table striped bordered hover className="m-0" >
-                                        <tbody >
-                                            {
-                                                menu[category].map((item, itemKey) =>
+            <div className="col col-lg-6 col-sm-12 col-12  p-2" >
+                <div className="container p-3 px-4" style={{ backgroundColor: "#ffffff90", minHeight: '29rem', minWidth: '100%' }}>
+                    <h4 className="text-center mb-4"><u>Choose Items</u></h4>
+                    <div className="container text-center">
+                        <ColorRing
+                            visible={showLoader}
+                            ariaLabel="blocks-loading"
+                            colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                        />
+                    </div>
 
-                                                    <tr key={itemKey} style={{ cursor: 'pointer' }} onClick={() => clickOnItem(item)}>
-                                                        <td className="align-middle ps-4 pe-3" ><h6>{item.name}</h6> </td>
-                                                        <td>{item.description}</td>
-                                                        <td>{item.price}₪</td>
-                                                    </tr>
+                    <Accordion>
+                        {
+                            categories.map((category, key) =>
+                                <Card key={key}>
+                                    <Card.Header>
+                                        <CustomToggle eventKey={key} name={category}>+</CustomToggle>
+                                    </Card.Header>
+                                    <Accordion.Collapse eventKey={key} >
+                                        <Table striped bordered hover className="m-0" >
+                                            <tbody >
+                                                {
+                                                    menu[category].map((item, itemKey) =>
 
-                                                )
-                                            }
-                                        </tbody>
-                                    </Table>
-                                </Accordion.Collapse>
-                            </Card>
-                        )
-                    }
-                </Accordion>
+                                                        <tr key={itemKey} style={{ cursor: 'pointer' }} onClick={() => clickOnItem(item)}>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>{item.name}</h6> </td>
+                                                            <td>{item.description}</td>
+                                                            <td>{item.price}₪</td>
+                                                        </tr>
+
+                                                    )
+                                                }
+                                            </tbody>
+                                        </Table>
+                                    </Accordion.Collapse>
+                                </Card>
+                            )
+                        }
+                    </Accordion>
+                </div>
             </div>
             <div className="col col-lg-6 col-sm-12 p-2" >
                 <div className="container p-3 px-4" style={{ backgroundColor: "#ffffff90", minHeight: '29rem', minWidth: '100%' }}>
@@ -115,12 +147,17 @@ const OrderPage = () => {
                     <ul>
                         {
                             chosenItems.map((item, key) =>
-                                <h4>
-                                    <li key={key}>   {item.name} - {item.price}₪
+                                <h4 key={key}>
+                                    <li key={key}>  {item.name} - {item.price}₪
                                         <span>
-                                            <button className='btn btn-danger btn-sm ms-4' style={{ borderRadius: '100%' }}
+                                            <input type="number" className="col col-1 ms-1" min={1}
+                                                value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} />
+                                        </span>
+                                        <span>
+                                            <button className='btn btn-danger btn-sm ms-1' style={{ borderRadius: '100%' }}
                                                 onClick={() => onClickDeleteItem(item)}>x</button>
                                         </span>
+
                                     </li>
                                 </h4>
                             )

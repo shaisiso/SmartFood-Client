@@ -37,9 +37,8 @@ export function isValidName(name) {
     return /[a-zA-Z\s-]{2,}/.test(name)
 }
 export function isDateInFuture(date, hour) {
-
     let currentDate = new Date()
-   var hourForDate =  parseInt(hour.substr(0,2))
+    var hourForDate = parseInt(hour.substr(0, 2))
     date.setHours(hourForDate)
     console.log(date)
     console.log(new Date())
@@ -47,4 +46,15 @@ export function isDateInFuture(date, hour) {
         return true
     else
         return false
+}
+
+export function categoryForReading(actualCategory) {
+    return actualCategory.split("_")
+        .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
+        .join(" ")
+}
+export function categoryForClass(toStringCategory) {
+    return toStringCategory.split(" ")
+        .map(word =>word.toUpperCase())
+        .join("_")
 }

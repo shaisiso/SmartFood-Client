@@ -4,7 +4,7 @@ import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
-
+import { categoryForReading } from '../utility/Utils';
 const MenuPage = () => {
     const [categories, setCategories] = useState([])
     const [menu, setMenu] = useState([])
@@ -32,9 +32,7 @@ const MenuPage = () => {
         await Axios.get(`${API_URL}/api/menu`)
             .then(res => {
                 let data = res.data.map(item => {
-                    let category = item.category.split("_")
-                        .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
-                        .join(" ")
+                    let category = categoryForReading(item.category)
                     item.category = category
                     return item
                 })
