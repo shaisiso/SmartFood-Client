@@ -101,10 +101,10 @@ const OrderPage = () => {
         setChosenItems(chosenItems.filter(item => item !== itemToDelete))
     }
     return (
-        <div className="row ">
+        <div className="row g-1">
 
-            <div className="col col-lg-6 col-sm-12 col-12  p-2" >
-                <div className="container p-3 px-4" style={{ backgroundColor: "#ffffff90", minHeight: '29rem', minWidth: '100%' }}>
+            <div className="col col-lg-6 col-sm-12 col-12  me-1" style={{ backgroundColor: "#ffffff90", minHeight: '29rem' }}>
+                <div className="container p-3" >
                     <h4 className="text-center mb-4"><u>Choose Items</u></h4>
                     <div className="container text-center">
                         <ColorRing
@@ -144,39 +144,58 @@ const OrderPage = () => {
                     </Accordion>
                 </div>
             </div>
-            <div className="col col-lg-6 col-sm-12 p-2" >
-                <div className="container p-3 px-4" style={{ backgroundColor: "#ffffff90", minHeight: '29rem', minWidth: '100%' }}>
+            <div className="col col-lg-5 col-sm-12 " style={{ backgroundColor: "#ffffff90", }} >
+                <div className="container p-3 px-4" >
                     <h4 className="text-center mb-4"><u>My Order</u></h4>
-                    <Table striped bordered hover className="m-0" >
+                    <Table className="m-0" >
                         <tbody >
-                            <ul>
-                                {
-                                    chosenItems.map((item, key) =>
-                                        <h4 key={key} className="row">
+                            {
+                                chosenItems.map((item, key) =>
 
-                                            <tr key={key} className="align-middle">
-                                                <li >
-                                                    <td className="col col-xl-8 col-lg-8 col-8 ">{item.name}</td>
-                                                    <td className="col col-xl-2 col-lg-2 col-1 ">{item.price}₪</td>
-                                                    <td className="col col-xl-2 col-lg-3 col-4">
-                                                        <FloatingLabel label="Quantity" style={{ fontSize: '0.8rem'}} >
-                                                            <Form.Control size="sm" type="number" 
-                                                                min={1}
-                                                                value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height:'3rem',width :'4rem'}}/>
-                                                        </FloatingLabel>
-                                                    </td>
-                                                    <td className="col  col-xl-1 col-lg-1 col-1 ">
-                                                        <button className='btn btn-danger btn-sm ms-2 ' style={{ borderRadius: '100%' }}
-                                                            onClick={() => onClickDeleteItem(item)}>x</button>
-                                                    </td>
-                                                </li>
-                                            </tr>
-                                        </h4>
-                                    )
-                                }
-                            </ul>
+                                    <tr key={key} className="row align-middle h4">
+
+                                        <td className="col col-xl-7 col-lg-6 col-6 p-2">{item.name}</td>
+                                        <td className="col col-xl-2 col-lg-2 col-2 p-2">{item.price}₪</td>
+                                        <td className="col col-xl-2 col-lg-3 col-3 p-0">
+                                            <FloatingLabel label="Quantity" style={{ fontSize: '0.8rem' }} >
+                                                <Form.Control size="sm" type="number"
+                                                    min={1}
+                                                    value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height: '3rem', width: '4rem' }} />
+                                            </FloatingLabel>
+                                        </td>
+                                        <td className="col  col-xl-1 col-lg-1 col-1 ">
+                                            <button className='btn btn-danger btn-sm  ms-0' style={{ borderRadius: '100%' }}
+                                                onClick={() => onClickDeleteItem(item)}>x</button>
+                                        </td>
+                                    </tr>
+                                )
+                            }
+                            {
+                                chosenItems.length > 0 ?
+                                    <tr className="row align-middle h4 " style={{ height: '3rem', background: '#ffff0050' }}>
+                                        <td className="col col-xl-7 col-lg-6 col-6 p-2">Total Price:</td>
+                                        <td className="col col-xl-2 col-lg-2 col-2 p-2">
+                                            {chosenItems.reduce((total, item) => total + item.price, 0)}
+                                        </td>
+                                        <td className="col col-xl-2 col-lg-3 col-3 p-0" />
+                                        <td className="col  col-xl-1 col-lg-1 col-1 " />
+                                    </tr>
+                                    :
+                                    null
+                            }
+
                         </tbody>
                     </Table>
+                    {
+                        chosenItems.length > 0 ?
+                            <div className="text-center mt-3">
+                                <button className="btn btn-primary btn-user btn-block justify-content-center text-center">Continue</button>
+                            </div>
+                            :
+                            null
+                    }
+
+
                 </div>
             </div>
             {
