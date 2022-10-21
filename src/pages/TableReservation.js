@@ -5,6 +5,8 @@ import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
+import FloatingLabel from 'react-bootstrap/FloatingLabel';
+import { FormControl } from "react-bootstrap";
 
 const hoursList = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
 
@@ -56,11 +58,11 @@ const TableReservation = () => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
-        if (!fieldsAreValid()){
+        if (!fieldsAreValid()) {
             setShowLoader(false)
             return
         }
-        
+
         var date = new Date(chosenDate)
         var reservation = {
             person: personDetails,
@@ -103,8 +105,8 @@ const TableReservation = () => {
         if (!isDateInFuture(new Date(chosenDate), chosenHour))
             errors.push('Date and hour should be in future.')
 
-        if(errors.length > 0 ){
-            setPopupMessage({title: 'Error', messages: errors})
+        if (errors.length > 0) {
+            setPopupMessage({ title: 'Error', messages: errors })
             return false
         }
         return true
@@ -124,48 +126,62 @@ const TableReservation = () => {
             <form onSubmit={onSubmit}>
                 <div className="row">
                     <div className="col-md-6 form-group">
-                        <input type="text" name="name" className="form-control" placeholder="*Name" required
-                            value={personDetails.name} onChange={onChangeName} />
+                        <FloatingLabel controlId="floatingInput" label="*Name">
+                            <FormControl type="text" name="name" className="form-control" placeholder="*Name" required
+                                value={personDetails.name} onChange={onChangeName} />
+                        </FloatingLabel>
+
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
-                        <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
-                            value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
+                        <FloatingLabel label="*Phone Number">
+                            <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
+                                value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
+                        </FloatingLabel>
                     </div>
 
                 </div>
                 <div className="row form-group mt-3">
                     <div className="col-md-6 form-group">
-                        <input type="email" className="form-control" name="email" id="email" placeholder=" Email"
-                            value={personDetails.email} onChange={onChangeEmail} />
+                        <FloatingLabel label="Email">
+                            <input type="email" className="form-control" name="email" id="email" placeholder="Email"
+                                value={personDetails.email} onChange={onChangeEmail} />
+                        </FloatingLabel>
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
-                        <input type="number" className="form-control" placeholder="numberOfDiners" min={1} max={15}
-                            value={numberOfDiners} onChange={onChangeNumberOfDiners} />
+                        <FloatingLabel controlId="floatingDiners" label="Number of Diners">
+                            <input type="number" className="form-control" min={1} max={15}
+                                value={numberOfDiners} onChange={onChangeNumberOfDiners} />
+                        </FloatingLabel>
                     </div>
                 </div>
                 <div className="form-group mt-3">
                     <div className="row">
                         <div className="col-md-6 form-group">
-                            <input type="date" style={{ textAlign: "left" }} className="form-control"
-                                name="date" value={chosenDate} onChange={onChangeDate} required
-                                min={getCurrentDate()} max={getMaxDate()} />
+                            <FloatingLabel label="Choose Date">
+                                <input type="date" style={{ textAlign: "left" }} className="form-control"
+                                    name="date" value={chosenDate} onChange={onChangeDate} required
+                                    min={getCurrentDate()} max={getMaxDate()} />
+                            </FloatingLabel>
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
-                            <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
-                                <option disabled>Choose Hour</option>
-                                {
-                                    hoursList.map((item, key) => (
-                                        <option key={key} value={item}>{item}:00</option>
-                                    ))
-                                }
-                            </Form.Select>
+                            <FloatingLabel label="Choose Hour">
+                                <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
+                                    <option disabled>Choose Hour</option>
+                                    {
+                                        hoursList.map((item, key) => (
+                                            <option key={key} value={item}>{item}:00</option>
+                                        ))
+                                    }
+                                </Form.Select>
+                            </FloatingLabel>
                         </div>
-
                     </div>
                 </div>
                 <div className="form-group mt-3">
-                    <textarea className="form-control" name="message" rows="4" placeholder="Additional details"
-                        value={additionalDetails} onChange={onChangeAdditionalDetails} />
+                    <FloatingLabel label="Additional Details" >
+                        <textarea className="form-control" name="message" rows="4" placeholder="Additional Details"
+                            value={additionalDetails} onChange={onChangeAdditionalDetails}   style={{ height: '10rem' }}/>
+                    </FloatingLabel>
                 </div>
 
                 <div className="text-center mt-4">
