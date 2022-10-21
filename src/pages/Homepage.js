@@ -12,7 +12,7 @@ const Homepage = () => {
         <div className="row mt-5 gy-4 justify-content-center  pb-5">
             <div className="col col-6  col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
-                <Card.Link as ={Link} to="/order">
+                <Card.Link as ={Link} to="/order" style={{color:'black'}}>
                     <Card.Img variant="top" src={HungryImg} alt="Hungry man" />
                     <Card.Body>
                         <Card.Title >I'm Hungry</Card.Title>
@@ -21,8 +21,8 @@ const Homepage = () => {
                 </Card>
             </div>
             <div className="col col-6  col-sm-4  d-flex  justify-content-center ">
-                <Card className="text-center" style={{ width: '18rem' }}>
-                    <Card.Link as ={Link} to="/reservation">
+                <Card className="text-center " style={{ width: '18rem',  color:'black'}}>
+                    <Card.Link as ={Link} to="/reservation" style={{color:'black'}}>
                         <Card.Img variant="top" src={ReservationImg} alt="Table Reservation" />
                         <Card.Body>
                             <Card.Title >Book a Table</Card.Title>
@@ -32,7 +32,7 @@ const Homepage = () => {
             </div>
             <div className="col col-6 col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
-                    <Card.Img variant="top" src={EmployeeImg} alt="Employees" />
+                    <Card.Img variant="top" src={EmployeeImg} alt="Employees"  />
                     <Card.Body>
                         <Card.Title  >Employees Entrance</Card.Title>
                     </Card.Body>
