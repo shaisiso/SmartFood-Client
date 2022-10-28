@@ -94,7 +94,6 @@ const TableReservation = () => {
         setShowLoader(false)
     }
     const fieldsAreValid = () => {
-        // TODO: implelment validation
         var errors = []
         if (!isValidPhone(personDetails.phoneNumber))
             errors.push('Phone number must be 10 consecutive digits in format: 05xxxxxxxxx')
