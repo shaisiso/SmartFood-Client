@@ -45,7 +45,7 @@ const PopupMessage = (props) => {
         onClose={() => {
             if (props.onClose)
                 props.onClose()
-        }}
+        }}  
     >
 
         {close => (

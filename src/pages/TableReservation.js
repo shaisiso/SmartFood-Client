@@ -56,8 +56,7 @@ const TableReservation = () => {
     const onChangeNumberOfDiners = event => setNumberOfDiners(event.target.value)
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
 
-    const onFocusOutPhone = e=>{
-        e.preventDefault()
+    const onFocusOutPhone = ()=>{
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
         .then(res => {
          setPersonDetails(res.data)
@@ -138,7 +137,6 @@ const TableReservation = () => {
                             <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
                                 value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur ={onFocusOutPhone} />
                         </FloatingLabel>
-
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
                         <FloatingLabel controlId="floatingInput" label="*Name">
@@ -174,10 +172,9 @@ const TableReservation = () => {
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <FloatingLabel label="Choose Hour">
                                 <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
-                                    <option disabled>Choose Hour</option>
                                     {
                                         hoursList.map((item, key) => (
-                                            <option key={key} value={item}>{item}:00</option>
+                                            <option key={key} value={item} disabled = {!isDateInFuture(new Date(chosenDate), `${item}`)}>{item}:00</option>
                                         ))
                                     }
                                 </Form.Select>

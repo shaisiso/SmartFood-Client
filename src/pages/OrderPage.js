@@ -45,8 +45,7 @@ const OrderPage = () => {
     }
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
 
-    const onFocusOutPhone = e => {
-        e.preventDefault()
+    const onFocusOutPhone = () => {
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
             .then(res => {
                 setPersonDetails(res.data)

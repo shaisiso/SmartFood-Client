@@ -9,6 +9,8 @@
 export const SERVER_PORT = "8080"
 export const API_URL = `http://10.100.102.20:${SERVER_PORT}`//`http://localhost:${SERVER_PORT}`;
 
+
+//functions
 export function formatDateForBrowser(date) {
     let year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
     let month = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(date);
@@ -38,10 +40,8 @@ export function isValidName(name) {
 }
 export function isDateInFuture(date, hour) {
     let currentDate = new Date()
-    var hourForDate = parseInt(hour.substr(0, 2))
+    let hourForDate = typeof (hour) === "string" ?   parseInt(hour.substr(0, 2)) : hour ; 
     date.setHours(hourForDate)
-    console.log(date)
-    console.log(new Date())
     if (date > currentDate)
         return true
     else
@@ -55,9 +55,9 @@ export function categoryForReading(actualCategory) {
 }
 export function categoryForClass(toStringCategory) {
     return toStringCategory.split(" ")
-        .map(word =>word.toUpperCase())
+        .map(word => word.toUpperCase())
         .join("_")
 }
-export function toText(str){
-    return str ? str: "" 
+export function toText(str) {
+    return str ? str : ""
 }
