@@ -58,3 +58,6 @@ export function categoryForClass(toStringCategory) {
         .map(word =>word.toUpperCase())
         .join("_")
 }
+export function toText(str){
+    return str ? str: "" 
+}
