@@ -12,14 +12,14 @@ const EmployeeLogin = props => {
             <div className="section-title">
                 <h4 style={{ color: "black" }}><u>Employees Login</u></h4>
             </div>
-            <div className="row d-flex align-items-center mb-4 mx-auto text-center" >
+            <div className="row d-flex align-items-center mb-3 mx-auto text-center" >
                 <div className="col col-5 d-none d-lg-block me-4 ">
                     <img className="img-fluid" src={EmployeeImg} alt="Employees Login" />
                 </div>
                 <div className="col col-lg-6 col-md-8 col-sm-10 col-12 mx-auto ">
                     <div className="row ">
                         <Form onSubmit={onSubmit}  >
-                            <div className=" ">
+                            <div >
                                 <FloatingLabel label="Phone Number" >
                                     <input type="tel" className="form-control" placeholder="Phone Number" required
                                     />
@@ -31,6 +31,9 @@ const EmployeeLogin = props => {
                                     <input type="tel" className="form-control" name="subject" placeholder="Password" required
                                     />
                                 </FloatingLabel>
+                            </div>
+                            <div className="row mt-3 mx-auto">
+                                <input type="submit" className="btn btn-primary" value="Login" />
                             </div>
                         </Form>
                     </div>
