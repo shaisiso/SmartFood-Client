@@ -4,7 +4,9 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import ItemsToOrder from "../components/ItemsToOrder";
 import PopupMessage from "../components/PopupMessage";
-import { isValidName, isValidPhone } from '../utility/Utils'
+import { API_URL, isValidName, isValidPhone } from '../utility/Utils'
+import Axios from 'axios';
+
 const OrderPage = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
     const [additionalDetails, setAdditionalDetails] = useState('')
@@ -33,7 +35,6 @@ const OrderPage = () => {
     const onChangeAddress = event => {
         let newAddress = personDetails.address
         newAddress[event.target.name] = event.target.value
-        console.log(personDetails)
         setPersonDetails(
             {
                 ...personDetails,
@@ -41,6 +42,14 @@ const OrderPage = () => {
             })
     }
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
+
+    const onFocusOutPhone = e=>{
+       e.preventDefault()
+       Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
+       .then(res => {
+        setPersonDetails(res.data)
+       })
+    }
 
     const onSubmit = (e) => {
         e.preventDefault()
@@ -97,14 +106,14 @@ const OrderPage = () => {
                         <div className="col-md-6 form-group">
                             <FloatingLabel label="*Phone Number">
                                 <input type="tel" className="form-control" name="subject" placeholder="*Phone Number" required
-                                    value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
+                                    value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur  ={onFocusOutPhone} />
                             </FloatingLabel>
                         </div>
                     </div>
                     <div className="d-flex justify-content-center form-group mt-3">
                         <div className="col-md-6 form-group">
                             <FloatingLabel controlId="floatingInput" label="*Name">
-                                <FormControl type="text" name="name" className="form-control" placeholder="Name" required
+                                <FormControl type="text" name="name" className="form-control"  required placeholder="*Name"
                                     value={personDetails.name} onChange={onChangeName} />
                             </FloatingLabel>
                         </div>
@@ -131,7 +140,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="*House Number">
-                                            <input type="number" className="form-control" placeholder="*House Number" name='houseNumber'
+                                            <input type="text" className="form-control" placeholder="*House Number" name='houseNumber'
                                                 value={personDetails.address.houseNumber} onChange={onChangeAddress} required />
                                         </FloatingLabel>
                                     </div>
@@ -139,7 +148,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Entrance">
-                                            <input type="text" className="form-control" placeholder="Entrance" name='entrance'
+                                            <input type="text" className="form-control" name='entrance'
                                                 value={personDetails.address.entrance} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
@@ -147,7 +156,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Apartment Number">
-                                            <input type="number" className="form-control" placeholder="Apartment Number" name='apartmentNumber'
+                                            <input type="text" className="form-control" name='apartmentNumber'
                                                 value={personDetails.address.apartmentNumber} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
@@ -155,7 +164,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Additional Details" >
-                                            <textarea className="form-control" name="message" rows="4" placeholder="Additional Details"
+                                            <textarea className="form-control" name="message" rows="4" 
                                                 value={additionalDetails} onChange={onChangeAdditionalDetails} style={{ height: '10rem' }} />
                                         </FloatingLabel>
                                     </div>

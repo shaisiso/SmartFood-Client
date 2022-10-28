@@ -55,6 +55,15 @@ const TableReservation = () => {
     const onChangeHour = event => setChosenHour(`${event.target.value}:00`)
     const onChangeNumberOfDiners = event => setNumberOfDiners(event.target.value)
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
+
+    const onFocusOutPhone = e=>{
+        e.preventDefault()
+        Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
+        .then(res => {
+         setPersonDetails(res.data)
+        })
+     }
+
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
@@ -125,16 +134,16 @@ const TableReservation = () => {
             <form onSubmit={onSubmit}>
                 <div className="row">
                     <div className="col-md-6 form-group">
-                        <FloatingLabel controlId="floatingInput" label="*Name">
-                            <FormControl type="text" name="name" className="form-control" placeholder="*Name" required
-                                value={personDetails.name} onChange={onChangeName} />
+                        <FloatingLabel label="*Phone Number">
+                            <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
+                                value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur ={onFocusOutPhone} />
                         </FloatingLabel>
 
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
-                        <FloatingLabel label="*Phone Number">
-                            <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
-                                value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
+                        <FloatingLabel controlId="floatingInput" label="*Name">
+                            <FormControl type="text" name="name" className="form-control" placeholder="*Name" required
+                                value={personDetails.name} onChange={onChangeName} />
                         </FloatingLabel>
                     </div>
 
@@ -142,7 +151,7 @@ const TableReservation = () => {
                 <div className="row form-group mt-3">
                     <div className="col-md-6 form-group">
                         <FloatingLabel label="Email">
-                            <input type="email" className="form-control" name="email" id="email" placeholder="Email"
+                            <input type="email" className="form-control" name="email" id="email" 
                                 value={personDetails.email} onChange={onChangeEmail} />
                         </FloatingLabel>
                     </div>
@@ -178,8 +187,8 @@ const TableReservation = () => {
                 </div>
                 <div className="form-group mt-3">
                     <FloatingLabel label="Additional Details" >
-                        <textarea className="form-control" name="message" rows="4" placeholder="Additional Details"
-                            value={additionalDetails} onChange={onChangeAdditionalDetails}   style={{ height: '10rem' }}/>
+                        <textarea className="form-control" name="message" rows="4" 
+                            value={additionalDetails} onChange={onChangeAdditionalDetails} style={{ height: '10rem' }} />
                     </FloatingLabel>
                 </div>
 
