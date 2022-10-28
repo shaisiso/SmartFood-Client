@@ -11,8 +11,10 @@ const OrderPage = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [selectedRadio, setSelected] = useState('Take-Away');
-    const [showOrderDetails, setShowOrderDetails] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [disableForm, setDisableForm] = useState(false);
+    const [detailsButtonText, setButtonText] = useState('Continue');
 
     const onChangeRadio = event => {
         setSelected(event.target.value);
@@ -53,10 +55,18 @@ const OrderPage = () => {
 
     const onSubmit = (e) => {
         e.preventDefault()
-        if (!fieldsAreValid()) {
-            return
+        if (disableForm){ // need to enable form
+            setDisableForm(false)
+            setButtonText("Continue") 
+        }else{ //validate details and disable form
+            if (!fieldsAreValid()) {
+                return
+            }
+            setShowMenu(true)
+            setDisableForm(true)
+            setButtonText("Change Details") 
         }
-        setShowOrderDetails(true)
+
     }
     const fieldsAreValid = () => {
         var errors = []
@@ -75,11 +85,11 @@ const OrderPage = () => {
 
     return (
         <div className="row g-1">
-            <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }}>
+            <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }} >
                 <div className="section-title">
                     <h4 style={{ color: "black" }}><u>Your Details</u></h4>
                 </div>
-                <Form onSubmit={onSubmit}>
+                <Form onSubmit={onSubmit} >
                     <div className="d-flex justify-content-center mb-3">
                         <Form.Check
                             inline
@@ -90,6 +100,7 @@ const OrderPage = () => {
                             value="Take-Away"
                             checked={selectedRadio === 'Take-Away'}
                             onChange={onChangeRadio}
+                            disabled ={disableForm }
                         />
                         <Form.Check
                             inline
@@ -100,12 +111,13 @@ const OrderPage = () => {
                             value="Delivery"
                             checked={selectedRadio === 'Delivery'}
                             onChange={onChangeRadio}
+                            disabled ={disableForm }
                         />
                     </div>
                     <div className="d-flex justify-content-center">
                         <div className="col-md-6 form-group">
-                            <FloatingLabel label="*Phone Number">
-                                <input type="tel" className="form-control" name="subject" placeholder="*Phone Number" required
+                            <FloatingLabel label="*Phone Number" >
+                                <input type="tel" className="form-control" name="subject" placeholder="*Phone Number" required disabled ={disableForm}
                                     value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur  ={onFocusOutPhone} />
                             </FloatingLabel>
                         </div>
@@ -113,7 +125,7 @@ const OrderPage = () => {
                     <div className="d-flex justify-content-center form-group mt-3">
                         <div className="col-md-6 form-group">
                             <FloatingLabel controlId="floatingInput" label="*Name">
-                                <FormControl type="text" name="name" className="form-control"  required placeholder="*Name"
+                                <FormControl type="text" name="name" className="form-control"  required placeholder="*Name" disabled ={disableForm}
                                     value={personDetails.name} onChange={onChangeName} />
                             </FloatingLabel>
                         </div>
@@ -124,7 +136,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="*City">
-                                            <input type="text" className="form-control" placeholder="*City" name="city"
+                                            <input type="text" className="form-control" placeholder="*City" name="city" disabled ={disableForm}
                                                 value={personDetails.address.city} onChange={onChangeAddress} required />
                                         </FloatingLabel>
                                     </div>
@@ -132,7 +144,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="*Street Name">
-                                            <input type="text" className="form-control" placeholder="*Street Name" name = "streetName"
+                                            <input type="text" className="form-control" placeholder="*Street Name" name = "streetName" disabled ={disableForm}
                                                 value={personDetails.address.streetName} onChange={onChangeAddress} required />
                                         </FloatingLabel>
                                     </div>
@@ -140,7 +152,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="*House Number">
-                                            <input type="text" className="form-control" placeholder="*House Number" name='houseNumber'
+                                            <input type="text" className="form-control" placeholder="*House Number" name='houseNumber' disabled ={disableForm}
                                                 value={personDetails.address.houseNumber} onChange={onChangeAddress} required />
                                         </FloatingLabel>
                                     </div>
@@ -148,7 +160,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Entrance">
-                                            <input type="text" className="form-control" name='entrance'
+                                            <input type="text" className="form-control" name='entrance' disabled ={disableForm}
                                                 value={personDetails.address.entrance} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
@@ -156,7 +168,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Apartment Number">
-                                            <input type="text" className="form-control" name='apartmentNumber'
+                                            <input type="text" className="form-control" name='apartmentNumber' disabled ={disableForm}
                                                 value={personDetails.address.apartmentNumber} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
@@ -164,7 +176,7 @@ const OrderPage = () => {
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Additional Details" >
-                                            <textarea className="form-control" name="message" rows="4" 
+                                            <textarea className="form-control" name="message" rows="4"  disabled ={disableForm}
                                                 value={additionalDetails} onChange={onChangeAdditionalDetails} style={{ height: '10rem' }} />
                                         </FloatingLabel>
                                     </div>
@@ -175,14 +187,14 @@ const OrderPage = () => {
                             null
                     }
                     <div className="text-center mt-4">
-                        <input type="submit" value="Continue"
-                            className="btn btn-primary btn-user btn-block"
+                        <input type="submit" value={detailsButtonText}
+                            className={disableForm ? "btn btn-secondary btn-user btn-block" : "btn btn-primary btn-user btn-block"}
                         />
                     </div>
                 </Form>
             </div>
             {
-                showOrderDetails ?
+                showMenu ?
                     <ItemsToOrder />
                     :
                     null
