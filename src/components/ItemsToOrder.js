@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import { API_URL } from '../utility/Utils';
+import { API_URL, toText } from '../utility/Utils';
 import Accordion from 'react-bootstrap/Accordion';
 import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
@@ -35,14 +35,14 @@ function CustomToggle({ children, eventKey, name }) {
     );
 }
 
-const ItemsToOrder = (orderUserDetails) => {
+const ItemsToOrder = (props) => {
     const [menu, setMenu] = useState([])
     const [categories, setCategories] = useState([])
     const [showLoader, setShowLoader] = useState(true)
     const [chosenItems, setChosenItems] = useState([])
-    const [errorMessage, setErrorMessage] = useState('');
+    const [popupMessage, setPopupMessage] = useState({ header: '', body: { topText: '', items: [''], bottomText: '' } })
 
-    
+
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -65,11 +65,11 @@ const ItemsToOrder = (orderUserDetails) => {
                     errMsg = err.message
                 }
                 console.log(errMsg)
-                setErrorMessage(errMsg)
+                setPopupMessage({ header: 'Error', messages: [errMsg] })
             })
         setShowLoader(false)
-
     }
+
     const clickOnItem = menuItem => {
         var oldChosen = chosenItems
         menuItem.quantity = 1
@@ -102,13 +102,31 @@ const ItemsToOrder = (orderUserDetails) => {
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItems.filter(item => item !== itemToDelete))
     }
-    const onClickSendOrder = (e)=>{
+    const onClickSendOrder = (e) => {
         e.preventDefault();
-        console.log('send')
+        // TODO: Send order to server. (Add payment)
+
+        setOrderinPopup()
+    }
+    const setOrderinPopup =()=>{
+        let person = props.orderUserDetails.personDetails
+        let personString = `${person.name} - ${person.phoneNumber}`
+        personString += props.orderUserDetails.type === 'Delivery' ? `, ${person.address.city} ${person.address.streetName} ${person.address.houseNumber} ${toText(person.address.entrance)} ${toText(person.address.apartmentNumber)}` : ""
+        let itemString = []
+        chosenItems.forEach(i => itemString.push(`${i.quantity} ${i.name} - ${i.price}₪`))
+        let price = `Total Price: ${chosenItems.reduce((total, item) => total + item.price, 0)}₪ `
+        setPopupMessage(
+            {
+                header: `Order Details: ${props.orderUserDetails.type}`,
+                body: { topText: personString, items: [...itemString], bottomText: `${price}. We will send SMS message when it is ready.` }
+            }
+        )
+    }
+    const cleanAll = ()=>{
+        window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
     }
     return (
         <div className="row g-1">
-
             <div className="col col-lg-6 col-sm-12 col-12  me-1" style={{ backgroundColor: "#ffffff90", minHeight: '29rem' }}>
                 <div className="container p-3" >
                     <h4 className="text-center mb-4"><u>Choose Items</u></h4>
@@ -196,7 +214,7 @@ const ItemsToOrder = (orderUserDetails) => {
                         chosenItems.length > 0 ?
                             <div className="text-center mt-3">
                                 <button className="btn btn-primary btn-user btn-block justify-content-center text-center"
-                               onClick={onClickSendOrder}>Send Order</button>
+                                    onClick={onClickSendOrder}>Send Order</button>
                             </div>
                             :
                             null
@@ -206,23 +224,45 @@ const ItemsToOrder = (orderUserDetails) => {
                 </div>
             </div>
             {
-                errorMessage ?
+                popupMessage.header ?
                     <PopupMessage
-                        title="Error"
+                        title={popupMessage.header}
                         body={
-                            <div className="text-black" style={{ fontSize: '1.2rem' }}>{errorMessage}</div>
+                            <div style={{ fontSize: '1.2rem' }}>
+                                <div >{popupMessage.body.topText}</div>
+                                <ul>
+                                    {
+                                        popupMessage.body.items.map((message, key) => (
+                                            <li key={key} className="mt-2" >
+                                                {message}
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                                <h5>{popupMessage.body.bottomText}</h5>
+                            </div>
+
                         }
                         onClose={() => {
-                            setErrorMessage('')
+                            cleanAll()
                         }}
-                        status='error'
+                        status={popupMessage.header === 'Error' ?
+                            'error'
+                            :
+                            popupMessage.header.includes('Order Details') ?
+                                'success'
+                                :
+                                'info'
+                        }
+                        closeOnlyWithBtn
+                        withOk
+                        navigateTo="/order"
+                        okBtnText="Go To Homepage"
                     >
-
                     </PopupMessage>
                     :
                     null
             }
-
         </div >
 
     );
