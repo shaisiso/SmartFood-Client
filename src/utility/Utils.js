@@ -31,7 +31,7 @@ export function formatDateWithSlash(date) {
     return `${day}/${month}/${year}`
 }
 export function isValidPhone(phone) {
-    return /[0][5][0-9]{8}/.test(phone)
+    return /[0][5][0-9]{8}$/.test(phone)
 }
 export function isValidName(name) {
     return /[a-zA-Z\s-]{2,}/.test(name)
