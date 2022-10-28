@@ -256,7 +256,7 @@ const ItemsToOrder = (props) => {
                         }
                         closeOnlyWithBtn
                         withOk
-                        navigateTo="/order"
+                        navigateTo="/"
                         okBtnText="Go To Homepage"
                     >
                     </PopupMessage>

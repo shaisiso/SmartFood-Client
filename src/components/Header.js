@@ -1,5 +1,5 @@
 import React from 'react';
-import SmartFood from '../assets/SmartFood.png';
+import SmartFood from '../assets/logos/SmartFood.png';
 
 const Header = () => {
     return (

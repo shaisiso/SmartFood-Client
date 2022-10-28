@@ -5,7 +5,7 @@ import Homepage from './pages/Homepage';
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import MenuPage from './pages/MenuPage';
 import NavbarRestaurant from './components/NavbarRestaurant';
-import RestaurantImg from './assets/res4.png'
+import RestaurantImg from './assets/backgrounds/restaurant.png'
 import Header from './components/Header';
 import TableReservation from './pages/TableReservation';
 import OrderPage from './pages/OrderPage';

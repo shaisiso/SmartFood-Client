@@ -1,4 +1,4 @@
-import BackgroundImg from '../assets/background.jpg'
+import BackgroundImg from '../assets/backgrounds/white_bg.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';

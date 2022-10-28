@@ -1,8 +1,8 @@
 import React from 'react';
 
-import HungryImg from '../assets/hungry.jpg'
-import EmployeeImg from '../assets/employee.jpg'
-import ReservationImg from '../assets/reservation.jpg'
+import HungryImg from '../assets/img/hungry.jpg'
+import EmployeeImg from '../assets/img/employee.jpg'
+import ReservationImg from '../assets/img/reservation.jpg'
 import { Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 

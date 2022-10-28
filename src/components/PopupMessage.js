@@ -3,9 +3,9 @@ import Popup from 'reactjs-popup';
 import 'reactjs-popup/dist/index.css';
 import { Link } from "react-router-dom";
 //import { useState } from 'react';
-import { ReactComponent as ErrorSvg } from "../assets/pop-error.svg";
-import { ReactComponent as SuccessSvg } from "../assets/pop-success.svg";
-import { ReactComponent as InfoSvg } from "../assets/pop-info.svg";
+import { ReactComponent as ErrorSvg } from "../assets/icons/pop-error.svg";
+import { ReactComponent as SuccessSvg } from "../assets/icons/pop-success.svg";
+import { ReactComponent as InfoSvg } from "../assets/icons/pop-info.svg";
 
 const PopupMessage = (props) => {
    // const [navigate, setNavigate] = useState(false);

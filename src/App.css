@@ -7,7 +7,7 @@
   pointer-events: none;
 }
 .homepage-bgimage {
-  background: url("./assets/background.jpg");
+  background: url("./assets/backgrounds/white_bg.jpg");
   height: 100vh;
   background-position: center;
   background-repeat: no-repeat;
