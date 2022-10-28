@@ -3,12 +3,14 @@ import { FormControl } from "react-bootstrap";
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import ItemsToOrder from "../components/ItemsToOrder";
-
+import PopupMessage from "../components/PopupMessage";
+import { isValidName, isValidPhone } from '../utility/Utils'
 const OrderPage = () => {
-    const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: '' })
+    const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [selectedRadio, setSelected] = useState('Take-Away');
     const [showOrderDetails, setShowOrderDetails] = useState(false);
+    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
 
     const onChangeRadio = event => {
         setSelected(event.target.value);
@@ -29,18 +31,39 @@ const OrderPage = () => {
             })
     }
     const onChangeAddress = event => {
+        let newAddress = personDetails.address
+        newAddress[event.target.name] = event.target.value
+        console.log(personDetails)
         setPersonDetails(
             {
                 ...personDetails,
-                address: event.target.value
+                address: newAddress
             })
     }
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
 
     const onSubmit = (e) => {
         e.preventDefault()
+        if (!fieldsAreValid()) {
+            return
+        }
         setShowOrderDetails(true)
     }
+    const fieldsAreValid = () => {
+        var errors = []
+        if (!isValidPhone(personDetails.phoneNumber))
+            errors.push('Phone number must be 10 consecutive digits in format: 05xxxxxxxxx')
+
+        if (!isValidName(personDetails.name))
+            errors.push('Name must have at least 2 letters and contain only letters in english.')
+
+        if (errors.length > 0) {
+            setPopupMessage({ title: 'Error', messages: errors })
+            return false
+        }
+        return true
+    }
+
     return (
         <div className="row g-1">
             <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }}>
@@ -72,17 +95,17 @@ const OrderPage = () => {
                     </div>
                     <div className="d-flex justify-content-center">
                         <div className="col-md-6 form-group">
-                            <FloatingLabel controlId="floatingInput" label="Name">
-                                <FormControl type="text" name="name" className="form-control" placeholder="Name" required
-                                    value={personDetails.name} onChange={onChangeName} />
+                            <FloatingLabel label="*Phone Number">
+                                <input type="tel" className="form-control" name="subject" placeholder="*Phone Number" required
+                                    value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
                             </FloatingLabel>
                         </div>
                     </div>
                     <div className="d-flex justify-content-center form-group mt-3">
                         <div className="col-md-6 form-group">
-                            <FloatingLabel label="Phone Number">
-                                <input type="phone" className="form-control" name="subject" placeholder="Phone Number" required
-                                    value={personDetails.phoneNumber} onChange={onChangePhoneNumber} />
+                            <FloatingLabel controlId="floatingInput" label="*Name">
+                                <FormControl type="text" name="name" className="form-control" placeholder="Name" required
+                                    value={personDetails.name} onChange={onChangeName} />
                             </FloatingLabel>
                         </div>
                     </div>
@@ -91,9 +114,41 @@ const OrderPage = () => {
                             <>
                                 <div className="d-flex justify-content-center form-group mt-3">
                                     <div className="col-md-6 form-group">
-                                        <FloatingLabel label="Address">
-                                            <input type="email" className="form-control" name="email" id="email" placeholder="Email"
-                                                value={personDetails.address} onChange={onChangeAddress} required/>
+                                        <FloatingLabel label="*City">
+                                            <input type="text" className="form-control" placeholder="*City" name="city"
+                                                value={personDetails.address.city} onChange={onChangeAddress} required />
+                                        </FloatingLabel>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-center form-group mt-3">
+                                    <div className="col-md-6 form-group">
+                                        <FloatingLabel label="*Street Name">
+                                            <input type="text" className="form-control" placeholder="*Street Name" name = "streetName"
+                                                value={personDetails.address.streetName} onChange={onChangeAddress} required />
+                                        </FloatingLabel>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-center form-group mt-3">
+                                    <div className="col-md-6 form-group">
+                                        <FloatingLabel label="*House Number">
+                                            <input type="number" className="form-control" placeholder="*House Number" name='houseNumber'
+                                                value={personDetails.address.houseNumber} onChange={onChangeAddress} required />
+                                        </FloatingLabel>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-center form-group mt-3">
+                                    <div className="col-md-6 form-group">
+                                        <FloatingLabel label="Entrance">
+                                            <input type="text" className="form-control" placeholder="Entrance" name='entrance'
+                                                value={personDetails.address.entrance} onChange={onChangeAddress} />
+                                        </FloatingLabel>
+                                    </div>
+                                </div>
+                                <div className="d-flex justify-content-center form-group mt-3">
+                                    <div className="col-md-6 form-group">
+                                        <FloatingLabel label="Apartment Number">
+                                            <input type="number" className="form-control" placeholder="Apartment Number" name='apartmentNumber'
+                                                value={personDetails.address.apartmentNumber} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
                                 </div>
@@ -120,6 +175,38 @@ const OrderPage = () => {
             {
                 showOrderDetails ?
                     <ItemsToOrder />
+                    :
+                    null
+            }
+            {
+                popupMessage.title ?
+                    <PopupMessage
+                        title={popupMessage.title}
+                        body={
+                            <ul>
+                                {
+                                    popupMessage.messages.map((message, key) => (
+                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
+                                            {message}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        }
+                        onClose={() => {
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        status={popupMessage.title === 'Error' ?
+                            'error'
+                            :
+                            popupMessage.title === 'New Order' ?
+                                'success'
+                                :
+                                'info'
+                        }
+                        closeOnlyWithBtn
+                    >
+                    </PopupMessage>
                     :
                     null
             }
