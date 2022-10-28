@@ -1,6 +1,6 @@
 import React from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
-import EmployeeImg from '../assets/img/employeeLogin.webp'
+import EmployeeImg from '../assets/img/employeeLogin.png'
 
 const EmployeeLogin = props => {
     const onSubmit = (e) => {
