@@ -9,6 +9,7 @@ import RestaurantImg from './assets/res4.png'
 import Header from './components/Header';
 import TableReservation from './pages/TableReservation';
 import OrderPage from './pages/OrderPage';
+import EmployeeLogin from './pages/EmployeeLogin';
 
 function App() {
   return (
@@ -30,6 +31,9 @@ function App() {
             </Route>
             <Route path="/order"
               element={<OrderPage />}>
+            </Route>
+            <Route path="/login"
+              element={<EmployeeLogin />}>
             </Route>
           </Routes>
         </div>

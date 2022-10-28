@@ -13,7 +13,7 @@ import Form from 'react-bootstrap/Form';
 
 function CustomToggle({ children, eventKey, name }) {
     const decoratedOnClick = useAccordionButton(eventKey, () =>
-        console.log('totally custom!'),
+        console.log('custom toggle!'),
     );
 
     return (
@@ -108,7 +108,7 @@ const ItemsToOrder = (props) => {
 
         setOrderinPopup()
     }
-    const setOrderinPopup =()=>{
+    const setOrderinPopup = () => {
         let person = props.orderUserDetails.personDetails
         let personString = `${person.name} - ${person.phoneNumber}`
         personString += props.orderUserDetails.type === 'Delivery' ? `, ${person.address.city} ${person.address.streetName} ${person.address.houseNumber} ${toText(person.address.entrance)} ${toText(person.address.apartmentNumber)}` : ""
@@ -122,7 +122,7 @@ const ItemsToOrder = (props) => {
             }
         )
     }
-    const cleanAll = ()=>{
+    const cleanAll = () => {
         window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
     }
     return (

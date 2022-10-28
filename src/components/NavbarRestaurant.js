@@ -31,7 +31,7 @@ const NavbarRestaurant = () => {
                         </Nav.Item>
                     </Nav>
                     <Nav className="navbar-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
-                        <Nav.Link eventKey="6" as={Link} to="/">Employee Login</Nav.Link>
+                        <Nav.Link eventKey="6" as={Link} to="/login">Employee Login</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
 
