@@ -5,17 +5,19 @@ import { ReactComponent as TasksSvg } from '../assets/icons/tasks.svg'
 import { ReactComponent as MenuSvg } from '../assets/icons/menu.svg'
 import { ReactComponent as TableSvg } from '../assets/icons/tables.svg'
 import { ReactComponent as ManagementSvg } from '../assets/icons/management.svg'
+import { ReactComponent as CutlerytSvg } from '../assets/icons/cutlery.svg'
 const SideNavbar = () => {
     return (
         <ul className="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
-            <Link className="sidebar-brand d-flex align-items-center justify-content-center" to={'/'}>
-                {/* <WebshopSvg width="48" height="48" /> */}
-                <div className="sidebar-brand-text ml-1">Smart Food </div>
+            <Link className=" d-flex align-items-center justify-content-center my-3" to={'/employee'} style={{ fontFamily: 'Pacifico',color:'white',textDecoration: 'none', fontSize:'1.3rem'}}>
+                <div className="mx-3" >Smart Food </div>
+                <CutlerytSvg width="36" height="36" /> 
+
             </Link>
 
             <hr className="sidebar-divider my-0" />
 
-            <li className="nav-item active">
+            {/* <li className="nav-item active">
                 <Link className="nav-link" to={'/'}>
                     <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="#E5E4E2" className="bi bi-speedometer" viewBox="0 0 16 16">
                         <path d="M8 2a.5.5 0 0 1 .5.5V4a.5.5 0 0 1-1 0V2.5A.5.5 0 0 1 8 2zM3.732 3.732a.5.5 0 0 1 .707 0l.915.914a.5.5 0 1 1-.708.708l-.914-.915a.5.5 0 0 1 0-.707zM2 8a.5.5 0 0 1 .5-.5h1.586a.5.5 0 0 1 0 1H2.5A.5.5 0 0 1 2 8zm9.5 0a.5.5 0 0 1 .5-.5h1.5a.5.5 0 0 1 0 1H12a.5.5 0 0 1-.5-.5zm.754-4.246a.389.389 0 0 0-.527-.02L7.547 7.31A.91.91 0 1 0 8.85 8.569l3.434-4.297a.389.389 0 0 0-.029-.518z" />
@@ -25,12 +27,11 @@ const SideNavbar = () => {
                         Dashboard
                     </span>
                 </Link>
-
-            </li>
+            </li> */}
 
             <hr className="sidebar-divider" />
 
-            <div className="sidebar-heading text-white">
+            <div className="sidebar-heading text-white mt-3 mb-2">
                 Operation:
             </div>
 
@@ -55,7 +56,7 @@ const SideNavbar = () => {
                 </Link>
             </li>
             <li className="nav-item">
-                <Link className="nav-link" to={'#'}>
+                <Link className="nav-link" to={'/employee/menu'}>
                     <MenuSvg width="24" height="24" />
                     <span className="mx-2">Menu</span>
                 </Link>

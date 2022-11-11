@@ -60,7 +60,7 @@ function App() {
                   <EmployeeLogin onLogin={onLogin} />
               }>
             </Route>
-            <Route path="/employee"
+            <Route path="/employee/*"
               element={
                 isLogged ?
                   <EmployeeHomepage />

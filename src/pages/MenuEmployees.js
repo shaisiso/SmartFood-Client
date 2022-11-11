@@ -1,10 +1,10 @@
 import React from 'react';
 import Menu from '../components/Menu';
 
-const MenuPage = () => {
+const MenuEmployees = () => {
     return (
-        <Menu />
+        <Menu/>
     );
 };
 
-export default MenuPage;
+export default MenuEmployees;

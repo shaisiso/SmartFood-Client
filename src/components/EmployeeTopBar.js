@@ -21,7 +21,7 @@ const EmployeeTopBar = (props) => {
                 <UserSvg width="48" height="48" />
               </Dropdown.Toggle>
               <Dropdown.Menu style={{ margin: 0 }}>
-                <Dropdown.Item as={Link} to="/">
+                <Dropdown.Item as={Link} to="#">
                   <ProfileSvg width="12" height="12" />
                   &nbsp; Profile
                 </Dropdown.Item>
@@ -34,27 +34,6 @@ const EmployeeTopBar = (props) => {
           </div>
         </ul>
       </nav>
-        // <nav className="navbar navbar-expand navbar-light bg-dark topbar static-top shadow " style={{ color: 'white' }}>
-        //     <ul className="navbar-nav ml-auto">
-        //         <div className="topbar-divider d-none d-sm-block" />
-        //         <div className="mr-20 text-white-600 small" style={{ color: 'white' }}>
-        //             <Dropdown style={{ color: 'white' }}>
-        //                 <Dropdown.Toggle variant="transparent" style={{ color: 'white' }}>
-        //                     Lorem ipsum &nbsp; &nbsp;
-        //                     <UserSvg width="48" height="48" />
-        //                 </Dropdown.Toggle>
-        //                 <Dropdown.Menu style={{ margin: 0, color: 'white', backgroundColor: 'grey' }}>
-        //                     <Dropdown.Item as={Link} to="#">
-        //                        <span><ProfileSvg width="12" height="12" /> &nbsp; Profile</span> 
-        //                     </Dropdown.Item>
-        //                     <Dropdown.Item onClick={onLogout}>
-        //                         <span> <LogoutSvg width="12" height="12" /> &nbsp; Logout </span>
-        //                     </Dropdown.Item>
-        //                 </Dropdown.Menu>
-        //             </Dropdown>
-        //         </div>
-        //     </ul>
-        // </nav>
     );
 };
 
