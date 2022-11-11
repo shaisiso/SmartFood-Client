@@ -185,10 +185,12 @@ const OrderPage = () => {
                             :
                             null
                     }
-                    <div className="text-center mt-4">
-                        <input type="submit" value={detailsButtonText}
-                            className={disableForm ? "btn btn-secondary btn-user btn-block" : "btn btn-primary btn-user btn-block"}
-                        />
+                    <div className="d-flex justify-content-center form-group mt-3">
+                        <div className="col-md-6 form-group">
+                            <input type="submit" value={detailsButtonText}
+                                className={disableForm ? "btn btn-secondary btn-user btn-block" : "btn btn-primary btn-user btn-block"}
+                            />
+                        </div>
                     </div>
                 </Form>
             </div>
@@ -216,7 +218,7 @@ const OrderPage = () => {
                         onClose={() => {
                             setPopupMessage({ title: '', messages: [''] })
                         }}
-                        status={popupMessage.title === 'Error' ? 'error'  : 'info'
+                        status={popupMessage.title === 'Error' ? 'error' : 'info'
                         }
                         closeOnlyWithBtn
                     >

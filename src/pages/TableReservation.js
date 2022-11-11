@@ -56,12 +56,12 @@ const TableReservation = () => {
     const onChangeNumberOfDiners = event => setNumberOfDiners(event.target.value)
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
 
-    const onFocusOutPhone = ()=>{
+    const onFocusOutPhone = () => {
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
-        .then(res => {
-         setPersonDetails(res.data)
-        })
-     }
+            .then(res => {
+                setPersonDetails(res.data)
+            })
+    }
 
     const onSubmit = async (e) => {
         e.preventDefault();
@@ -73,7 +73,7 @@ const TableReservation = () => {
 
         var date = new Date(chosenDate)
         var reservation = {
-            person: personDetails,
+            customer: personDetails,
             date: formatDateForServer(date),
             hour: chosenHour,
             numberOfDiners: numberOfDiners
@@ -82,16 +82,14 @@ const TableReservation = () => {
             .then((data) => {
                 setPopupMessage({
                     title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
-                        `Phone Number: ${personDetails.phoneNumber}`, `At: ${chosenHour} ${formatDateWithSlash(date)}`,
+                        `Phone Number: ${personDetails.phoneNumber}`, `At: ${formatDateWithSlash(date)} - ${chosenHour}`,
                         `Diners: ${numberOfDiners}`]
                 })
                 cleanForm()
             }).catch(err => {
-                console.log(err)
                 var errMsg;
                 if (err.response.data) {
-                    console.log(Object.values(err.response.data));
-                    errMsg = Object.values(err.response.data);
+                    errMsg = Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`);
                 }
                 else {
                     errMsg = [err.message]
@@ -135,7 +133,7 @@ const TableReservation = () => {
                     <div className="col-md-6 form-group">
                         <FloatingLabel label="*Phone Number">
                             <input type="phone" className="form-control" name="subject" placeholder="*Phone Number" required
-                                value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur ={onFocusOutPhone} />
+                                value={personDetails.phoneNumber} onChange={onChangePhoneNumber} onBlur={onFocusOutPhone} />
                         </FloatingLabel>
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
@@ -149,7 +147,7 @@ const TableReservation = () => {
                 <div className="row form-group mt-3">
                     <div className="col-md-6 form-group">
                         <FloatingLabel label="Email">
-                            <input type="email" className="form-control" name="email" id="email" 
+                            <input type="email" className="form-control" name="email" id="email"
                                 value={personDetails.email} onChange={onChangeEmail} />
                         </FloatingLabel>
                     </div>
@@ -174,7 +172,7 @@ const TableReservation = () => {
                                 <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
                                     {
                                         hoursList.map((item, key) => (
-                                            <option key={key} value={item} disabled = {!isDateInFuture(new Date(chosenDate), `${item}`)}>{item}:00</option>
+                                            <option key={key} value={item} disabled={!isDateInFuture(new Date(chosenDate), `${item}`)}>{item}:00</option>
                                         ))
                                     }
                                 </Form.Select>
@@ -184,23 +182,24 @@ const TableReservation = () => {
                 </div>
                 <div className="form-group mt-3">
                     <FloatingLabel label="Additional Details" >
-                        <textarea className="form-control" name="message" rows="4" 
+                        <textarea className="form-control" name="message" rows="4"
                             value={additionalDetails} onChange={onChangeAdditionalDetails} style={{ height: '10rem' }} />
                     </FloatingLabel>
                 </div>
 
-                <div className="text-center mt-4">
-                    <input type="submit" value="Send Reservation Request"
-                        className="btn btn-primary btn-user btn-block"
-                    />
-                    <div className="row">
-                        <ColorRing
-                            visible={showLoader}
-                            ariaLabel="blocks-loading"
-                            colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                <div className="d-flex justify-content-center form-group mt-5">
+                    <div className="col-md-6 form-group">
+                        <input type="submit" value="Send Reservation Request"
+                            className="btn btn-primary btn-user btn-block"
                         />
+                        <div className="row">
+                            <ColorRing
+                                visible={showLoader}
+                                ariaLabel="blocks-loading"
+                                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                            />
+                        </div>
                     </div>
-
                 </div>
                 <h6 className="text-center mt-4">*For reservations with more than 15 diners please call us</h6>
             </form>

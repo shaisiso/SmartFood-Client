@@ -212,9 +212,11 @@ const ItemsToOrder = (props) => {
                     </Table>
                     {
                         chosenItems.length > 0 ?
-                            <div className="text-center mt-3">
-                                <button className="btn btn-primary btn-user btn-block justify-content-center text-center"
-                                    onClick={onClickSendOrder}>Send Order</button>
+                            <div className="d-flex justify-content-center form-group mt-4">
+                                <div className="col-md-6 form-group">
+                                    <button className="btn btn-primary btn-user btn-block justify-content-center text-center"
+                                        onClick={onClickSendOrder}>Send Order</button>
+                                </div>
                             </div>
                             :
                             null

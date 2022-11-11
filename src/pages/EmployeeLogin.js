@@ -6,6 +6,8 @@ const EmployeeLogin = props => {
     const onSubmit = (e) => {
         e.preventDefault();
         // TODO: send request for server validation
+        console.log(`login`)
+        props.onLogin()
     }
     return (
         <div className="container col-xxl-6 col-xl-8 col col-lg-10 col-sm-10 py-3 px-5 " style={{ backgroundColor: "#ffffff90" }} >

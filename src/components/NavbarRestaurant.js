@@ -8,14 +8,14 @@ const NavbarRestaurant = () => {
     const [active, setActive] = useState(0);
     const handleSelect = (eventKey) => setActive(eventKey);
     return (
-        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" onSelect={handleSelect}>
+        <Navbar className="navbarclient" collapseOnSelect expand="lg" bg="dark" variant="dark" onSelect={handleSelect}>
             <Container>
-                <Nav.Link eventKey="0" as={Link} to="/">
+                <Nav.Link className="navbarclient" eventKey="0" as={Link} to="/">
                     <Navbar.Brand style={{ fontFamily: 'Pacifico' }}>Smart Food</Navbar.Brand>
                 </Nav.Link>
-                <Navbar.Toggle className="navbar-nav ms-auto" />
+                <Navbar.Toggle className="navbarclient-nav ms-auto" />
                 <Navbar.Collapse >
-                    <Nav className="me-auto" activeKey={active}>
+                    <Nav className="navbarclient me-auto" activeKey={active}>
                         <Nav.Link eventKey="1" as={Link} to="/reservation">Book a Table</Nav.Link>
                         <Nav.Item>
                             <Nav.Link eventKey="2" as={Link} to="/order">Order Now</Nav.Link>
@@ -30,7 +30,7 @@ const NavbarRestaurant = () => {
                             <Nav.Link eventKey="5" as={Link} to="/">Contact</Nav.Link>
                         </Nav.Item>
                     </Nav>
-                    <Nav className="navbar-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
+                    <Nav className="navbarclient-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
                         <Nav.Link eventKey="6" as={Link} to="/login">Employee Login</Nav.Link>
                     </Nav>
                 </Navbar.Collapse>
