@@ -3,6 +3,9 @@ import { Route, Routes } from 'react-router-dom';
 import EmployeeTopBar from '../components/EmployeeTopBar';
 import SideNavbar from '../components/SideNavbar';
 import MenuEmployees from './MenuEmployees';
+import WoodImg from '../assets/backgrounds/white_wood.jpg'
+import NotFound404 from './NotFound404';
+import ManagementPage from './ManagementPage';
 
 const EmployeeHomepage = (props) => {
     return (
@@ -14,11 +17,12 @@ const EmployeeHomepage = (props) => {
                         firstName={props.firstName}
                         handleLogout={props.handleLogout}
                     />
-                    <div className="container-fluid mt-0 mb-4">
+                    <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '93vh', backgroundRepeat: 'repeat' }}>
                         <Routes>
                             {/* <Route exact path="/" element={<DashBody />} /> */}
                             <Route path="/menu" element={<MenuEmployees />} />
-                            {/* <Route path="/*" exact={true} element={<NotFound404 />} /> */}
+                            <Route path="/management" element={<ManagementPage />} />
+                            <Route path="/*" exact={true} element={<NotFound404 />} />
                         </Routes>
                     </div>
                 </div>

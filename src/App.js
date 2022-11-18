@@ -8,11 +8,13 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import MenuPage from './pages/MenuPage';
 import NavbarRestaurant from './components/NavbarRestaurant';
 import RestaurantImg from './assets/backgrounds/restaurant.png'
+import WoodImg from './assets/backgrounds/dark_wood.jpg'
 import Header from './components/Header';
 import TableReservation from './pages/TableReservation';
 import OrderPage from './pages/OrderPage';
 import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeHomepage from './pages/EmployeeHomepage';
+import NotFound404 from './pages/NotFound404';
 
 function App() {
   const [isLogged, setIsLogged] = useState(false)
@@ -33,15 +35,19 @@ function App() {
   return (
     <Router>
       {getNavbar()}
-      <div  style={!isLogged ? {
-        backgroundImage: `url(${RestaurantImg})`, backgroundPosition: 'top center',
-        minHeight: '87vh', backgroundRepeat: 'repeat'
-      } : {backgroundColor:'#00000010'}}>
+      <div style={!isLogged ?
+        {
+          backgroundImage: `url(${RestaurantImg})`, backgroundPosition: 'top center',
+          minHeight: '87vh', backgroundRepeat: 'repeat'
+        } : { backgroundImage: `url(${WoodImg})` }}>
         <div className="container-fluid p-0">
           {getHeader()}
           <Routes>
             <Route exact path="/"
-              element={<Homepage />}>
+              element={isLogged ?
+                <Navigate to="/employee" />
+                :
+                <Homepage />}>
             </Route>
             <Route path="/menu"
               element={<MenuPage />}>
@@ -66,8 +72,12 @@ function App() {
                   <EmployeeHomepage />
                   :
                   <Navigate to="/login" />
-              }>
-            </Route>
+              } />
+            {isLogged ?
+              <Route path="*" exact={true} element={<EmployeeHomepage />} />
+              :
+              <Route path="*" exact={true} element={<NotFound404 />} />
+            }
           </Routes>
         </div>
       </div>

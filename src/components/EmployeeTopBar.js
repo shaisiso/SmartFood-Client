@@ -11,7 +11,7 @@ const EmployeeTopBar = (props) => {
         //TODO: implement logout
     }
     return (
-        <nav className="navbar navbar-expand navbar-dark bg-dark topbar mb-4 static-top shadow">
+        <nav className="navbar navbar-expand navbar-dark bg-dark topbar  static-top shadow">
         <ul className="navbar-nav ml-auto">
           <div className="topbar-divider d-none d-sm-block" />
           <div className="mr-20 text-white-600 small" >

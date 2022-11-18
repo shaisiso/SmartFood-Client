@@ -36,7 +36,7 @@ const SideNavbar = () => {
             </div>
 
             <li className="nav-item">
-                <Link className="nav-link" to={'#'}>
+                <Link className="nav-link" to={'/employee/management'}>
                     <ManagementSvg width="24" height="24" />
                     <span className="mx-2">Management</span>
                 </Link>
