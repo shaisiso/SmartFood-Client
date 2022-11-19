@@ -6,6 +6,7 @@ import MenuEmployees from './MenuEmployees';
 import WoodImg from '../assets/backgrounds/white_wood.jpg'
 import NotFound404 from './NotFound404';
 import ManagementPage from './ManagementPage';
+import MenuManagement from '../components/MenuManagement';
 
 const EmployeeHomepage = (props) => {
     return (
@@ -22,6 +23,7 @@ const EmployeeHomepage = (props) => {
                             {/* <Route exact path="/" element={<DashBody />} /> */}
                             <Route path="/menu" element={<MenuEmployees />} />
                             <Route path="/management" element={<ManagementPage />} />
+                            <Route path="/management/menu" element={<MenuManagement />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />
                         </Routes>
                     </div>

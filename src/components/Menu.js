@@ -1,10 +1,10 @@
 import BackgroundImg from '../assets/backgrounds/white_bg.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import { API_URL } from '../utility/Utils';
+import { API_URL,categoryForReading } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
-import { categoryForReading } from '../utility/Utils';
+
 const Menu = () => {
     const [categories, setCategories] = useState([])
     const [menu, setMenu] = useState([])
