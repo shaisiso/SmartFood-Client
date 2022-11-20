@@ -1,9 +1,10 @@
 import React from "react";
+import { Form } from "react-bootstrap";
 
-const EditableRow = ({ editFormData, handleEditFormChange,handleCancelClick, handleSaveClick}) => {
+const EditableRow = ({ editFormData, categories, handleEditFormChange, handleCancelClick, handleSaveClick }) => {
     return (
-        <tr >
-            <td>
+        <tr style={{ backgroundColor: 'yellow' }}>
+            <td className="align-middle">
                 <input
                     type="text"
                     className="form-control"
@@ -14,20 +15,17 @@ const EditableRow = ({ editFormData, handleEditFormChange,handleCancelClick, han
                     onChange={handleEditFormChange}
                 ></input>
             </td>
-            <td>
-                <input
-                    type="text"
-                    className="form-control"
-                    required="required"
-                    placeholder="Enter category..."
-                    name="category"
-                    value={editFormData.category}
-                    onChange={handleEditFormChange}
-                ></input>
+            <td className="align-middle">
+                <Form.Select aria-label="Select Category" onChange={handleEditFormChange} name="category" >
+                    {
+                        categories.map((category, key) => (
+                            <option key={key} value={category} >{category}</option>
+                        ))
+                    }
+                </Form.Select>
             </td>
-            <td>
+            <td className="align-middle">
                 <textarea
-
                     rows="2"
                     className="form-control"
                     placeholder="Enter description..."
@@ -36,9 +34,10 @@ const EditableRow = ({ editFormData, handleEditFormChange,handleCancelClick, han
                     onChange={handleEditFormChange}
                 ></textarea>
             </td>
-            <td>
+            <td className="align-middle">
                 <input
-                    type="text"
+                    type="number"
+                    min={1}
                     className="form-control"
                     required="required"
                     placeholder="Enter price..."

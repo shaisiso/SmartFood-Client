@@ -2,11 +2,11 @@ import React from "react";
 
 const ReadOnlyRow = ({ item, handleEditClick, handleDeleteClick }) => {
   return (
-    <tr>
-      <td>{item.name}</td>
-      <td>{item.category}</td>
-      <td>{item.description}</td>
-      <td>{item.price}</td>
+    <tr >
+      <td className="align-middle">{item.name}</td>
+      <td className="align-middle">{item.category}</td>
+      <td className="align-middle">{item.description}</td>
+      <td className="align-middle">{item.price}</td>
       <td>
         <button
           type="button"

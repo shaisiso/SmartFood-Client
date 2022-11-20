@@ -61,3 +61,14 @@ export function categoryForClass(toStringCategory) {
 export function toText(str) {
     return str ? str : ""
 }
+export function extractHttpError(err){
+   // var errMsg;
+    if (err.response.data.message) {
+        return err.response.data.message;
+    }else if(err.response.data){
+        return JSON.stringify(err.response.data).replace(/[{"}]/g,'').replace(":",": ");
+    }
+    else {
+        return err.message
+    }
+}

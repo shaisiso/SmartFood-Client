@@ -169,7 +169,7 @@ const TableReservation = () => {
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <FloatingLabel label="Choose Hour">
-                                <Form.Select aria-label="Default select example" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
+                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
                                     {
                                         hoursList.map((item, key) => (
                                             <option key={key} value={item} disabled={!isDateInFuture(new Date(chosenDate), `${item}`)}>{item}:00</option>

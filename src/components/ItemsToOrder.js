@@ -154,7 +154,7 @@ const ItemsToOrder = (props) => {
                                                         <tr key={itemKey} style={{ cursor: 'pointer' }} onClick={() => clickOnItem(item)}>
                                                             <td className="align-middle ps-4 pe-3" ><h6>{item.name}</h6> </td>
                                                             <td>{item.description}</td>
-                                                            <td>{item.price}₪</td>
+                                                            <td className="align-middle">{item.price}₪</td>
                                                         </tr>
 
                                                     )
