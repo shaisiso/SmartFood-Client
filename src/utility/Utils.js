@@ -40,7 +40,7 @@ export function isValidName(name) {
 }
 export function isDateInFuture(date, hour) {
     let currentDate = new Date()
-    let hourForDate = typeof (hour) === "string" ?   parseInt(hour.substr(0, 2)) : hour ; 
+    let hourForDate = typeof (hour) === "string" ? parseInt(hour.substr(0, 2)) : hour;
     date.setHours(hourForDate)
     if (date > currentDate)
         return true
@@ -61,12 +61,14 @@ export function categoryForClass(toStringCategory) {
 export function toText(str) {
     return str ? str : ""
 }
-export function extractHttpError(err){
-   // var errMsg;
-    if (err.response.data.message) {
-        return err.response.data.message;
-    }else if(err.response.data){
-        return JSON.stringify(err.response.data).replace(/[{"}]/g,'').replace(":",": ");
+export function extractHttpError(err) {
+    // var errMsg;
+    if (err.response.data) {
+        if (err.response.data.message) {
+            return err.response.data.message;
+        } else {
+            return JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": ");
+        }
     }
     else {
         return err.message

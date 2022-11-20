@@ -12,6 +12,7 @@ const MenuManagement = () => {
     const [menu, setMenu] = useState([])
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [loaded, setLoaded] = useState(false)
+    const [showNewItemForm, setShowNewItemForm] = useState(false)
     const [newItem, setNewItem] = useState({
         name: "",
         category: "",
@@ -26,6 +27,7 @@ const MenuManagement = () => {
         description: "",
         price: "",
     });
+    const [ascendingSort, setAscending] = useState(1)
     const getCategories = () => {
         Axios.get(`${API_URL}/api/menu/categories`)
             .then(res => {
@@ -34,9 +36,25 @@ const MenuManagement = () => {
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
+
     }
-    const sortByCategory = (data) => {
-        data.sort((a, b) => b.category - a.category)
+    const sortByCategory = () => {
+        let sortMenu = menu
+        sortMenu.sort((a, b) => a.category.localeCompare(b.category) * ascendingSort)
+        setAscending(ascendingSort*(-1))
+        setMenu(sortMenu)
+    }
+    const sortByName = ()=>{
+        let sortMenu = menu
+        sortMenu.sort((a, b) => a.name.localeCompare(b.name) * ascendingSort)
+        setAscending(ascendingSort*(-1))
+        setMenu(sortMenu)
+    }
+    const sortByPrice = ()=>{
+        let sortMenu = menu
+        sortMenu.sort((a, b) => (a.price - b.price) * ascendingSort)
+        setAscending(ascendingSort*(-1))
+        setMenu(sortMenu)
     }
     const getData = async () => {
         await Axios.get(`${API_URL}/api/menu`)
@@ -46,8 +64,8 @@ const MenuManagement = () => {
                     item.category = category
                     return item
                 })
-                sortByCategory(data)
                 setMenu(data)
+               
             }).catch(err => {
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
@@ -63,22 +81,24 @@ const MenuManagement = () => {
         }
     });
 
-    const addItem = event => {
+    const addItem = async event => {
         event.preventDefault()
+        setLoaded(false)
         if (!newItem.category)
             newItem.category = categories[0]
         var itemForAPI = { ...newItem, category: categoryForClass(newItem.category) }
-        Axios.post(`${API_URL}/api/menu`, itemForAPI)
+        await Axios.post(`${API_URL}/api/menu`, itemForAPI)
             .then(res => {
                 console.log(res)
                 setPopupMessage({ title: 'New item was added to menu', messages: [`Name: ${newItem.name}`, `Category: ${newItem.category}`, `Price: ${newItem.price}`, `Description: ${newItem.description}`] })
+                setShowNewItemForm(false)
                 getData();
             })
             .catch(err => {
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
-
+        setLoaded(true)
     }
     const onChangeNewItem = e => {
         let fieldName = e.target.getAttribute("name")
@@ -189,50 +209,60 @@ const MenuManagement = () => {
                 />
             </div>
             <div>
+                <button className="btn btn-primary mx-auto mt-5" onClick={(e) => {
+                    e.preventDefault();
+                    setShowNewItemForm(!showNewItemForm)
+                }}>New item</button>
+                {
+                    showNewItemForm ?
+                        <form onSubmit={addItem}>
+                            <div className="col-md-6 mx-auto my-5">
+                                <div className="col-md-12 form-group">
+                                    <FloatingLabel label="*Name">
+                                        <input type="text" className="form-control" name="name" placeholder="*Name" required
+                                            value={newItem.name} onChange={onChangeNewItem} />
+                                    </FloatingLabel>
+                                </div>
+                                <div className="col-md-12 form-group mt-3 mt-md-0">
+                                    <FloatingLabel label="Choose Category">
+                                        <Form.Select aria-label="Select Category" onChange={onChangeNewItem} name="category" >
+                                            {
+                                                categories.map((category, key) => (
+                                                    <option key={key} value={category} >{category}</option>
+                                                ))
+                                            }
+                                        </Form.Select>
+                                    </FloatingLabel>
+                                </div>
+                                <div className="col-md-12 form-group mt-3 mt-md-0">
+                                    <FloatingLabel label="Description" >
+                                        <textarea className="form-control" name="description" rows="2" placeholder="Description"
+                                            value={newItem.description} onChange={onChangeNewItem} style={{ height: '10rem' }} />
+                                    </FloatingLabel>
+                                </div>
+                                <div className="col-md-12 form-group mt-3 mt-md-0">
+                                    <FloatingLabel label="*Price">
+                                        <input type="number" className="form-control" min={1} name="price" required placeholder="*Price"
+                                            value={newItem.price} onChange={onChangeNewItem} />
+                                    </FloatingLabel>
+                                </div>
+                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewItemForm} />
+                            </div>
+                        </form>
+                        :
+                        null
+                }
 
-                <form onSubmit={addItem}>
-                    <input type="submit" className="btn btn-primary mx-auto my-5" value="Add new item" />
-                    <div className="col-md-6 mx-auto ">
-                        <div className="col-md-12 form-group">
-                            <FloatingLabel label="*Name">
-                                <input type="text" className="form-control" name="name" placeholder="*Name" required
-                                    value={newItem.name} onChange={onChangeNewItem} />
-                            </FloatingLabel>
-                        </div>
-                        <div className="col-md-12 form-group mt-3 mt-md-0">
-                            <FloatingLabel label="Choose Category">
-                                <Form.Select aria-label="Select Category" onChange={onChangeNewItem} name="category" >
-                                    {
-                                        categories.map((category, key) => (
-                                            <option key={key} value={category} >{category}</option>
-                                        ))
-                                    }
-                                </Form.Select>
-                            </FloatingLabel>
-                        </div>
-                        <div className="col-md-12 form-group mt-3 mt-md-0">
-                            <FloatingLabel label="Description" >
-                                <textarea className="form-control" name="description" rows="2" placeholder="Description"
-                                    value={newItem.description} onChange={onChangeNewItem} style={{ height: '10rem' }} />
-                            </FloatingLabel>
-                        </div>
-                        <div className="col-md-12 form-group mt-3 mt-md-0">
-                            <FloatingLabel label="*Price">
-                                <input type="number" className="form-control" min={1} name="price" required placeholder="*Price"
-                                    value={newItem.price} onChange={onChangeNewItem} />
-                            </FloatingLabel>
-                        </div>
-                    </div>
-                </form>
+
                 <div className="row mt-5">
                     <form onSubmit={handleEditFormSubmit}>
                         <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
                             <thead>
                                 <tr>
-                                    <th>Name</th>
-                                    <th>Category</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByName}>Name</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category</th>
                                     <th>Description</th>
-                                    <th>Price</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByPrice} >Price</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
