@@ -7,6 +7,8 @@ import WoodImg from '../assets/backgrounds/white_wood.jpg'
 import NotFound404 from './NotFound404';
 import ManagementPage from './ManagementPage';
 import MenuManagement from '../components/MenuManagement';
+import Tables from './Tables';
+import OrderOfTable from '../components/OrderOfTable';
 
 const EmployeeHomepage = (props) => {
     return (
@@ -24,6 +26,8 @@ const EmployeeHomepage = (props) => {
                             <Route path="/menu" element={<MenuEmployees />} />
                             <Route path="/management" element={<ManagementPage />} />
                             <Route path="/management/menu" element={<MenuManagement />} />
+                            <Route path="/tables" element={<Tables />} />
+                            <Route path="/tables/*" element={<OrderOfTable />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />
                         </Routes>
                     </div>

@@ -11714,3 +11714,29 @@ footer.sticky-footer .copyright {
 body.sidebar-toggled footer.sticky-footer {
   width: 100%;
 }
+
+
+.articletable {
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+}
+
+.imagetable {
+  object-fit: cover;
+  width: 100%;
+  height: 100%;
+}
+
+.headertable {
+  font-size: 20px;
+  color: white;
+  text-align: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: fit-content;
+  margin: auto;
+}

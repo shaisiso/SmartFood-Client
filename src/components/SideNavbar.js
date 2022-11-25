@@ -62,7 +62,7 @@ const SideNavbar = () => {
                 </Link>
             </li>
             <li className="nav-item">
-                <Link className="nav-link" to={'#'}>
+                <Link className="nav-link" to={'/employee/tables'}>
                     <TableSvg width="24" height="24" />
                     <span className="mx-2">Tables</span>
                 </Link>

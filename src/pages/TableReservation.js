@@ -79,7 +79,7 @@ const TableReservation = () => {
             numberOfDiners: numberOfDiners
         }
         await Axios.post(`${API_URL}/api/reservation`, reservation)
-            .then((data) => {
+            .then((res) => {
                 setPopupMessage({
                     title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
                         `Phone Number: ${personDetails.phoneNumber}`, `At: ${formatDateWithSlash(date)} - ${chosenHour}`,

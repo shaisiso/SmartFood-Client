@@ -33,7 +33,9 @@ const MenuManagement = () => {
             .then(res => {
                 setCategories(res.data)
             }).catch(err => {
+                console.log(err)
                 var errMsg = extractHttpError(err)
+                
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
 

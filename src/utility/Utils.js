@@ -67,7 +67,7 @@ export function extractHttpError(err) {
         if (err.response.data.message) {
             return err.response.data.message;
         } else {
-            return JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": ");
+            return  Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`); // JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": "); //
         }
     }
     else {
