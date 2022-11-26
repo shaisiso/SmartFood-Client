@@ -6,6 +6,9 @@ import PopupMessage from './PopupMessage';
 import EditableRow from './EditableRow';
 import ReadOnlyRow from './ReadOnlyRow';
 import { FloatingLabel, Form } from 'react-bootstrap';
+import { ReactComponent as UpSvg } from '../assets/icons/up.svg'
+import { ReactComponent as DownSvg } from '../assets/icons/down.svg'
+
 
 const MenuManagement = () => {
     const [categories, setCategories] = useState([])
@@ -27,7 +30,7 @@ const MenuManagement = () => {
         description: "",
         price: "",
     });
-    const [ascendingSort, setAscending] = useState(1)
+    const [sortDirection, setSortDirection] = useState({name:null, category:null,price:null})
     const getCategories = () => {
         Axios.get(`${API_URL}/api/menu/categories`)
             .then(res => {
@@ -40,22 +43,40 @@ const MenuManagement = () => {
             })
 
     }
+    const getDirectionImg=(field)=>sortDirection[field] === null ? null : sortDirection[field] === 'up' ? <UpSvg height="20" width="20"/>  :  <DownSvg height="20" width="20"/>
+    const getDirection = (field) => sortDirection[field] === null ? 'up' : sortDirection[field] === 'up' ? 'down' : 'up' 
     const sortByCategory = () => {
+        setSortDirection({
+            name:null,
+            category: getDirection('category'),
+            price:null
+        })
         let sortMenu = menu
+        let ascendingSort = sortDirection.category === null || sortDirection.category === 'down' ? 1 : -1
         sortMenu.sort((a, b) => a.category.localeCompare(b.category) * ascendingSort)
-        setAscending(ascendingSort*(-1))
         setMenu(sortMenu)
+
     }
     const sortByName = ()=>{
+        setSortDirection({
+            name:getDirection('name'),
+            category: null,
+            price:null
+        })
         let sortMenu = menu
+        let ascendingSort = sortDirection.name === null || sortDirection.name === 'down' ? 1 : -1
         sortMenu.sort((a, b) => a.name.localeCompare(b.name) * ascendingSort)
-        setAscending(ascendingSort*(-1))
         setMenu(sortMenu)
     }
     const sortByPrice = ()=>{
+        setSortDirection({
+            name:null,
+            category: null,
+            price: getDirection('price')
+        })
         let sortMenu = menu
+        let ascendingSort = sortDirection.price === null || sortDirection.price === 'down' ? 1 : -1
         sortMenu.sort((a, b) => (a.price - b.price) * ascendingSort)
-        setAscending(ascendingSort*(-1))
         setMenu(sortMenu)
     }
     const getData = async () => {
@@ -261,10 +282,10 @@ const MenuManagement = () => {
                         <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByName}>Name</th>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByName}> Name  {getDirectionImg('name')}</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category {getDirectionImg('category')}</th>
                                     <th>Description</th>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByPrice} >Price</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByPrice} >Price {getDirectionImg('price')}</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
