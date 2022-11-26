@@ -1,7 +1,7 @@
 
 import './App.css';
 import "bootstrap/dist/css/bootstrap.min.css";
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import Footer from './components/Footer';
 import Homepage from './pages/Homepage';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
@@ -18,9 +18,36 @@ import NotFound404 from './pages/NotFound404';
 
 function App() {
   const [isLogged, setIsLogged] = useState(false)
-  const onLogin = () => {
-    console.log(`app`)
-    setIsLogged(true);
+  const [userDetails, setUserDetails] = useState({ userPhone: '', accessToken: '', refreshToken: '' })
+
+  const mounted = useRef();
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      setIsLogged(JSON.parse(window.localStorage.getItem("isLogged")) || false)
+      setUserDetails({
+        userPhone: window.localStorage.getItem("phoneNumber") || "",
+        accessToken: window.localStorage.getItem("accessToken") || "",
+        refreshToken: window.localStorage.getItem("refreshToken") || ""
+      })
+    }
+  },[]);
+  const handleLogin = (phoneNumber, tokens) => {
+    window.localStorage.setItem("isLogged", true);
+    window.localStorage.setItem("accessToken", tokens.accessToken);
+    window.localStorage.setItem("refreshToken", tokens.refreshToken);
+    window.localStorage.setItem("phoneNumber", phoneNumber);
+    setIsLogged(true)
+    setUserDetails({
+      userPhone: phoneNumber,
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken
+    })
+  }
+  const handleLogout = () => {
+    localStorage.clear();
+
+    setIsLogged(false);
   }
   const getNavbar = () => {
     if (isLogged)
@@ -63,18 +90,18 @@ function App() {
                 isLogged ?
                   <Navigate to="/employee" />
                   :
-                  <EmployeeLogin onLogin={onLogin} />
+                  <EmployeeLogin handleLogin={handleLogin} />
               }>
             </Route>
             <Route path="/employee/*"
               element={
                 isLogged ?
-                  <EmployeeHomepage />
+                  <EmployeeHomepage handleLogout={handleLogout} />
                   :
                   <Navigate to="/login" />
               } />
             {isLogged ?
-              <Route path="*" exact={true} element={<EmployeeHomepage />} />
+              <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} />} />
               :
               <Route path="*" exact={true} element={<NotFound404 />} />
             }

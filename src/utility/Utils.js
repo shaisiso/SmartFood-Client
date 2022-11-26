@@ -7,7 +7,7 @@
 
 // --- Local Environment --- //
 export const SERVER_PORT = "8080"
-export const API_URL = `http://10.100.102.20:${SERVER_PORT}`//`http://localhost:${SERVER_PORT}`;
+export const API_URL = `http://localhost:${SERVER_PORT}`; //`http://10.100.102.20:${SERVER_PORT}`
 
 
 //functions

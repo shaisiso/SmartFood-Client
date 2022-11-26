@@ -7,8 +7,7 @@ import { Link } from "react-router-dom";
 
 const EmployeeTopBar = (props) => {
     const onLogout = () => {
-        console.log(`logout`)
-        //TODO: implement logout
+        props.handleLogout()
     }
     return (
         <nav className="navbar navbar-expand navbar-dark bg-dark topbar  static-top shadow">
