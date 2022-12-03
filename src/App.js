@@ -8,30 +8,43 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-d
 import MenuPage from './pages/MenuPage';
 import NavbarRestaurant from './components/NavbarRestaurant';
 import RestaurantImg from './assets/backgrounds/restaurant.png'
-import WoodImg from './assets/backgrounds/dark_wood.jpg'
+import WoodImg from './assets/backgrounds/white_wood.jpg'
 import Header from './components/Header';
 import TableReservation from './pages/TableReservation';
 import OrderPage from './pages/OrderPage';
 import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeHomepage from './pages/EmployeeHomepage';
 import NotFound404 from './pages/NotFound404';
+import EmployeeService from './services/EmployeeService';
 
 function App() {
   const [isLogged, setIsLogged] = useState(false)
-  const [userDetails, setUserDetails] = useState({ userPhone: '', accessToken: '', refreshToken: '' })
-
+  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: '' })
+  const [person, setPerson] = useState({})
   const mounted = useRef();
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
       setIsLogged(JSON.parse(window.localStorage.getItem("isLogged")) || false)
+      let phoneFromStorage = window.localStorage.getItem("phoneNumber") || ""
       setUserDetails({
-        userPhone: window.localStorage.getItem("phoneNumber") || "",
+        phoneNumber: phoneFromStorage,
         accessToken: window.localStorage.getItem("accessToken") || "",
         refreshToken: window.localStorage.getItem("refreshToken") || ""
       })
+      getPersonDetails(phoneFromStorage)
     }
-  },[]);
+  }, []);
+  const getPersonDetails = phone => {
+    EmployeeService.findEmployeeByPhone(phone)
+      .then(res => {
+        setPerson(res.data)
+      })
+      .catch(err => {
+        console.log(err)
+        // TODO: call PersonService.findPersonByPhone(phone)  or MemberService
+      })
+  }
   const handleLogin = (phoneNumber, tokens) => {
     window.localStorage.setItem("isLogged", true);
     window.localStorage.setItem("accessToken", tokens.accessToken);
@@ -39,10 +52,11 @@ function App() {
     window.localStorage.setItem("phoneNumber", phoneNumber);
     setIsLogged(true)
     setUserDetails({
-      userPhone: phoneNumber,
+      phoneNumber: phoneNumber,
       accessToken: tokens.accessToken,
       refreshToken: tokens.refreshToken
     })
+    getPersonDetails(phoneNumber)
   }
   const handleLogout = () => {
     localStorage.clear();
@@ -96,12 +110,12 @@ function App() {
             <Route path="/employee/*"
               element={
                 isLogged ?
-                  <EmployeeHomepage handleLogout={handleLogout} />
+                  <EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />
                   :
                   <Navigate to="/login" />
               } />
             {isLogged ?
-              <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} />} />
+              <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />} />
               :
               <Route path="*" exact={true} element={<NotFound404 />} />
             }

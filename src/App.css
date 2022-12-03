@@ -11740,3 +11740,15 @@ body.sidebar-toggled footer.sticky-footer {
   height: fit-content;
   margin: auto;
 }
+
+.notification{
+  padding: 3px 7px 3px 7px;
+  background: #cc0000;
+  color: #ffffff;
+  font-weight: bold;
+  border-radius: 9px;
+  -moz-border-radius: 9px; 
+  -webkit-border-radius: 9px;
+
+  font-size: 11px;
+}
