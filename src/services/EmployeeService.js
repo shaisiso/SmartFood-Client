@@ -1,12 +1,5 @@
-import { API_URL } from '../utility/Utils'
-import Axios from 'axios';
+import HttpSevice from './HttpSevice';
 
 class EmployeeService {
-    findEmployeeByPhone = async phone => {
-        let response;
-        await Axios.get(`${API_URL}/api/employee/phone/${phone}`)
-            .then(res => response = res)
-            .catch(err => { throw err })
-        return response
-    }
+    findEmployeeByPhone = async phone => HttpSevice.GET(`/employee/phone/${phone}`)
 } export default new EmployeeService()

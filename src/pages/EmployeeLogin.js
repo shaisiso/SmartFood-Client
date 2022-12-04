@@ -1,11 +1,11 @@
-import Axios from 'axios';
 import React from 'react';
 import { useState } from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
 import EmployeeImg from '../assets/img/employeeLogin.png'
 import PopupMessage from '../components/PopupMessage';
-import { API_URL, extractHttpError } from '../utility/Utils';
+import LoginService from '../services/LoginService';
+import {  extractHttpError } from '../utility/Utils';
 
 const EmployeeLogin = props => {
     const [credentials, setCredentials] = useState({ phoneNumber: '', password: '' })
@@ -17,16 +17,14 @@ const EmployeeLogin = props => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
-        await Axios.post(`${API_URL}/api/login`, credentials)
+        await LoginService.employeeLogin(credentials)
             .then(res => {
                 props.handleLogin(credentials.phoneNumber, res.data)
             })
             .catch(err => {
-                console.log(err)
                 setErrorMessage(extractHttpError(err))
             })
         setShowLoader(false)
-
     }
     return (
         <div className="container col-xxl-6 col-xl-8 col col-lg-10 col-sm-10 py-3 px-5 " style={{ backgroundColor: "#ffffff90" }} >

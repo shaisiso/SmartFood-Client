@@ -1,7 +1,7 @@
 import Axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { ColorRing } from 'react-loader-spinner';
-import { API_URL,extractHttpError } from '../utility/Utils';
+import { API_URL, extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
 
 const OrderOfTable = () => {
@@ -20,7 +20,6 @@ const OrderOfTable = () => {
         setShowLoader(true)
         var regEx = new RegExp('/employee/tables/', "ig");
         let tableId = window.location.pathname.replace(regEx, '')
-
         await Axios.get((`${API_URL}/api/table/${tableId}`))
             .then(res => {
                 setTable(res.data)
@@ -29,19 +28,25 @@ const OrderOfTable = () => {
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
-            setShowLoader(false)
+        setShowLoader(false)
 
     }
     return (
-        <div>
-            {JSON.stringify(table)}
+        <div className="container text-center">
+            <h1 className="py-5 bold"><b><u>Table #{table.tableId}</u></b></h1>
+            {
+                !table.isBusy ?
+                    <button className='btn btn-success'>Open Table</button>
+                    :
+                    <button className='btn btn-danger'>Close Table</button>
+            }
             <div className="row text-center">
-                            <ColorRing
-                                visible={showLoader}
-                                ariaLabel="blocks-loading"
-                                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
-                            />
-                        </div>
+                <ColorRing
+                    visible={showLoader}
+                    ariaLabel="blocks-loading"
+                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                />
+            </div>
 
             {
                 popupMessage.title ?

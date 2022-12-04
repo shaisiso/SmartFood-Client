@@ -1,9 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
 import RestaurantTable from '../components/RestaurantTable';
-import Axios from 'axios';
 import PopupMessage from '../components/PopupMessage';
-import { API_URL, extractHttpError } from '../utility/Utils';
+import {  extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner';
+import TableService from '../services/TableService';
 
 const Tables = () => {
     const [tables, setTables] = useState([])
@@ -19,7 +19,7 @@ const Tables = () => {
     });
     const getData = async () => {
         setLoaded(false)
-       await Axios.get((`${API_URL}/api/table`))
+       await TableService.getAllTables()
             .then((res) => {
                 setTables(res.data)
             })
