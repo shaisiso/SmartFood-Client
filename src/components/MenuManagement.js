@@ -281,7 +281,7 @@ const MenuManagement = () => {
                             <thead>
                                 <tr>
                                     <th style={{ cursor: 'pointer' }}  onClick={sortByName}> Name  {getDirectionImg('name')}</th>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category {getDirectionImg('category')}</th>
+                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category {getDirectionImg('category')} </th>
                                     <th>Description</th>
                                     <th style={{ cursor: 'pointer' }}  onClick={sortByPrice} >Price {getDirectionImg('price')}</th>
                                     <th>Actions</th>
@@ -300,7 +300,7 @@ const MenuManagement = () => {
                                             />
                                         ) : (
                                             <ReadOnlyRow
-                                                item={item}
+                                                item={{name:item.name, category:item.category, description:item.description, price:item.price}}
                                                 handleEditClick={handleEditClick}
                                                 handleDeleteClick={handleDeleteClick}
                                             />

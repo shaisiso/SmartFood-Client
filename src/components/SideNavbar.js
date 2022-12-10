@@ -27,7 +27,7 @@ const SideNavbar = (props) => {
         }
     });
     const connectWebSocekt = () => {
-       // console.log('connect')
+        // console.log('connect')
         let Sock = new SockJS(SOCKET_URL);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);
@@ -66,14 +66,17 @@ const SideNavbar = (props) => {
             <div className="sidebar-heading text-white mt-3 mb-2">
                 Operation:
             </div>
-
-            <li className="nav-item">
-                <Link className="nav-link" to={'/employee/management'}>
-                    <ManagementSvg width="24" height="24" />
-                    <span className="mx-2">Management</span>
-                </Link>
-            </li>
-
+            {
+                RoleService.isManager(props.employee) ?
+                    <li className="nav-item">
+                        <Link className="nav-link" to={'/employee/management'}>
+                            <ManagementSvg width="24" height="24" />
+                            <span className="mx-2">Management</span>
+                        </Link>
+                    </li>
+                    :
+                    null
+            }
             <li className="nav-item">
                 <Link className="nav-link" to={'#'}>
                     <FinancialSvg width="24" height="24" />

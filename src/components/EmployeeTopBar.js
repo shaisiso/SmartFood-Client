@@ -4,11 +4,13 @@ import { ReactComponent as UserSvg } from "../assets/icons/user-icon.svg";
 import { ReactComponent as ProfileSvg } from "../assets/icons/profile-icon.svg";
 import { ReactComponent as LogoutSvg } from "../assets/icons/logout-icon.svg";
 import { Link } from "react-router-dom";
+import AuthService from '../services/AuthService';
 
 
 const EmployeeTopBar = (props) => {
   
   const onLogout = () => {
+    AuthService.logout()
     props.handleLogout()
   }
   return (
