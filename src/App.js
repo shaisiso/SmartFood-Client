@@ -18,23 +18,27 @@ import NotFound404 from './pages/NotFound404';
 import EmployeeService from './services/EmployeeService';
 
 function App() {
+
   const [isLogged, setIsLogged] = useState(false)
-  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: '' })
+  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: ''})
   const [person, setPerson] = useState({})
   const mounted = useRef();
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      setIsLogged(JSON.parse(window.localStorage.getItem("isLogged")) || false)
-      let phoneFromStorage = window.localStorage.getItem("phoneNumber") || ""
-      setUserDetails({
-        phoneNumber: phoneFromStorage,
-        accessToken: window.localStorage.getItem("accessToken") || "",
-        refreshToken: window.localStorage.getItem("refreshToken") || ""
-      })
-      getPersonDetails(phoneFromStorage)
+      getUserDetails()
     }
-  }, []);
+  });
+  const getUserDetails = () => {
+    setIsLogged(JSON.parse(window.localStorage.getItem("isLogged")) || false)
+    let phoneFromStorage = window.localStorage.getItem("phoneNumber") || ""
+    setUserDetails({
+      phoneNumber: phoneFromStorage,
+      accessToken: window.localStorage.getItem("accessToken") || "",
+      refreshToken: window.localStorage.getItem("refreshToken") || "",
+    })
+    getPersonDetails(phoneFromStorage)
+  }
   const getPersonDetails = phone => {
     EmployeeService.findEmployeeByPhone(phone)
       .then(res => {
@@ -45,16 +49,21 @@ function App() {
         // TODO: call PersonService.findPersonByPhone(phone)  or MemberService
       })
   }
+
   const handleLogin = (phoneNumber, tokens) => {
+    console.log('handleLogin')
+    console.log(tokens)
     window.localStorage.setItem("isLogged", true);
     window.localStorage.setItem("accessToken", tokens.accessToken);
     window.localStorage.setItem("refreshToken", tokens.refreshToken);
     window.localStorage.setItem("phoneNumber", phoneNumber);
+
     setIsLogged(true)
     setUserDetails({
+      ...userDetails,
       phoneNumber: phoneNumber,
       accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken
+      refreshToken: tokens.refreshToken,
     })
     getPersonDetails(phoneNumber)
   }
@@ -63,6 +72,7 @@ function App() {
 
     setIsLogged(false);
   }
+
   const getNavbar = () => {
     if (isLogged)
       return null

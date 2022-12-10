@@ -4,8 +4,8 @@ import { FloatingLabel, Form } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
 import EmployeeImg from '../assets/img/employeeLogin.png'
 import PopupMessage from '../components/PopupMessage';
-import LoginService from '../services/LoginService';
-import {  extractHttpError } from '../utility/Utils';
+import AuthService from '../services/AuthService';
+import { extractHttpError } from '../utility/Utils';
 
 const EmployeeLogin = props => {
     const [credentials, setCredentials] = useState({ phoneNumber: '', password: '' })
@@ -17,13 +17,20 @@ const EmployeeLogin = props => {
     const onSubmit = async (e) => {
         e.preventDefault();
         setShowLoader(true)
-        await LoginService.employeeLogin(credentials)
+        await AuthService.login(credentials.phoneNumber, credentials.password)
             .then(res => {
                 props.handleLogin(credentials.phoneNumber, res.data)
             })
             .catch(err => {
                 setErrorMessage(extractHttpError(err))
             })
+        // await LoginService.employeeLogin(credentials)
+        //     .then(res => {
+        //         props.handleLogin(credentials.phoneNumber, res.data)
+        //     })
+        //     .catch(err => {
+        //         setErrorMessage(extractHttpError(err))
+        //     })
         setShowLoader(false)
     }
     return (

@@ -27,7 +27,7 @@ const SideNavbar = (props) => {
         }
     });
     const connectWebSocekt = () => {
-        console.log('connect')
+       // console.log('connect')
         let Sock = new SockJS(SOCKET_URL);
         stompClient = over(Sock);
         stompClient.connect({}, onConnected, onError);

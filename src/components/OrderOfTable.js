@@ -1,7 +1,7 @@
-import Axios from 'axios';
 import React, { useState, useEffect, useRef } from 'react';
 import { ColorRing } from 'react-loader-spinner';
-import { API_URL, extractHttpError } from '../utility/Utils';
+import TableService from '../services/TableService';
+import {  extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
 
 const OrderOfTable = () => {
@@ -20,7 +20,7 @@ const OrderOfTable = () => {
         setShowLoader(true)
         var regEx = new RegExp('/employee/tables/', "ig");
         let tableId = window.location.pathname.replace(regEx, '')
-        await Axios.get((`${API_URL}/api/table/${tableId}`))
+        await TableService.getTableByTableId(tableId)
             .then(res => {
                 setTable(res.data)
             })

@@ -1,6 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import Axios from 'axios';
-import { API_URL, categoryForReading, categoryForClass, extractHttpError } from '../utility/Utils';
+import {  categoryForReading, categoryForClass, extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner'
 import PopupMessage from './PopupMessage';
 import EditableRow from './EditableRow';
@@ -8,9 +7,10 @@ import ReadOnlyRow from './ReadOnlyRow';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { ReactComponent as UpSvg } from '../assets/icons/up.svg'
 import { ReactComponent as DownSvg } from '../assets/icons/down.svg'
+import MenuService from '../services/MenuService';
 
 
-const MenuManagement = () => {
+const MenuManagement = ({tokensDetails}) => {
     const [categories, setCategories] = useState([])
     const [menu, setMenu] = useState([])
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
@@ -32,13 +32,12 @@ const MenuManagement = () => {
     });
     const [sortDirection, setSortDirection] = useState({name:null, category:null,price:null})
     const getCategories = () => {
-        Axios.get(`${API_URL}/api/menu/categories`)
+       MenuService.getCategories()
             .then(res => {
                 setCategories(res.data)
             }).catch(err => {
                 console.log(err)
                 var errMsg = extractHttpError(err)
-                
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
 
@@ -80,7 +79,7 @@ const MenuManagement = () => {
         setMenu(sortMenu)
     }
     const getData = async () => {
-        await Axios.get(`${API_URL}/api/menu`)
+        await MenuService.getMenu()
             .then(res => {
                 let data = res.data.map(item => {
                     let category = categoryForReading(item.category)
@@ -110,7 +109,7 @@ const MenuManagement = () => {
         if (!newItem.category)
             newItem.category = categories[0]
         var itemForAPI = { ...newItem, category: categoryForClass(newItem.category) }
-        await Axios.post(`${API_URL}/api/menu`, itemForAPI)
+        await MenuService.addItem(itemForAPI)
             .then(res => {
                 console.log(res)
                 setPopupMessage({ title: 'New item was added to menu', messages: [`Name: ${newItem.name}`, `Category: ${newItem.category}`, `Price: ${newItem.price}`, `Description: ${newItem.description}`] })
@@ -149,8 +148,8 @@ const MenuManagement = () => {
         setEditItemId(null);
     };
 
-    const handleDeleteClick = (item) => {
-        Axios.delete(`${API_URL}/api/menu/${item.itemId}`)
+    const handleDeleteClick = async (item) => {
+       await MenuService.deleteItem(item,tokensDetails)
             .then(response => {
                 console.log(response)
                 const newMenu = [...menu];
@@ -159,6 +158,7 @@ const MenuManagement = () => {
                 setMenu(newMenu);
             })
             .catch(err => {
+                console.log(err)
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: [errMsg] })
             })
@@ -201,7 +201,7 @@ const MenuManagement = () => {
         setLoaded(false)
         let item = { ...editFormData, category: categoryForClass(editFormData.category) }
 
-        await Axios.put(`${API_URL}/api/menu`, item)
+        await MenuService.updateItem(item)
             .then(response => {
                 const newMenu = [...menu];
 

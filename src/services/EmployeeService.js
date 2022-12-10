@@ -1,5 +1,5 @@
-import HttpSevice from './HttpSevice';
+import api from './api';
 
 class EmployeeService {
-    findEmployeeByPhone = async phone => HttpSevice.GET(`/employee/phone/${phone}`)
+    findEmployeeByPhone = async phone => api.get(`/employee/phone/${phone}`)
 } export default new EmployeeService()

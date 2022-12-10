@@ -1,6 +1,6 @@
-import HttpSevice from './HttpSevice';
+import api from './api';
 
 class TableService {
-    getTableByTableId = tableId => HttpSevice.GET(`/table/${tableId}`)
-    getAllTables = () => HttpSevice.GET(`/table`)
+    getTableByTableId = tableId => api.get(`/table/${tableId}`)
+    getAllTables = () => api.get(`/table`)
 } export default new TableService()
