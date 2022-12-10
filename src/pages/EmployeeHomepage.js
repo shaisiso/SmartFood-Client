@@ -69,10 +69,10 @@ const EmployeeHomepage = (props) => {
                     />
                     <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '93vh', backgroundRepeat: 'repeat' }}>
                         <Routes>
-                            <Route exact path="/" element={<ManagementPage tokensDetails={props.userDetails}/>} />
+                            <Route exact path="/" element={<ManagementPage />} />
                             <Route path="/menu" element={<MenuEmployees />} />
-                            <Route path="/management" element={<ManagementPage tokensDetails={props.userDetails}/>} />
-                            <Route path="/management/menu" element={<MenuManagement tokensDetails={props.userDetails}/>} />
+                            <Route path="/management" element={<ManagementPage />} />
+                            <Route path="/management/menu" element={<MenuManagement />} />
                             <Route path="/tables" element={<Tables />} />
                             <Route path="/tables/*" element={<OrderOfTable />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />

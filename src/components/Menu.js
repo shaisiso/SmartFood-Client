@@ -1,7 +1,7 @@
 import BackgroundImg from '../assets/backgrounds/white_bg.jpg'
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import { API_URL,categoryForReading } from '../utility/Utils';
+import { API_URL,enumForReading } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
 
@@ -32,7 +32,7 @@ const Menu = () => {
         await Axios.get(`${API_URL}/api/menu`)
             .then(res => {
                 let data = res.data.map(item => {
-                    let category = categoryForReading(item.category)
+                    let category = enumForReading(item.category)
                     item.category = category
                     return item
                 })

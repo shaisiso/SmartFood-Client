@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import {  categoryForReading, categoryForClass, extractHttpError } from '../utility/Utils';
+import {  enumForReading, enumForClass, extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner'
 import PopupMessage from './PopupMessage';
 import EditableRow from './EditableRow';
@@ -10,7 +10,7 @@ import { ReactComponent as DownSvg } from '../assets/icons/down.svg'
 import MenuService from '../services/MenuService';
 
 
-const MenuManagement = ({tokensDetails}) => {
+const MenuManagement = () => {
     const [categories, setCategories] = useState([])
     const [menu, setMenu] = useState([])
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
@@ -82,7 +82,7 @@ const MenuManagement = ({tokensDetails}) => {
         await MenuService.getMenu()
             .then(res => {
                 let data = res.data.map(item => {
-                    let category = categoryForReading(item.category)
+                    let category = enumForReading(item.category)
                     item.category = category
                     return item
                 })
@@ -108,7 +108,7 @@ const MenuManagement = ({tokensDetails}) => {
         setLoaded(false)
         if (!newItem.category)
             newItem.category = categories[0]
-        var itemForAPI = { ...newItem, category: categoryForClass(newItem.category) }
+        var itemForAPI = { ...newItem, category: enumForClass(newItem.category) }
         await MenuService.addItem(itemForAPI)
             .then(res => {
                 console.log(res)
@@ -149,7 +149,7 @@ const MenuManagement = ({tokensDetails}) => {
     };
 
     const handleDeleteClick = async (item) => {
-       await MenuService.deleteItem(item,tokensDetails)
+       await MenuService.deleteItem(item)
             .then(response => {
                 console.log(response)
                 const newMenu = [...menu];
@@ -199,7 +199,7 @@ const MenuManagement = ({tokensDetails}) => {
     const updateItemClick = async event => {
         event.preventDefault();
         setLoaded(false)
-        let item = { ...editFormData, category: categoryForClass(editFormData.category) }
+        let item = { ...editFormData, category: enumForClass(editFormData.category) }
 
         await MenuService.updateItem(item)
             .then(response => {
@@ -269,14 +269,12 @@ const MenuManagement = ({tokensDetails}) => {
                                             value={newItem.price} onChange={onChangeNewItem} />
                                     </FloatingLabel>
                                 </div>
-                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewItemForm} />
+                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewItemForm ? 1:0} />
                             </div>
                         </form>
                         :
                         null
                 }
-
-
                 <div className="row mt-5">
                     <form onSubmit={handleEditFormSubmit}>
                         <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
@@ -312,53 +310,8 @@ const MenuManagement = ({tokensDetails}) => {
                             </tbody>
                         </table>
                     </form>
-                    {/* <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
-                        <thead>
-                            <tr style={{ backgroundColor: 'yellow' }}>
-                                <th>Name</th>
-                                <th>Category</th>
-                                <th>Description</th>
-                                <th>Price</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {
-                                menu.map((item, index) =>
-                                    <tr key={index} >
-                                        <td>
-                                            <input type="text" className="form-control" 
-                                                value={item.name} onChange={event=>onChangeItemName(item,event.target.value)} 
-                                                disabled = {item.itemId !== selectedItem.itemId}/>
-                                            {item.name}</td>
-                                        <td>{item.category}</td>
-                                        <td>{item.description}</td>
-                                        <td>{item.price}</td>
-                                        <td>
-                                            <button className="form-control btn btn-info mx-auto" onClick={() => updateItem(item)}>Update</button>
-                                            <button className="form-control btn btn-danger mt-1 mx-auto" onClick={() => deleteItem(item)}>Delete</button>
-                                        </td>
-                                    </tr>
-                                )
-                            }
-                        </tbody>
-                    </table> */}
                 </div>
             </div>
-            {/* <div className="row menu-container">
-                    {
-                        menu.map((item, index) =>
-                            <div className="col-lg-6 menu-item filter-starters" key={index}>
-                                <div className="menu-content">
-                                    <div className='menu-name'>{item.name}</div><span>₪{item.price}</span>
-                                </div>
-                                <div className="menu-ingredients">
-                                    {item.description}
-                                </div>
-                            </div>
-                        )
-                    }
-                </div> */}
             {
                 popupMessage.title ?
                     <PopupMessage
@@ -397,23 +350,6 @@ const MenuManagement = ({tokensDetails}) => {
                     :
                     null
             }
-            {/* {
-                errorMessage ?
-                    <PopupMessage
-                        title="Error"
-                        body={
-                            <div className="text-black" style={{ fontSize: '1.2rem' }}>{errorMessage}</div>
-                        }
-                        onClose={() => {
-                            setErrorMessage('')
-                        }}
-                        status='error'
-                    >
-
-                    </PopupMessage>
-                    :
-                    null
-            } */}
         </div>
     );
 };

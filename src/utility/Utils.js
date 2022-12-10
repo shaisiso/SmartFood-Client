@@ -48,13 +48,13 @@ export function isDateInFuture(date, hour) {
         return false
 }
 
-export function categoryForReading(actualCategory) {
-    return actualCategory.split("_")
+export function enumForReading(enumType) {
+    return enumType.split("_")
         .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
         .join(" ")
 }
-export function categoryForClass(toStringCategory) {
-    return toStringCategory.split(" ")
+export function enumForClass(toStringEnum) {
+    return toStringEnum.split(" ")
         .map(word => word.toUpperCase())
         .join("_")
 }
@@ -73,4 +73,8 @@ export function extractHttpError(err) {
     else {
         return err.message
     }
+}
+export function addressToString(address){
+    if (!address) return ''
+   return `${address.city ?? ''} ${address.streetName ?? ''} ${address.houseNumber ?? ''}${address.entrance ?? ''}  ${address.apartmentNumber ? `appartment ${address.apartmentNumber}`: ''}`
 }

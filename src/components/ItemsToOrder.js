@@ -7,7 +7,7 @@ import Card from 'react-bootstrap/Card';
 import { ColorRing } from 'react-loader-spinner'
 import Table from 'react-bootstrap/Table';
 import PopupMessage from './PopupMessage';
-import { categoryForReading } from '../utility/Utils';
+import { enumForReading } from '../utility/Utils';
 import { FloatingLabel } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 
@@ -88,7 +88,7 @@ const ItemsToOrder = (props) => {
     }
     const onChangeQuantity = (event, item) => {
         let newQuantity = Number(event.target.value)
-        let itemPrice = menu[categoryForReading(item.category)]
+        let itemPrice = menu[enumForReading(item.category)]
             .find(i => i.itemId === item.itemId)
             .price
         const newState = chosenItems.map(obj => {

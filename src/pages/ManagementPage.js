@@ -2,9 +2,10 @@ import React from 'react';
 
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import EmployeesManagement from '../components/EmployeesManagement';
 import MenuManagement from '../components/MenuManagement';
 
-const ManagementPage = ({tokensDetails}) => {
+const ManagementPage = () => {
     // const mounted = useRef();
     // useEffect(() => {
     //     if (!mounted.current) {
@@ -15,24 +16,24 @@ const ManagementPage = ({tokensDetails}) => {
 
     return (
         <Tabs
-        justify variant="tabs" 
+            justify variant="tabs"
             id="controlled-tab-example"
             defaultActiveKey="1"
-           // activeKey={key}
-           // onSelect={(k) => setKey(k)}
+            // activeKey={key}
+            // onSelect={(k) => setKey(k)}
             className="mb-3 text-black"
         >
             <Tab eventKey="1" title="Restaurant Arrangement" tabClassName="text-black font-weight-bold">
-            <div></div>
+                <div></div>
             </Tab>
             <Tab eventKey="2" title="Menu Management" tabClassName="text-black font-weight-bold">
-                <MenuManagement tokensDetails = {tokensDetails}/>
+                <MenuManagement />
             </Tab>
             <Tab eventKey="3" title="Discount Management" tabClassName="text-black font-weight-bold">
-            <div></div>
+                <div></div>
             </Tab>
             <Tab eventKey="4" title="Employees Management" tabClassName="text-black font-weight-bold">
-            <div></div>
+                <EmployeesManagement />
             </Tab>
         </Tabs>
     );

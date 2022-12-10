@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ColorRing } from 'react-loader-spinner';
+import OrderService from '../services/OrderService';
 import TableService from '../services/TableService';
 import {  extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
@@ -8,7 +9,7 @@ const OrderOfTable = () => {
     const [table, setTable] = useState({})
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [showLoader, setShowLoader] = useState(true)
-
+    const [order,setOrder] = useState({table:{}, numberOfDiners:1})
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -31,12 +32,29 @@ const OrderOfTable = () => {
         setShowLoader(false)
 
     }
+    const onClickOpenTable = (e,setToBusy)=>{
+        e.preventDefault();
+        setTable({
+            ...table,
+            isBusy: setToBusy
+        })
+        setOrder({
+            ...order,
+            table: table
+        })
+        OrderService.addOrderOfTable(order)
+            .then(res =>{
+                console.log(res.data)
+            }).catch(err=>{
+                console.log(err)
+            })
+    }
     return (
         <div className="container text-center">
             <h1 className="py-5 bold"><b><u>Table #{table.tableId}</u></b></h1>
             {
                 !table.isBusy ?
-                    <button className='btn btn-success'>Open Table</button>
+                    <button className='btn btn-success' onClick={(e)=>onClickOpenTable(e,true)}>Open Table</button>
                     :
                     <button className='btn btn-danger'>Close Table</button>
             }
