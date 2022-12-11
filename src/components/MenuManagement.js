@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import {  enumForReading, enumForClass, extractHttpError } from '../utility/Utils';
+import { enumForReading, enumForClass, extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner'
 import PopupMessage from './PopupMessage';
 import EditableRowMenu from './EditableRowMenu';
@@ -30,25 +30,25 @@ const MenuManagement = () => {
         description: "",
         price: "",
     });
-    const [sortDirection, setSortDirection] = useState({name:null, category:null,price:null})
+    const [sortDirection, setSortDirection] = useState({ name: null, category: null, price: null })
     const getCategories = () => {
-       MenuService.getCategories()
+        MenuService.getCategories()
             .then(res => {
                 setCategories(res.data)
             }).catch(err => {
                 console.log(err)
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
 
     }
-    const getDirectionImg=(field)=>sortDirection[field] === null ? null : sortDirection[field] === 'up' ? <UpSvg height="20" width="20"/>  :  <DownSvg height="20" width="20"/>
-    const getDirection = (field) => sortDirection[field] === null ? 'up' : sortDirection[field] === 'up' ? 'down' : 'up' 
+    const getDirectionImg = (field) => sortDirection[field] === null ? null : sortDirection[field] === 'up' ? <UpSvg height="20" width="20" /> : <DownSvg height="20" width="20" />
+    const getDirection = (field) => sortDirection[field] === null ? 'up' : sortDirection[field] === 'up' ? 'down' : 'up'
     const sortByCategory = () => {
         setSortDirection({
-            name:null,
+            name: null,
             category: getDirection('category'),
-            price:null
+            price: null
         })
         let sortMenu = menu
         let ascendingSort = sortDirection.category === null || sortDirection.category === 'down' ? 1 : -1
@@ -56,20 +56,20 @@ const MenuManagement = () => {
         setMenu(sortMenu)
 
     }
-    const sortByName = ()=>{
+    const sortByName = () => {
         setSortDirection({
-            name:getDirection('name'),
+            name: getDirection('name'),
             category: null,
-            price:null
+            price: null
         })
         let sortMenu = menu
         let ascendingSort = sortDirection.name === null || sortDirection.name === 'down' ? 1 : -1
         sortMenu.sort((a, b) => a.name.localeCompare(b.name) * ascendingSort)
         setMenu(sortMenu)
     }
-    const sortByPrice = ()=>{
+    const sortByPrice = () => {
         setSortDirection({
-            name:null,
+            name: null,
             category: null,
             price: getDirection('price')
         })
@@ -87,10 +87,10 @@ const MenuManagement = () => {
                     return item
                 })
                 setMenu(data)
-               
+
             }).catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setLoaded(true)
     }
@@ -118,7 +118,7 @@ const MenuManagement = () => {
             })
             .catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setLoaded(true)
     }
@@ -130,7 +130,6 @@ const MenuManagement = () => {
     }
     const handleEditClick = (event, item) => {
         event.preventDefault();
-        console.log(item)
         setEditItemId(item.itemId);
 
         const formValues = {
@@ -149,8 +148,7 @@ const MenuManagement = () => {
     };
 
     const handleDeleteClick = async (item) => {
-        console.log(item)
-       await MenuService.deleteItem(item)
+        await MenuService.deleteItem(item)
             .then(response => {
                 console.log(response)
                 const newMenu = [...menu];
@@ -161,7 +159,7 @@ const MenuManagement = () => {
             .catch(err => {
                 console.log(err)
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
     };
     //
@@ -217,10 +215,8 @@ const MenuManagement = () => {
                 console.log(err)
                 var errMsg = extractHttpError(err)
                 console.log(errMsg)
-                setPopupMessage(errMsg)
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
-
-
         setLoaded(true)
     }
     return (
@@ -270,7 +266,7 @@ const MenuManagement = () => {
                                             value={newItem.price} onChange={onChangeNewItem} />
                                     </FloatingLabel>
                                 </div>
-                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewItemForm ? 1:0} />
+                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewItemForm ? 1 : 0} />
                             </div>
                         </form>
                         :
@@ -281,10 +277,10 @@ const MenuManagement = () => {
                         <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
                             <thead>
                                 <tr>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByName}> Name  {getDirectionImg('name')}</th>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByCategory}>Category {getDirectionImg('category')} </th>
+                                    <th style={{ cursor: 'pointer' }} onClick={sortByName}> Name  {getDirectionImg('name')}</th>
+                                    <th style={{ cursor: 'pointer' }} onClick={sortByCategory}>Category {getDirectionImg('category')} </th>
                                     <th>Description</th>
-                                    <th style={{ cursor: 'pointer' }}  onClick={sortByPrice} >Price {getDirectionImg('price')}</th>
+                                    <th style={{ cursor: 'pointer' }} onClick={sortByPrice} >Price {getDirectionImg('price')}</th>
                                     <th>Actions</th>
                                 </tr>
                             </thead>
@@ -302,6 +298,7 @@ const MenuManagement = () => {
                                         ) : (
                                             <ReadOnlyRow
                                                 item={item}
+                                                withId={false}
                                                 handleEditClick={handleEditClick}
                                                 handleDeleteClick={handleDeleteClick}
                                             />

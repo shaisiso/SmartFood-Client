@@ -16,7 +16,7 @@ const EditableRowMenu = ({ editFormData, categories, handleEditFormChange, handl
                 ></input>
             </td>
             <td className="align-middle">
-                <Form.Select aria-label="Select Category" onChange={handleEditFormChange} name="category" >
+                <Form.Select aria-label="Select Category" onChange={handleEditFormChange} name="category"  value={editFormData.category}>
                     {
                         categories.map((category, key) => (
                             <option key={key} value={category} >{category}</option>

@@ -27,7 +27,7 @@ const OrderOfTable = () => {
             })
             .catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setShowLoader(false)
 

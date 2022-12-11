@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture } from "../utility/Utils";
+import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -87,14 +87,7 @@ const TableReservation = () => {
                 })
                 cleanForm()
             }).catch(err => {
-                var errMsg;
-                if (err.response.data) {
-                    errMsg = Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`);
-                }
-                else {
-                    errMsg = [err.message]
-                }
-
+                var errMsg =extractHttpError(err);
                 setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setShowLoader(false)

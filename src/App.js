@@ -20,7 +20,7 @@ import EmployeeService from './services/EmployeeService';
 function App() {
 
   const [isLogged, setIsLogged] = useState(false)
-  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: ''})
+  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: '' })
   const [person, setPerson] = useState({})
   const mounted = useRef();
   useEffect(() => {
@@ -37,7 +37,8 @@ function App() {
       accessToken: window.localStorage.getItem("accessToken") || "",
       refreshToken: window.localStorage.getItem("refreshToken") || "",
     })
-    getPersonDetails(phoneFromStorage)
+    if (phoneFromStorage)
+      getPersonDetails(phoneFromStorage)
   }
   const getPersonDetails = phone => {
     EmployeeService.findEmployeeByPhone(phone)

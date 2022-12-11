@@ -24,7 +24,7 @@ const Tables = () => {
                 setTables(res.data)
             })
             .catch(err => {
-                var errMsg = extractHttpError(err)
+                var errMsg = extractHttpError(err)[0]
                 setErrorMessage(errMsg)
             })
             setLoaded(true)

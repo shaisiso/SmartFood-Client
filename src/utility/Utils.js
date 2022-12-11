@@ -65,16 +65,19 @@ export function extractHttpError(err) {
     // var errMsg;
     if (err.response.data) {
         if (err.response.data.message) {
-            return err.response.data.message;
+            return  [err.response.data.message];
         } else {
-            return  Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`); // JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": "); //
+            return Object.entries(err.response.data).map(([key, value]) => `${value}`); //Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`); // JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": "); //
         }
     }
     else {
-        return err.message
+        return [err.message]
     }
 }
 export function addressToString(address){
-    if (!address) return ''
-   return `${address.city ?? ''} ${address.streetName ?? ''} ${address.houseNumber ?? ''}${address.entrance ?? ''}  ${address.apartmentNumber ? `appartment ${address.apartmentNumber}`: ''}`
+    if (!address || !address.city) return ''
+   return `${address.city ?? ''}, ${address.streetName ?? ''} ${address.houseNumber ?? ''}${address.entrance ? `-${address.entrance}`: ''}${address.apartmentNumber ? `, appartment ${address.apartmentNumber}`: ''}`
+}
+export function isChar(st){
+    return !st || st.length<=1
 }

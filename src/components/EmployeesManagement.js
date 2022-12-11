@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
 import PopupMessage from './PopupMessage';
@@ -6,7 +6,9 @@ import { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import EmployeeService from '../services/EmployeeService';
-import { addressToString, enumForClass, enumForReading, extractHttpError } from '../utility/Utils';
+import { addressToString, enumForClass, enumForReading, extractHttpError, isChar } from '../utility/Utils';
+import ReadOnlyRow from './ReadOnlyRow';
+import EditableRowEmployee from './EditableRowEmployee';
 const EmployeesManagement = () => {
     const [employees, setEmployees] = useState([])
     const [roles, setRoles] = useState([])
@@ -18,20 +20,20 @@ const EmployeesManagement = () => {
         phoneNumber: '',
         name: "",
         email: "",
-        address: {city:'',streetName:'',houseNumber:'',entrance:'',apartmentNumber:''},
+        address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' },
         password: "",
         role: "",
     });
-    // const [editItemId, setEditItemId] = useState(null);
-    // const [editFormData, setEditFormData] = useState({
-    //     id: '',
-    //     phoneNumber: '',
-    //     name: "",
-    //     email: "",
-    //     address: {},
-    //     password: "",
-    //     role: "",
-    // });
+    const [editEmployeeId, setEditEmployeeId] = useState(null);
+    const [editFormData, setEditFormData] = useState({
+        id: '',
+        phoneNumber: '',
+        name: "",
+        email: "",
+        address: {},
+        password: "",
+        role: "",
+    });
     const getData = async () => {
         setLoaded(false)
         EmployeeService.getAllRoles()
@@ -39,14 +41,14 @@ const EmployeesManagement = () => {
                 setRoles(res.data)
             }).catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         await EmployeeService.getAll()
             .then(res => {
                 setEmployees(res.data)
             }).catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setLoaded(true)
     }
@@ -60,62 +62,106 @@ const EmployeesManagement = () => {
 
     const addEmployee = async event => {
         event.preventDefault()
+        if (!isChar(newEmployee.address.entrance)){
+            setPopupMessage({ title: 'Error', messages: ['Entrance should be one charcter'] })
+            return
+        }
         setLoaded(false)
-        console.log(newEmployee)
         if (!newEmployee.role)
             newEmployee.role = roles[0]
         var employeeForAPI = { ...newEmployee, role: enumForClass(newEmployee.role) }
 
         await EmployeeService.addEmployee(employeeForAPI)
             .then(res => {
-                console.log(res)
                 setPopupMessage({ title: 'New employee was registered', messages: [`Employee ID: ${res.data.id}`, `Name: ${newEmployee.name}`, `Phone Number: ${newEmployee.phoneNumber}`, `Role: ${newEmployee.role}`, `Email: ${newEmployee.email}`, `Address: ${addressToString(newEmployee.address)}`] })
                 setShowNewForm(false)
                 getData();
             })
             .catch(err => {
                 var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: [errMsg] })
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         setLoaded(true)
     }
     const onChangeNewEmployee = e => {
         let fieldName = e.target.getAttribute("name")
         let newEmployeeChange = { ...newEmployee }
-        newEmployeeChange[fieldName] = e.target.value
+        if (fieldName.includes("address")){
+            let addressField = fieldName.split(":")
+            newEmployeeChange[addressField[0]][addressField[1]] = e.target.value
+        }else{
+            newEmployeeChange[fieldName] = e.target.value
+        }
         setNewEmployee({ ...newEmployeeChange })
     }
-    const onChangeAddress = e => {
-        let fieldName = e.target.getAttribute("name")
-        let newAddress = { ...newEmployee.address }
-        newAddress[fieldName] = e.target.value
-        setNewEmployee({ ...newEmployee, address: { ...newAddress } })
-    }
-    const handleEditFormSubmit = (event) => {
+
+    const handleEditClick = (event, employee) => {
         event.preventDefault();
+        setEditEmployeeId(employee.id);
+        let employeeObj = employees.find(e => e.id === employee.id)
+        const formValues = {
+            ...employee,
+            address: employeeObj.address
+        };
+        setEditFormData(formValues);
     };
-    // const handleEditClick = (event, item) => {
-    //     event.preventDefault();
-    // };
 
-    // const handleCancelClick = () => {
-    // };
+    const handleCancelClick = () => {
+        setEditEmployeeId(null);
+    };
 
-    // const handleDeleteClick = async (item) => {
-
-    // };
-    // //
-    // const handleEditFormChange = (event) => {
-    //     event.preventDefault();
-
-
-    // };
-    // const updateEmployeeClick = async event => {
-    //     event.preventDefault();
-    //     setLoaded(false)
-
-    //     setLoaded(true)
-    // }
+    const handleDeleteClick = async (employee) => {
+        console.log(employee)
+        await EmployeeService.deleteEmployee(employee)
+            .then(response => {
+                console.log(response)
+                const newEmployeesList = [...employees];
+                const index = employees.findIndex((e) => e.id === employee.id);
+                newEmployeesList.splice(index, 1);
+                setEmployees(newEmployeesList);
+            })
+            .catch(err => {
+                console.log(err)
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
+            })
+    };
+    //
+    const handleEditFormChange = (event) => {
+        event.preventDefault();
+        const fieldName = event.target.getAttribute("name");
+        console.log(event.target)
+        const fieldValue = event.target.value;
+        const newFormData = { ...editFormData };
+        if (fieldName === "address"){
+            let addressField = event.target.getAttribute("id")
+            newFormData[fieldName][addressField] = fieldValue
+        }else{
+            newFormData[fieldName] = fieldValue;
+        }
+        setEditFormData(newFormData);
+    };
+    
+    const updateEmployeeClick = async event => {
+        event.preventDefault();
+        if (!isChar(editFormData.address.entrance)){
+            setPopupMessage({ title: 'Error', messages: ['Entrance should be one charcter'] })
+            return
+        }
+        setLoaded(false)
+        let employeeObj = employees.find(e=>e.id===editEmployeeId)
+        let employee = { ...editFormData, password: employeeObj.password, role: enumForClass(editFormData.role) }
+        await EmployeeService.updateEmployee(employee)
+            .then(response => {
+                getData()
+                setEditEmployeeId(null);
+            })
+            .catch(err => {
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
+            })
+        setLoaded(true)
+    }
     return (
         <div className="container mx-auto text-center">
             <div className="text-center ">
@@ -171,43 +217,43 @@ const EmployeesManagement = () => {
                                 </div>
                                 <div className="col-md-12 form-group mt-3 mt-md-0">
                                     <FloatingLabel label="*City">
-                                        <input type="text" className="form-control" name="city" required placeholder="*City"
-                                            value={newEmployee.address.city} onChange={onChangeAddress} />
+                                        <input type="text" className="form-control" name="address:city" required placeholder="*City"
+                                            value={newEmployee.address.city} onChange={onChangeNewEmployee} />
                                     </FloatingLabel>
                                 </div>
                                 <div className="col-md-12 form-group mt-3 mt-md-0">
                                     <FloatingLabel label="*Street">
-                                        <input type="text" className="form-control" name="streetName" required placeholder="*Street"
-                                            value={newEmployee.address.streetName} onChange={onChangeAddress} />
+                                        <input type="text" className="form-control" name="address:streetName" required placeholder="*Street"
+                                            value={newEmployee.address.streetName} onChange={onChangeNewEmployee} />
                                     </FloatingLabel>
                                 </div>
                                 <div className="col-md-12 form-group mt-3 mt-md-0">
                                     <FloatingLabel label="*House Number">
-                                        <input type="number" min={1} className="form-control" name="houseNumber" required placeholder="*House Number"
-                                            value={newEmployee.address.houseNumber} onChange={onChangeAddress} />
+                                        <input type="number" min={1} className="form-control" name="address:houseNumber" required placeholder="*House Number"
+                                            value={newEmployee.address.houseNumber} onChange={onChangeNewEmployee} />
                                     </FloatingLabel>
                                 </div>
                                 <div className="col-md-12 form-group mt-3 mt-md-0">
                                     <FloatingLabel label="Entrance">
-                                        <input type="number" className="form-control" name="entrance" placeholder="Entrancer"
-                                            value={newEmployee.address.entrance} onChange={onChangeAddress} />
+                                        <input type="text" className="form-control" name="address:entrance" placeholder="Entrancer"
+                                            value={newEmployee.address.entrance} onChange={onChangeNewEmployee} />
                                     </FloatingLabel>
                                 </div>
                                 <div className="col-md-12 form-group mt-3 mt-md-0">
                                     <FloatingLabel label="Apartment Number">
-                                        <input type="number" min={1} className="form-control" name="apartmentNumber" placeholder="Apartment Number"
-                                            value={newEmployee.address.apartmentNumber} onChange={onChangeAddress} />
+                                        <input type="number" min={1} className="form-control" name="address:apartmentNumber" placeholder="Apartment Number"
+                                            value={newEmployee.address.apartmentNumber} onChange={onChangeNewEmployee} />
                                     </FloatingLabel>
                                 </div>
 
-                                <input type="submit" className="btn btn-primary mx-auto " value="Add item to menu" visible={showNewEmployeemForm ? 1 : 0} />
+                                <input type="submit" className="btn btn-primary mx-auto " value="Add Employee" visible={showNewEmployeemForm ? 1 : 0} />
                             </div>
                         </form>
                         :
                         null
                 }
                 <div className="row mt-5">
-                    <form onSubmit={handleEditFormSubmit}>
+                    <form >
                         <table className="table table-striped table-bordered" style={{ backgroundColor: 'white' }}>
                             <thead>
                                 <tr>
@@ -217,35 +263,29 @@ const EmployeesManagement = () => {
                                     <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Role </th>
                                     <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Email </th>
                                     <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Address </th>
+                                    <th>Actions</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 {employees.map((e, key) => (
-                                    <tr key={key}>
-                                        <td>{e.id}</td>
-                                        <td>{e.name}</td>
-                                        <td>{e.phoneNumber}</td>
-                                        <td>{enumForReading(e.role)}</td>
-                                        <td>{e.email}</td>
-                                        <td>{addressToString(e.address)}</td>
-                                    </tr>
-                                    // <Fragment key={key}>
-                                    //     {editItemId === item.itemId ? (
-                                    //         <EditableRow
-                                    //             editFormData={editFormData}
-                                    //             //     categories={categories}
-                                    //             handleEditFormChange={handleEditFormChange}
-                                    //             handleCancelClick={handleCancelClick}
-                                    //             handleSaveClick={updateEmployeeClick}
-                                    //         />
-                                    //     ) : (
-                                    //         <ReadOnlyRow
-                                    //             item={item}
-                                    //             handleEditClick={handleEditClick}
-                                    //             handleDeleteClick={handleDeleteClick}
-                                    //         />
-                                    //     )}
-                                    // </Fragment>
+                                    <Fragment key={key}>
+                                        {editEmployeeId === e.id ? (
+                                            <EditableRowEmployee
+                                                editFormData={editFormData}
+                                                roles={roles}
+                                                handleEditFormChange={handleEditFormChange}
+                                                handleCancelClick={handleCancelClick}
+                                                handleSaveClick={updateEmployeeClick}
+                                            />
+                                        ) : (
+                                            <ReadOnlyRow
+                                                item={{ id: e.id, name: e.name, phoneNumber: e.phoneNumber, role: enumForReading(e.role), email: e.email, address: addressToString(e.address) }}
+                                                withId
+                                                handleEditClick={handleEditClick}
+                                                handleDeleteClick={handleDeleteClick}
+                                            />
+                                        )}
+                                    </Fragment>
                                 ))}
                             </tbody>
                         </table>
@@ -269,19 +309,19 @@ const EmployeesManagement = () => {
                         }
                         onClose={() => {
                             setPopupMessage({ title: '', messages: [''] })
-                            setNewEmployee({
-                                phoneNumber: '',
-                                name: "",
-                                email: "",
-                                address: {city:'',streetName:'',houseNumber:'',entrance:'',apartmentNumber:''},
-                                password: "",
-                                role: "",
-                            })
+                            // setNewEmployee({
+                            //     phoneNumber: '',
+                            //     name: "",
+                            //     email: "",
+                            //     address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' },
+                            //     password: "",
+                            //     role: "",
+                            // })
                         }}
                         status={popupMessage.title === 'Error' ?
                             'error'
                             :
-                            popupMessage.title.includes('New item') ?
+                            popupMessage.title.toLowerCase().includes('new employee') ?
                                 'success'
                                 :
                                 'info'
