@@ -1,7 +1,7 @@
 import React from "react";
 import { Form } from "react-bootstrap";
 
-const EditableRow = ({ editFormData, categories, handleEditFormChange, handleCancelClick, handleSaveClick }) => {
+const EditableRowMenu = ({ editFormData, categories, handleEditFormChange, handleCancelClick, handleSaveClick }) => {
     return (
         <tr style={{ backgroundColor: 'yellow' }}>
             <td className="align-middle">
@@ -56,4 +56,4 @@ const EditableRow = ({ editFormData, categories, handleEditFormChange, handleCan
     );
 };
 
-export default EditableRow;
+export default EditableRowMenu;

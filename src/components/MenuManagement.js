@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useRef, useState } from 'react';
 import {  enumForReading, enumForClass, extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner'
 import PopupMessage from './PopupMessage';
-import EditableRow from './EditableRow';
+import EditableRowMenu from './EditableRowMenu';
 import ReadOnlyRow from './ReadOnlyRow';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { ReactComponent as UpSvg } from '../assets/icons/up.svg'
@@ -149,6 +149,7 @@ const MenuManagement = () => {
     };
 
     const handleDeleteClick = async (item) => {
+        console.log(item)
        await MenuService.deleteItem(item)
             .then(response => {
                 console.log(response)
@@ -291,7 +292,7 @@ const MenuManagement = () => {
                                 {menu.map((item, key) => (
                                     <Fragment key={key}>
                                         {editItemId === item.itemId ? (
-                                            <EditableRow
+                                            <EditableRowMenu
                                                 editFormData={editFormData}
                                                 categories={categories}
                                                 handleEditFormChange={handleEditFormChange}
@@ -300,7 +301,7 @@ const MenuManagement = () => {
                                             />
                                         ) : (
                                             <ReadOnlyRow
-                                                item={{name:item.name, category:item.category, description:item.description, price:item.price}}
+                                                item={item}
                                                 handleEditClick={handleEditClick}
                                                 handleDeleteClick={handleDeleteClick}
                                             />

@@ -51,8 +51,6 @@ function App() {
   }
 
   const handleLogin = (phoneNumber, tokens) => {
-    console.log('handleLogin')
-    console.log(tokens)
     window.localStorage.setItem("isLogged", true);
     window.localStorage.setItem("accessToken", tokens.accessToken);
     window.localStorage.setItem("refreshToken", tokens.refreshToken);
