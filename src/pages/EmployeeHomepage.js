@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Navigate, Route, Routes } from 'react-router-dom';
 import EmployeeTopBar from '../components/EmployeeTopBar';
 import SideNavbar from '../components/SideNavbar';
 import MenuEmployees from './MenuEmployees';
@@ -9,6 +9,7 @@ import ManagementPage from './ManagementPage';
 import MenuManagement from '../components/MenuManagement';
 import Tables from './Tables';
 import OrderOfTable from '../components/OrderOfTable';
+import TasksPage from './TasksPage';
 // import { API_URL } from '../utility/Utils';
 // import { over } from 'stompjs';
 // import SockJS from 'sockjs-client';
@@ -26,7 +27,7 @@ const EmployeeHomepage = (props) => {
         }
         let em = props.employee
         if (em.role === 'MANAGER') {
-         //   connect()
+            //   connect()
         }
     });
 
@@ -59,7 +60,7 @@ const EmployeeHomepage = (props) => {
 
     return (
         <div id="wrapper">
-            <SideNavbar employee={props.employee}/>
+            <SideNavbar employee={props.employee} />
             <div id="content-wrapper" className="d-flex flex-column">
                 <div id="content">
                     <EmployeeTopBar
@@ -69,10 +70,12 @@ const EmployeeHomepage = (props) => {
                     />
                     <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '93vh', backgroundRepeat: 'repeat' }}>
                         <Routes>
-                            <Route exact path="/" element={<ManagementPage />} />
+                            <Route exact path="/" element={<Navigate to="/employee/tables" />} />
                             <Route path="/menu" element={<MenuEmployees />} />
+                            {/* Routes should be define only to specifc roles with permission */}
                             <Route path="/management" element={<ManagementPage />} />
                             <Route path="/management/menu" element={<MenuManagement />} />
+                            <Route path="/tasks" element={<TasksPage />} />
                             <Route path="/tables" element={<Tables />} />
                             <Route path="/tables/*" element={<OrderOfTable />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />

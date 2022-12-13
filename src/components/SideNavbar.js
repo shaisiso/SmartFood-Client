@@ -47,7 +47,7 @@ const SideNavbar = (props) => {
         console.log(err);
     }
     const onClickTasks = e => {
-        e.preventDefault()
+       // e.preventDefault()
         setTasks([])
     }
 
@@ -86,7 +86,7 @@ const SideNavbar = (props) => {
             {
                 RoleService.isManager(props.employee) ?
                     <li className="nav-item">
-                        <Link className="nav-link" to={'#'} onClick={onClickTasks}>
+                        <Link className="nav-link" to={'/employee/tasks'} onClick={onClickTasks}>
                             <TasksSvg width="24" height="24" />
                             <span className="mx-2">Tasks</span>
                             {

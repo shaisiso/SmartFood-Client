@@ -19,7 +19,7 @@ import EmployeeService from './services/EmployeeService';
 
 function App() {
 
-  const [isLogged, setIsLogged] = useState(false)
+  const [isLogged, setIsLogged] = useState(JSON.parse(window.localStorage.getItem("isLogged")) || false)
   const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: '' })
   const [person, setPerson] = useState({})
   const mounted = useRef();
@@ -30,7 +30,6 @@ function App() {
     }
   });
   const getUserDetails = () => {
-    setIsLogged(JSON.parse(window.localStorage.getItem("isLogged")) || false)
     let phoneFromStorage = window.localStorage.getItem("phoneNumber") || ""
     setUserDetails({
       phoneNumber: phoneFromStorage,
@@ -108,6 +107,7 @@ function App() {
             <Route path="/order"
               element={<OrderPage />}>
             </Route>
+
             <Route path="/login"
               element={
                 isLogged ?
@@ -116,13 +116,14 @@ function App() {
                   <EmployeeLogin handleLogin={handleLogin} />
               }>
             </Route>
-            <Route path="/employee/*"
+            <Route path="employee/*"
               element={
                 isLogged ?
                   <EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />
                   :
                   <Navigate to="/login" />
               } />
+
             {isLogged ?
               <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />} />
               :
