@@ -7,49 +7,27 @@ import { ReactComponent as TableSvg } from '../assets/icons/tables.svg'
 import { ReactComponent as ManagementSvg } from '../assets/icons/management.svg'
 import { ReactComponent as CutlerytSvg } from '../assets/icons/cutlery.svg'
 import RoleService from '../services/RoleService';
-import { over } from 'stompjs';
-import SockJS from 'sockjs-client';
-import { API_URL } from '../utility/Utils';
+// import { over } from 'stompjs';
+// import SockJS from 'sockjs-client';
+// import { API_URL } from '../utility/Utils';
 
-const SOCKET_URL = `${API_URL}/api/ws`;
-var stompClient = null;
+
 
 const SideNavbar = (props) => {
-    const [tasks, setTasks] = useState([]);
-
+    const [tasks, setTasks] = useState({exteranlOrders:[] , shifts: []});
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
             mounted.current = true;
         }
         if (RoleService.isManager(props.employee)) {
-            connectWebSocekt()
+            setTasks(props.tasks)
         }
-    });
-    const connectWebSocekt = () => {
-        // console.log('connect')
-        let Sock = new SockJS(SOCKET_URL);
-        stompClient = over(Sock);
-        stompClient.connect({}, onConnected, onError);
-    }
-    const onConnected = () => {
-        stompClient.subscribe('/topic/task', onMessageReceived);
-    }
-
-    const onMessageReceived = payload => {
-        var payloadData = JSON.parse(payload.body);
-        tasks.push(payloadData);
-        setTasks([...tasks]);
-        console.log(tasks)
-    }
-
-    const onError = (err) => {
-        console.log(err);
-    }
+    },[props.employee, props.tasks]);
     const onClickTasks = e => {
-       // e.preventDefault()
-        setTasks([])
+
     }
+    const totalTasks = ()=> tasks.exteranlOrders.length + tasks.shifts.length
 
     return (
         <ul className="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -86,11 +64,11 @@ const SideNavbar = (props) => {
             {
                 RoleService.isManager(props.employee) ?
                     <li className="nav-item">
-                        <Link className="nav-link" to={'/employee/tasks'} onClick={onClickTasks}>
+                        <Link className="nav-link" to={'/employee/tasks'}  onClick={onClickTasks}>
                             <TasksSvg width="24" height="24" />
                             <span className="mx-2">Tasks</span>
                             {
-                                tasks.length > 0 ? <span className="notification">{tasks.length}</span> : null
+                               totalTasks() > 0 ? <span className="notification">{totalTasks()}</span> : null
                             }
                         </Link>
                     </li>

@@ -4,6 +4,7 @@ import { ReactComponent as UserSvg } from "../assets/icons/user-icon.svg";
 import { ReactComponent as ProfileSvg } from "../assets/icons/profile-icon.svg";
 import { ReactComponent as LogoutSvg } from "../assets/icons/logout-icon.svg";
 import { ReactComponent as ExitSvg } from "../assets/icons/exit-shift.svg";
+import { ReactComponent as ShiftSvg } from "../assets/icons/shifts-icon.svg";
 import { Link } from "react-router-dom";
 import AuthService from '../services/AuthService';
 import { useState } from 'react';
@@ -32,11 +33,9 @@ const EmployeeTopBar = (props) => {
     let employee = { phoneNumber: TokenService.getUser().phoneNumber }
     ShiftService.getShiftByEmployeeAndDates(employee, date, date)
       .then(res => {
-        console.log(res)
         if (res.data && res.data.length > 0) {
           let currentShift = res.data.find(s => !s.shiftExit) || { shiftEntrance: '', shiftExit: '', employee: {} }
           setShift(currentShift)
-          console.log(currentShift)
           setOnShift(currentShift.shiftExit !=='')
         }
 
@@ -80,6 +79,10 @@ const EmployeeTopBar = (props) => {
                 <ProfileSvg width={iconSize} height={iconSize} />
                 &nbsp; Profile
               </Dropdown.Item>
+              <Dropdown.Item as={Link} to="/employee/my-shifts">
+                <ShiftSvg width={iconSize} height={iconSize} />
+                &nbsp; My Shifts
+              </Dropdown.Item>     
               <Dropdown.Item onClick={onExitShift} disabled={!onShift}>
                 <ExitSvg width={iconSize} height={iconSize} />
                 &nbsp; Exit Shift

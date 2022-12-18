@@ -6,21 +6,12 @@ import EmployeesManagement from '../components/EmployeesManagement';
 import MenuManagement from '../components/MenuManagement';
 
 const ManagementPage = () => {
-    // const mounted = useRef();
-    // useEffect(() => {
-    //     if (!mounted.current) {
-    //         console.log(tokensDetails)
-    //         mounted.current = true;
-    //     }
-    // });
 
     return (
         <Tabs
             justify variant="tabs"
             id="controlled-tab-example"
             defaultActiveKey="1"
-            // activeKey={key}
-            // onSelect={(k) => setKey(k)}
             className="mb-3 text-black"
         >
             <Tab eventKey="1" title="Restaurant Arrangement" tabClassName="text-black font-weight-bold">

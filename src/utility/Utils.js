@@ -40,12 +40,15 @@ export function isValidName(name) {
 }
 export function isDateInFuture(date, hour) {
     let currentDate = new Date()
-    let hourForDate = typeof (hour) === "string" ? parseInt(hour.substr(0, 2)) : hour;
+    let hourForDate = typeof (hour) === "string" ? parseInt(hour.substring(0, 2)) : hour;
     date.setHours(hourForDate)
     if (date > currentDate)
         return true
     else
         return false
+}
+export function getCurrentDate()  {
+    return formatDateForBrowser(new Date())
 }
 
 export function enumForReading(enumType) {
@@ -80,4 +83,10 @@ export function addressToString(address){
 }
 export function isChar(st){
     return !st || st.length<=1
+}
+export function getDateOfLocalDateTimeSt(dateTime){
+    return dateTime ? dateTime.split(' ')[0] : ''
+}
+export function getTimeOfLocalDateTimeSt(dateTime){
+    return  dateTime ?  dateTime.split(' ')[1]: ''
 }

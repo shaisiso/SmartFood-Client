@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError } from "../utility/Utils";
+import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -9,15 +9,12 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { FormControl } from "react-bootstrap";
 
 const hoursList = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
-
-const getCurrentDate = () => {
-    return formatDateForBrowser(new Date())
-}
 const getMaxDate = () => {
     let date = new Date();
     date.setFullYear(date.getFullYear() + 1)
     return formatDateForBrowser(date)
 }
+
 
 const TableReservation = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '' })
