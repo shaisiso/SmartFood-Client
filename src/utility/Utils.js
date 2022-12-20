@@ -90,3 +90,9 @@ export function getDateOfLocalDateTimeSt(dateTime){
 export function getTimeOfLocalDateTimeSt(dateTime){
     return  dateTime ?  dateTime.split(' ')[1]: ''
 }
+export function lastCharIsDigit(str){
+    let digits =['0','1','2','3','4','5','6','7','8','9']
+    if (str.length===0)
+        return true
+    return digits.includes(str.slice(-1)) 
+}

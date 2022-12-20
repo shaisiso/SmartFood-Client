@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
 import { API_URL, toText } from '../utility/Utils';
 import Accordion from 'react-bootstrap/Accordion';
-import { useAccordionButton } from 'react-bootstrap/AccordionButton';
 import Card from 'react-bootstrap/Card';
 import { ColorRing } from 'react-loader-spinner'
 import Table from 'react-bootstrap/Table';
@@ -10,30 +9,9 @@ import PopupMessage from './PopupMessage';
 import { enumForReading } from '../utility/Utils';
 import { FloatingLabel } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
+import CustomToggle from './CustomToggle';
 
-function CustomToggle({ children, eventKey, name }) {
-    const decoratedOnClick = useAccordionButton(eventKey, () =>
-        console.log('custom toggle!'),
-    );
 
-    return (
-        <h5 onClick={decoratedOnClick} style={{ cursor: 'pointer' }}>
-            <span className="mx-2">
-                <button
-                    type="button"
-                    className="btn btn-outline-secondary"
-                    style={{ borderRadius: '50%' }}
-                >
-                    {children}
-                </button>
-            </span>
-            <span className="mx-2"  >
-                {name}
-            </span>
-        </h5>
-
-    );
-}
 
 const ItemsToOrder = (props) => {
     const [menu, setMenu] = useState([])

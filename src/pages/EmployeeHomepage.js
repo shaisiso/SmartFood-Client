@@ -17,6 +17,7 @@ import { over } from 'stompjs';
 import SockJS from 'sockjs-client';
 import { useState } from 'react';
 import ShiftService from '../services/ShiftService';
+import OrderService from '../services/OrderService';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -28,6 +29,7 @@ const EmployeeHomepage = (props) => {
         if (!mounted.current) {
             mounted.current = true;
             getShiftsToConfirm()
+            getExternalOrders()
         }
         if (RoleService.isManager(props.employee)) {
             connectWebSocekt()
@@ -39,7 +41,7 @@ const EmployeeHomepage = (props) => {
         stompClient.connect({}, onConnected, onError);
     }
     const onConnected = () => {
-        stompClient.subscribe('/topic/task', onMessageReceived);
+        stompClient.subscribe('/topic/external-orders', onExternalOrderReceived);
         stompClient.subscribe('/topic/shift', onShiftReceived)
     }
     const onShiftReceived = payload => {
@@ -48,26 +50,29 @@ const EmployeeHomepage = (props) => {
         getShiftsToConfirm()
     }
     const getShiftsToConfirm = async () => {
-        ShiftService.getShiftsToApprove()
+       await ShiftService.getShiftsToApprove()
             .then(res =>{
                 setTasks({...tasks,shifts:res.data})
             }).catch(err=>{
                 console.log(err)
             })
     }
-    const onMessageReceived = payload => {
-        var payloadData = JSON.parse(payload.body);
-        let orders = tasks.exteranlOrders
-        orders.push(payloadData);
-        setTasks({ ...tasks, exteranlOrders: [...orders] });
+    const onExternalOrderReceived = payload => {
+        getExternalOrders()
+        // var payloadData = JSON.parse(payload.body);
+        // let orders = tasks.exteranlOrders
+        // orders.push(payloadData);
+        // setTasks({ ...tasks, exteranlOrders: [...orders] });
     }
-
+    const getExternalOrders = async()=>{
+        let orders = await OrderService.getActiveExternalOrders()
+        console.log('orders',orders)
+        setTasks({...tasks,exteranlOrders:orders})
+    }
     const onError = (err) => {
         console.log(err);
     }
-    const onUpatedShifts = (newShifts) => {
-        getShiftsToConfirm()
-    }
+
     return (
         <div id="wrapper">
             <SideNavbar employee={props.employee} tasks={tasks} />
@@ -96,7 +101,7 @@ const EmployeeHomepage = (props) => {
                                     null
                             }
                             <Route path="/my-shifts" element={<MyShifts />} />
-                            <Route path="/tasks" element={<TasksPage tasks={tasks} onUpatedShifts={onUpatedShifts} />} />
+                            <Route path="/tasks" element={<TasksPage tasks={tasks} />} />
                             <Route path="/tables" element={<Tables />} />
                             <Route path="/tables/*" element={<OrderOfTable />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />

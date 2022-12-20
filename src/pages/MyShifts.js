@@ -33,7 +33,6 @@ const MyShifts = () => {
         e.preventDefault()
 
         let employee = { phoneNumber: TokenService.getUser().phoneNumber }
-        console.log(startDate)
         let startDateAPI = formatDateForServer(new Date(startDate))
         let endDateAPI = formatDateForServer(new Date(endDate))
         await ShiftService.getShiftByEmployeeAndDates(employee, startDateAPI, endDateAPI)

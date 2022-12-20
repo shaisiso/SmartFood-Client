@@ -21,6 +21,14 @@ const ShitsConfirmation = props => {
                 console.log(err)
             })
     }
+    const onClickDecline =(event, shift) => {
+        event.preventDefault();
+        console.log(shift)
+        ShiftService.deleteShift(shift)
+            .catch(err => {
+                console.log(err)
+            })
+    }
     return (
         <table className="table table-striped table-bordered text-center" style={{ backgroundColor: 'white' }}>
             <thead>
@@ -39,7 +47,8 @@ const ShitsConfirmation = props => {
                             item={{
                                 shiftEntrance: s.shiftEntrance, shiftExit: s.shiftExit, employeeName: `${s.employee.name} - ${enumForReading(s.employee.role)}`,
                                 actions: <div>
-                                    <button className="btn btn-success" onClick={e => onClickApprove(e, s)}>Approve</button> <button className="btn btn-danger">Decline</button>
+                                    <button className="btn btn-success" onClick={e => onClickApprove(e, s)}>Approve</button> 
+                                    <button className="btn btn-danger" onClick={e=>onClickDecline(e,s)}>Decline</button>
                                 </div>
                             }}
                             withId

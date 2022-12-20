@@ -7,13 +7,10 @@ const Confirmations = props => {
     useEffect(() => {
         setShifts(props.shifts)
     }, [props.shifts, shifts]);
-    const onUpatedShifts = (newShifts)=>{
-        setShifts([...newShifts])
-        props.onUpatedShifts([...newShifts])
-    }
+
     return (
         <div>
-            <ShitsConfirmation shifts= {shifts} onUpatedShifts={onUpatedShifts}/>
+            <ShitsConfirmation shifts= {shifts} />
         </div>
     );
 };
