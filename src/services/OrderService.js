@@ -18,8 +18,11 @@ class OrderService {
     }
     updateOrderStatus = async (order) => api.put(`/order/status/${order.id}/${order.status}`)
     updateDelivery = async delivery => api.put(`/delivery`, delivery)
+    updateTakeAway = async takeAway=> api.put(`takeaway`,takeAway)
     updateOrderComment = async (orderId,comment)=> api.put(`/order/comment/${orderId}`,comment)
     payment = async (orderId,amount) => api.put(`/order/pay/${orderId}/${amount}`)
+    addNewDelivery = async (delivery)=>api.post(`/delivery`,delivery)
+    addNewTakeAway = async (takeAway) => api.post(`takeaway`,takeAway)
 }
 
 export default new OrderService();

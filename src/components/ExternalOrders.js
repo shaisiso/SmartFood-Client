@@ -51,21 +51,26 @@ const ExternalOrders = props => {
             //send update to api
             let items = order.items
             items.forEach(i => delete i.order)
-            let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
-            OrderService.updateDelivery(delivery).then(res => {
-                console.log(res)
-            }).catch(err => {
-                console.log(err)
-                var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: errMsg })
-            })
+            if (order.type === 'TA') {
+                let takeAway = { id: order.id, person: { ...personUpdate } }
+                OrderService.updateTakeAway(takeAway)
+                .then(res=>console.log(res))
+                .catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
+            } else {
+                let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
+                OrderService.updateDelivery(delivery).catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
+            }
         }
         setShowUpdates({ ...showUpdates, person: !showUpdates.person })
     }
     const onClickCancelUpdatePerson = e => {
         e?.preventDefault()
-        setPersonUpdate({})
         setShowUpdates({ ...showUpdates, person: false })
+        setPersonUpdate({})
     }
     const onClickCancelUpdateComment = e => {
         e?.preventDefault()
@@ -92,11 +97,12 @@ const ExternalOrders = props => {
         setOrderCommentUpdate(e.target.value)
     }
     const cancelUpdates = () => {
-        onClickCancelUpdatePerson()
-        onClickCancelUpdateComment()
-        onClickCancelPayment()
+        setPaymentAmout(0)
+        setOrderCommentUpdate('')
+        setPersonUpdate({})
+        setShowUpdates({ person:false,comments:false, payment: false })
     }
-    const onClickCancelPayment =e=>{
+    const onClickCancelPayment = e => {
         e?.preventDefault()
         setPaymentAmout(0)
         setShowUpdates({ ...showUpdates, payment: false })
@@ -117,23 +123,23 @@ const ExternalOrders = props => {
         }
         setPersonUpdate({ ...details })
     }
-    const onClickPay = (e,order) => {
+    const onClickPay = (e, order) => {
         e.preventDefault()
         setShowUpdates({ ...showUpdates, payment: !showUpdates.payment })
-        if(showUpdates.payment){
-            OrderService.payment(order.id,paymentAmount)
-            .then(res=>{
-                setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of${paymentAmount}₪ has been confirmed`,`Remaining Price: ${res.data.totalPriceToPay- res.data.alreadyPaid}₪` ]})
-            })
-            .catch(err=>{
-                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-            })
+        if (showUpdates.payment) {
+            OrderService.payment(order.id, paymentAmount)
+                .then(res => {
+                    setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of ${paymentAmount}₪ has been confirmed`, `Remaining Price: ${res.data.totalPriceToPay - res.data.alreadyPaid}₪`] })
+                })
+                .catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
         }
-        else{
-            setPaymentAmout(order.totalPriceToPay-order.alreadyPaid)
+        else {
+            setPaymentAmout(order.totalPriceToPay - order.alreadyPaid)
         }
     }
-    const onChangePayment=(e) =>{
+    const onChangePayment = (e) => {
         e.preventDefault()
         setPaymentAmout(e.target.value)
     }
