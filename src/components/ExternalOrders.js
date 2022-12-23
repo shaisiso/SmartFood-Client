@@ -4,14 +4,18 @@ import { useRef } from 'react';
 import { useState } from 'react';
 import { Accordion, Card, FloatingLabel, Form, FormControl, Table } from 'react-bootstrap';
 import OrderService from '../services/OrderService';
-import { addressToString, enumForClass, enumForReading, lastCharIsDigit } from '../utility/Utils';
+import { addressToString, enumForClass, enumForReading, extractHttpError, lastCharIsDigit } from '../utility/Utils';
 import CustomToggle from './CustomToggle';
+import PopupMessage from './PopupMessage';
 
 const ExternalOrders = props => {
     const [exteranlOrders, setExteranlOrders] = useState([])
     const [statuses, setStatuses] = useState([])
-    const [showPersonUpdate, setShowPersonUpdate] = useState(false)
+    const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
     const [personUpdate, setPersonUpdate] = useState({})
+    const [orderCommentUpdate, setOrderCommentUpdate] = useState('')
+    const [paymentAmount, setPaymentAmout] = useState(0)
+    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const mounted = useRef()
     useEffect(() => {
         if (!mounted.current) {
@@ -27,37 +31,75 @@ const ExternalOrders = props => {
             .then(res => {
                 setStatuses(res.data)
             }).catch(err => {
-                console.log(err)
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
     }
     const onChangeStatus = (e, order) => {
         console.log(e.target.value)
         let o = { ...order, status: enumForClass(e.target.value) }
-        OrderService.updateOrderStatus(o)
+        OrderService.updateOrderStatus(o).catch(err => {
+            var errMsg = extractHttpError(err)
+            setPopupMessage({ title: 'Error', messages: errMsg })
+        })
     }
     const onClickUpdatePerson = (e, order) => {
         e.preventDefault()
-
-        if (!showPersonUpdate)
+        if (!showUpdates.person)
             setPersonUpdate({ ...order.person })
         else {
             //send update to api
             let items = order.items
             items.forEach(i => delete i.order)
-            let delivery = { id:order.id, person: { ...personUpdate },deliveryGuy:order.deliveryGuy }
+            let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
             OrderService.updateDelivery(delivery).then(res => {
                 console.log(res)
             }).catch(err => {
                 console.log(err)
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
             })
         }
-        setShowPersonUpdate(!showPersonUpdate)
+        setShowUpdates({ ...showUpdates, person: !showUpdates.person })
     }
-    const onClickCancelUpdate = e => {
-        e.preventDefault()
+    const onClickCancelUpdatePerson = e => {
+        e?.preventDefault()
         setPersonUpdate({})
-        setShowPersonUpdate(false)
-
+        setShowUpdates({ ...showUpdates, person: false })
+    }
+    const onClickCancelUpdateComment = e => {
+        e?.preventDefault()
+        setOrderCommentUpdate('')
+        setShowUpdates({ ...showUpdates, comments: false })
+    }
+    const onClickUpdateComment = (e, order) => {
+        e.preventDefault()
+        if (!showUpdates.comments)
+            setOrderCommentUpdate(order.orderComment)
+        else {
+            //send update to api
+            OrderService.updateOrderComment(order.id, orderCommentUpdate).then(res => {
+                console.log(res)
+            }).catch(err => {
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
+            })
+        }
+        setShowUpdates({ ...showUpdates, comments: !showUpdates.comments })
+    }
+    const onChangeComment = e => {
+        e.preventDefault()
+        setOrderCommentUpdate(e.target.value)
+    }
+    const cancelUpdates = () => {
+        onClickCancelUpdatePerson()
+        onClickCancelUpdateComment()
+        onClickCancelPayment()
+    }
+    const onClickCancelPayment =e=>{
+        e?.preventDefault()
+        setPaymentAmout(0)
+        setShowUpdates({ ...showUpdates, payment: false })
     }
     const onChangePersonDetails = (e, order) => {
         let fieldName = e.target.getAttribute("name")
@@ -75,6 +117,27 @@ const ExternalOrders = props => {
         }
         setPersonUpdate({ ...details })
     }
+    const onClickPay = (e,order) => {
+        e.preventDefault()
+        setShowUpdates({ ...showUpdates, payment: !showUpdates.payment })
+        if(showUpdates.payment){
+            OrderService.payment(order.id,paymentAmount)
+            .then(res=>{
+                setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of${paymentAmount}₪ has been confirmed`,`Remaining Price: ${res.data.totalPriceToPay- res.data.alreadyPaid}₪` ]})
+            })
+            .catch(err=>{
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        }
+        else{
+            setPaymentAmout(order.totalPriceToPay-order.alreadyPaid)
+        }
+    }
+    const onChangePayment=(e) =>{
+        e.preventDefault()
+        setPaymentAmout(e.target.value)
+    }
+
     return (
         <div>
             <Accordion>
@@ -83,7 +146,7 @@ const ExternalOrders = props => {
                         exteranlOrders.map((order, key) =>
                             <Card key={key}>
                                 <Card.Header>
-                                    <CustomToggle eventKey={key} name={`#${order.id}-${order.type}: ${enumForReading(order.status)} ${order.date} ${order.hour}`} />
+                                    <CustomToggle eventKey={key} name={`#${order.id}-${order.type}: ${enumForReading(order.status)} ${order.date} ${order.hour}`} onClickToggle={cancelUpdates} />
                                 </Card.Header>
                                 <Accordion.Collapse eventKey={key} >
                                     <Form>
@@ -110,10 +173,10 @@ const ExternalOrders = props => {
                                                     <td className="align-middle ps-4 pe-3" ><h6>Customer Details: </h6>{order.person.name} - {order.person.phoneNumber}, {addressToString(order.person.address)}
                                                         <button className="btn btn-primary btn-sm mx-2" onClick={e => onClickUpdatePerson(e, order)}>Update</button>
                                                         {
-                                                            showPersonUpdate ?
+                                                            showUpdates.person ?
 
                                                                 <span >
-                                                                    <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdate}>Cancel</button>
+                                                                    <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdatePerson}>Cancel</button>
                                                                     <FloatingLabel label="*Phone Number" >
                                                                         <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="phoneNumber" placeholder="*Phone Number" required
                                                                             value={personUpdate.phoneNumber} onChange={e => onChangePersonDetails(e, order)} />
@@ -140,7 +203,7 @@ const ExternalOrders = props => {
                                                                             value={personUpdate.address.entrance || ''} onChange={e => onChangePersonDetails(e, order)} />
                                                                     </FloatingLabel>
                                                                     <FloatingLabel label="Apartment Number">
-                                                                        <input type="number" className="col col-xl-2 col-lg-4 form-control" name='address.apartmentNumber'
+                                                                        <input type="number" className="col col-xl-2 col-lg-4 form-control" name='address.apartmentNumber' min={0}
                                                                             value={personUpdate.address.apartmentNumber || ''} onChange={e => onChangePersonDetails(e, order)} />
                                                                     </FloatingLabel>
                                                                 </span>
@@ -168,7 +231,41 @@ const ExternalOrders = props => {
                                                         }
                                                     </div>
                                                 </tr>
+                                                <tr>
+                                                    <td className="align-middle ps-4 pe-3" ><h6>Comments: </h6>{order.orderComment}
+                                                        {
+                                                            showUpdates.comments ?
+                                                                <span>
+                                                                    <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="comment" placeholder="Order Comment"
+                                                                        value={orderCommentUpdate} onChange={onChangeComment} />
+                                                                    <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdateComment}>Cancel</button>
+                                                                </span>
+                                                                :
+                                                                null
+                                                        }
+                                                        <button className="btn btn-primary btn-sm mx-2 my-1" onClick={e => onClickUpdateComment(e, order)}>Update</button>
 
+                                                    </td>
+                                                </tr>
+                                                <tr>
+                                                    <div className="align-middle ps-4 pe-3" ><h6>Bill: </h6>
+                                                        <tr> Total price: {order.totalPriceToPay}₪</tr>
+                                                        <tr> Paid: {order.alreadyPaid}₪</tr>
+                                                        <tr>
+                                                            {
+                                                                showUpdates.payment ?
+                                                                    <span>
+                                                                        <input type="number" min={0} className=" form-control" name="comment" placeholder="Order Comment"
+                                                                            value={paymentAmount} onChange={onChangePayment} />
+                                                                        <button className="btn btn-danger mx-2" onClick={onClickCancelPayment}>Cancel</button>
+                                                                    </span>
+                                                                    :
+                                                                    null
+                                                            }
+                                                            <button className="btn btn-primary  mx-2 my-1" onClick={e => onClickPay(e, order)}>Pay</button>
+                                                        </tr>
+                                                    </div>
+                                                </tr>
                                             </tbody>
                                         </Table>
                                     </Form>
@@ -179,6 +276,36 @@ const ExternalOrders = props => {
                         null
                 }
             </Accordion>
+            {
+                popupMessage.title ?
+                    <PopupMessage
+                        title={popupMessage.title}
+                        body={
+                            <ul>
+                                {
+                                    popupMessage.messages.map((message, key) => (
+                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
+                                            {message}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        }
+                        onClose={() => {
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        status={popupMessage.title === 'Error' ?
+                            'error'
+                            :
+                            'success'
+
+                        }
+                        closeOnlyWithBtn
+                    >
+                    </PopupMessage>
+                    :
+                    null
+            }
         </div>
     );
 };

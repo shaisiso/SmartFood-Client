@@ -12,7 +12,6 @@ import EditableRowEmployee from './EditableRowEmployee';
 const EmployeesManagement = () => {
     const [employees, setEmployees] = useState([])
     const [roles, setRoles] = useState([])
-
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [loaded, setLoaded] = useState(false)
     const [showNewEmployeemForm, setShowNewForm] = useState(false)

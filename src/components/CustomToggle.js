@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 
-function CustomToggle({ children, eventKey, name }) {
+function CustomToggle({ children, eventKey, name, onClickToggle }) {
     const decoratedOnClick = useAccordionButton(eventKey, () => {
         if (sign === '+') {
             setSign('-')
@@ -9,6 +9,8 @@ function CustomToggle({ children, eventKey, name }) {
         else {
             setSign('+')
         }
+        if (onClickToggle)
+            onClickToggle()
     });
     const [sign, setSign] = useState('+')
     return (
@@ -18,7 +20,7 @@ function CustomToggle({ children, eventKey, name }) {
                     type="button"
                     className="btn btn-outline-secondary"
                     style={{ borderRadius: '50%' }}
-                   
+
                 >
                     {sign}
                 </button>

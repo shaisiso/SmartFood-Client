@@ -18,6 +18,8 @@ class OrderService {
     }
     updateOrderStatus = async (order) => api.put(`/order/status/${order.id}/${order.status}`)
     updateDelivery = async delivery => api.put(`/delivery`, delivery)
+    updateOrderComment = async (orderId,comment)=> api.put(`/order/comment/${orderId}`,comment)
+    payment = async (orderId,amount) => api.put(`/order/pay/${orderId}/${amount}`)
 }
 
 export default new OrderService();
