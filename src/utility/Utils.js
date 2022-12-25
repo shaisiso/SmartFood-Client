@@ -18,6 +18,8 @@ export function formatDateForBrowser(date) {
     return `${year}-${month}-${day}`
 }
 export function formatDateForServer(date) {
+    if (typeof(date)=== 'string')
+        date = new Date(date)
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
@@ -52,6 +54,8 @@ export function getCurrentDate()  {
 }
 
 export function enumForReading(enumType) {
+    if (!enumType)
+        return ''
     return enumType.split("_")
         .map(word => word[0].toUpperCase() + word.substring(1).toLowerCase())
         .join(" ")

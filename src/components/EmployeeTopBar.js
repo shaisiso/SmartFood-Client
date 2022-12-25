@@ -11,7 +11,7 @@ import { useState } from 'react';
 import { useRef } from 'react';
 import ShiftService from '../services/ShiftService';
 import { useEffect } from 'react';
-import { extractHttpError, formatDateForServer } from '../utility/Utils';
+import { enumForReading, extractHttpError, formatDateForServer } from '../utility/Utils';
 import TokenService from '../services/TokenService';
 import PopupMessage from './PopupMessage';
 
@@ -36,7 +36,7 @@ const EmployeeTopBar = (props) => {
         if (res.data && res.data.length > 0) {
           let currentShift = res.data.find(s => !s.shiftExit) || { shiftEntrance: '', shiftExit: '', employee: {} }
           setShift(currentShift)
-          setOnShift(currentShift.shiftExit !=='')
+          setOnShift(currentShift.shiftExit !== '')
         }
 
       }).catch(err => {
@@ -66,24 +66,23 @@ const EmployeeTopBar = (props) => {
             <div className="my-auto" style={{ color: 'yellow' }}> You started shift at: {shift.shiftEntrance}</div>
             :
             null
-        }
-        
+        }       
         <div className="topbar-divider d-none d-sm-block" />
-        <div className="mr-20 text-white-600 small" >
+        <div className="mr-20 text-white-600 small " >
           <Dropdown >
             <Dropdown.Toggle className='text-white' variant="transparent" >
-              {props.employee.name} &nbsp; &nbsp;
+              {props.employee.name} -  {props.employee.role ? enumForReading(props.employee.role) : ''} &nbsp; &nbsp;
               <UserSvg width="48" height="48" />
             </Dropdown.Toggle>
-            <Dropdown.Menu style={{ margin: 0 }}>
-              <Dropdown.Item as={Link} to="/profile">
+            <Dropdown.Menu style={{ marginLeft: 100 }}>
+              <Dropdown.Item as={Link} to="/employee/profile">
                 <ProfileSvg width={iconSize} height={iconSize} />
                 &nbsp; Profile
               </Dropdown.Item>
               <Dropdown.Item as={Link} to="/employee/my-shifts">
                 <ShiftSvg width={iconSize} height={iconSize} />
                 &nbsp; My Shifts
-              </Dropdown.Item>     
+              </Dropdown.Item>
               <Dropdown.Item onClick={onExitShift} disabled={!onShift}>
                 <ExitSvg width={iconSize} height={iconSize} />
                 &nbsp; Exit Shift

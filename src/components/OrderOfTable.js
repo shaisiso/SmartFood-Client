@@ -1,15 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ColorRing } from 'react-loader-spinner';
-import OrderService from '../services/OrderService';
 import TableService from '../services/TableService';
-import {  extractHttpError } from '../utility/Utils';
+import { extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
-
+import ItemsToOrder from './ItemsToOrder'
+//import { Row } from 'react-bootstrap';
 const OrderOfTable = () => {
     const [table, setTable] = useState({})
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [showLoader, setShowLoader] = useState(true)
-    const [order,setOrder] = useState({table:{}, numberOfDiners:1})
+    const [order, setOrder] = useState({ table: {}, numberOfDiners: 1 })
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -32,40 +32,41 @@ const OrderOfTable = () => {
         setShowLoader(false)
 
     }
-    const onClickOpenTable = (e,setToBusy)=>{
+    const onClickOpenTable = async (e, setToBusy) => {
         e.preventDefault();
-        setTable({
-            ...table,
-            isBusy: setToBusy
-        })
-        setOrder({
-            ...order,
-            table: table
-        })
-        OrderService.addOrderOfTable(order)
-            .then(res =>{
-                console.log(res.data)
-            }).catch(err=>{
-                console.log(err)
+        setShowLoader(true)
+        await TableService.changeTableBusy(table.tableId, setToBusy)
+            .then(res => {
+                setTable(res.data)
+                setOrder({ ...order, table: res.data })
+            }).catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+
             })
+        setShowLoader(false)
     }
     return (
-        <div className="container text-center">
-            <h1 className="py-5 bold"><b><u>Table #{table.tableId}</u></b></h1>
-            {
-                !table.isBusy ?
-                    <button className='btn btn-success' onClick={(e)=>onClickOpenTable(e,true)}>Open Table</button>
-                    :
-                    <button className='btn btn-danger'>Close Table</button>
-            }
-            <div className="row text-center">
-                <ColorRing
-                    visible={showLoader}
-                    ariaLabel="blocks-loading"
-                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
-                />
+        <div className="container">
+            <div className=" text-center">
+                <h1 className="py-5 bold"><b><u>Table #{table.tableId}</u></b></h1>
+                {
+                    !table.isBusy ?
+                        <button className='btn btn-success mb-3' onClick={(e) => onClickOpenTable(e, true)}>Open Table</button>
+                        :
+                        <button className='btn btn-danger mb-3' onClick={(e) => onClickOpenTable(e, false)}>Close Table</button>
+                }
+                <div className="row text-center">
+                    <ColorRing
+                        visible={showLoader}
+                        ariaLabel="blocks-loading"
+                        colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                    />
+                </div>
             </div>
 
+            {
+                table.isBusy ? <ItemsToOrder /> : null
+            }
             {
                 popupMessage.title ?
                     <PopupMessage

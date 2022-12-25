@@ -28,26 +28,31 @@ const Discounts = (props) => {
                 setDiscounts(res.data)
             })
             .catch(err => {
-                setPopupMessage({title:'Error', messages: extractHttpError(err)})
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
     }
     const getDiscountToDisplay = (discount) => {
-        let categories = discount.categories.map(c => enumForReading(c))
-        let d = { ...discount, categories: categories, percent: `${discount.percent}%` }
+        let daysStr = ''
+        let categoriesStr = ''
+        discount.categories.map(c => enumForReading(c))
+            .forEach(c => categoriesStr += `${c}, `);
+        discount.days.map(d => enumForReading(d))
+            .forEach(day => daysStr += `${day}, `);
+        let d = { ...discount, categories: categoriesStr.slice(0, -2), days: daysStr.slice(0, -2), percent: `${discount.percent}%` }
         //delete d.discountId
         return d
     }
-    const handleDeleteClick = (e,discount)=>{
+    const handleDeleteClick = (e, discount) => {
         e.preventDefault()
         console.log('handleDeleteClick')
         DiscountsService.deleteDiscount(discount)
-        .then(res =>{
-            getDiscounts()
-        })
-        .catch(err =>{
-            setPopupMessage({title:'Error', messages: extractHttpError(err)})
-        })
-    }  
+            .then(res => {
+                getDiscounts()
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+    }
     return (
         <form onSubmit={getDiscounts} >
             <table className="mx-auto my-4">
@@ -107,7 +112,7 @@ const Discounts = (props) => {
                     :
                     null
             }
-                        {
+            {
                 popupMessage.title ?
                     <PopupMessage
                         title={popupMessage.title}
@@ -125,7 +130,7 @@ const Discounts = (props) => {
                         onClose={() => {
                             setPopupMessage({ title: '', messages: [''] })
                         }}
-                        status={popupMessage.title === 'Error' ?   'error'  :'info' }
+                        status={popupMessage.title === 'Error' ? 'error' : 'info'}
                         closeOnlyWithBtn
                     >
                     </PopupMessage>

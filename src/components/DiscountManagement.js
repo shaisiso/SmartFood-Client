@@ -3,9 +3,10 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
+import { ColorRing } from 'react-loader-spinner';
 import DiscountsService from '../services/DiscountsService';
 import MenuService from '../services/MenuService';
-import { extractHttpError, getCurrentDate } from '../utility/Utils';
+import { enumForClass, extractHttpError, formatDateForServer, getCurrentDate } from '../utility/Utils';
 import Discounts from './Discounts';
 import PopupMessage from './PopupMessage';
 
@@ -13,9 +14,10 @@ const daysOfWeek = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Fri
 
 const DiscountManagement = () => {
     const [showNewDiscount, setShowNewDiscount] = useState(false)
-    const [newDiscount, setNewDiscount] = useState({ forMembersOnly: false, startDate: getCurrentDate(), endDate: getCurrentDate(), days: [], startHour: '', endHour: '', ifYouOrder: '', youGetDiscountFor: '', percent: '', categories: [], discountDescription: '' })
+    const [newDiscount, setNewDiscount] = useState({ forMembersOnly: false, startDate: getCurrentDate(), endDate: getCurrentDate(), days: [...daysOfWeek], startHour: '09:00', endHour: '23:59', ifYouOrder: '', youGetDiscountFor: '', percent: '', categories: [], discountDescription: '' })
     const [categories, setCategories] = useState([])
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState(false)
 
     const mounted = useRef()
     useEffect(() => {
@@ -55,21 +57,36 @@ const DiscountManagement = () => {
         else {
             newDiscountChange[fieldName] = newDiscountChange[fieldName].filter(element => element !== fieldValue)
         }
-        console.log(newDiscountChange)
         setNewDiscount({ ...newDiscountChange })
     }
-    const addNewDiscount = e => {
+    const addNewDiscount = async e => {
         e.preventDefault()
-        DiscountsService.addNewDiscount(newDiscount)
-    }
+        setShowLoader(true)
+        let startDate = formatDateForServer(newDiscount.startDate)
+        let endDate = formatDateForServer(newDiscount.endDate)
+        let discountForAPI = {
+            ...newDiscount,
+            startDate: startDate, endDate: endDate,
+            days: newDiscount.days.map(d => enumForClass(d)), categories: newDiscount.categories.map(c => enumForClass(c))
+        }
+        console.log(discountForAPI)
+        await DiscountsService.addNewDiscount(discountForAPI)
+            .then(res => {
+                setPopupMessage({ title: 'New Discount', messages: [`New discount was saved: ${res.data.discountDescription}`] })
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader(false)
 
+    }
     return (
         <div className="container mx-auto text-center">
             <button className='btn btn-primary mx-auto mt-4' onClick={onClickNewDiscount}>Add New Discount</button>
             {
                 showNewDiscount ?
                     <Form onSubmit={addNewDiscount}>
-                        <div className="col-md-6 mx-auto mb-5 mt-3 py-3" style={{backgroundColor: '#c0c0c080'}}>
+                        <div className="col-md-6 mx-auto mb-5 mt-3 py-3" style={{ backgroundColor: '#c0c0c080' }}>
                             <div className="d-flex justify-content-center mb-3">
                                 <Form.Check
                                     inline
@@ -114,12 +131,12 @@ const DiscountManagement = () => {
                                 }
                             </div>
                             <div className="col-md-12 form-group mt-3 mt-md-0 text-left">
-                                <label for="startHour">Start Hour: &nbsp;</label>
+                                <label htmlFor="startHour">Start Hour: &nbsp;</label>
                                 <input type="time" id="startHour" name="startHour" value={newDiscount.startHour} onChange={onChangeNewDiscount}
                                     min="09:00" max="02:00" required />
-                                <label for="endHour" className="ms-5">End Hour: &nbsp;</label>
+                                <label htmlFor="endHour" className="ms-5">End Hour: &nbsp;</label>
                                 <input type="time" id="endHour" name="endHour" value={newDiscount.endHour} onChange={onChangeNewDiscount}
-                                    min="09:00" max="02:00" required />
+                                    min={newDiscount.startHour} max="23:59" required />
                             </div>
                             <div className="col-md-12 form-group mt-3 mt-md-0">
                                 <FloatingLabel label="If You Order">
@@ -148,7 +165,7 @@ const DiscountManagement = () => {
                             </div>
                             <div className="col-md-12 form-group mt-3 mt-md-0">
                                 <FloatingLabel label="Description" >
-                                    <textarea className="form-control" name="description" rows="2" placeholder="discountDescription"
+                                    <textarea className="form-control" name="discountDescription" rows="2" placeholder="discountDescription" required
                                         value={newDiscount.discountDescription} onChange={onChangeNewDiscount} />
                                 </FloatingLabel>
                             </div>
@@ -158,6 +175,11 @@ const DiscountManagement = () => {
                     :
                     null
             }
+            <ColorRing
+                visible={showLoader}
+                ariaLabel="blocks-loading"
+                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+            />
             <Discounts withDelete />
             {
                 popupMessage.title ?
@@ -176,8 +198,9 @@ const DiscountManagement = () => {
                         }
                         onClose={() => {
                             setPopupMessage({ title: '', messages: [''] })
+
                         }}
-                        status={popupMessage.title === 'Error' ? 'error' : 'info'}
+                        status={popupMessage.title === 'Error' ? 'error' : 'success'}
                         closeOnlyWithBtn
                     >
                     </PopupMessage>
