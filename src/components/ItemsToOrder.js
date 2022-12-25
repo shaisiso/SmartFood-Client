@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import { API_URL, extractHttpError, toText } from '../utility/Utils';
+import { API_URL, extractHttpError } from '../utility/Utils';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import { ColorRing } from 'react-loader-spinner'
@@ -10,17 +10,16 @@ import { enumForReading } from '../utility/Utils';
 import { FloatingLabel } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import CustomToggle from './CustomToggle';
-import OrderService from '../services/OrderService';
-
-
 
 const ItemsToOrder = (props) => {
     const [menu, setMenu] = useState([])
     const [categories, setCategories] = useState([])
     const [showLoader, setShowLoader] = useState(true)
     const [chosenItemsToDisplay, setChosenItems] = useState([])
+    const [chosenInitFlag, setChosenInitFlag] = useState(true)
     const [orderComment, setOrderComment] = useState('')
     const [popupMessage, setPopupMessage] = useState({ header: '', body: { topText: '', items: [''], bottomText: '' } })
+    const [loaded, setLoaded] = useState(true)
 
 
     const mounted = useRef();
@@ -29,23 +28,19 @@ const ItemsToOrder = (props) => {
             mounted.current = true;
             getMenuData();
         }
-    });
+        if (chosenInitFlag && props.chosenItems && props.chosenItems.length > 0) {
+            setChosenItems([...props.chosenItems])
+            setOrderComment(props.orderComment)
+            setChosenInitFlag(false)
+        }
+    }, [props.chosenItems, chosenItemsToDisplay,chosenInitFlag,props.orderComment]);
     const getMenuData = async () => {
         await Axios.get(`${API_URL}/api/menu/categorized`)
             .then(res => {
                 setMenu(res.data)
                 setCategories(Object.keys(res.data))
             }).catch(err => {
-                var errMsg;
-                console.log(err)
-                if (err.response.data) {
-                    errMsg = err.response.data.message;
-                }
-                else {
-                    errMsg = err.message
-                }
-                console.log(errMsg)
-                setPopupMessage({ header: 'Error', messages: [errMsg] })
+                setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
             })
         setShowLoader(false)
     }
@@ -84,7 +79,6 @@ const ItemsToOrder = (props) => {
             itemsInOrder.splice(itemsInOrder[itemsInOrder.length - 1], 1)
         else
             itemsInOrder.push({ ...itemsInOrder[0], itemComment: '' })
-        console.log('itemsInOrder', itemsInOrder)
         const newState = chosenItemsToDisplay.map(obj => {
             if (obj.itemId === item.itemId) {
                 return { ...obj, quantity: newQuantity, price: newQuantity * itemPrice, itemsInOrder: itemsInOrder };
@@ -96,46 +90,13 @@ const ItemsToOrder = (props) => {
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItemsToDisplay.filter(item => item !== itemToDelete))
     }
-    const onClickSendOrder = (e) => {
+    const onClickSendOrder = async (e) => {
         e.preventDefault();
-        // TODO: Send order to server. (Add payment)
-        let itemsInOrder = []
-        chosenItemsToDisplay.forEach(item => {
-            itemsInOrder.push(...item.itemsInOrder)
-        })
-        let order = { items: [...itemsInOrder], orderComment: orderComment, person: props.orderUserDetails.personDetails }
-        console.log(order)
-        if (props.orderUserDetails.type.includes("Delivery")) {
-            OrderService.addNewDelivery(order)
-                .then(res => {
-                    setOrderinPopup()
-                }).catch(err => {
-                    setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
-                })
-        }
-        else {
-            OrderService.addNewTakeAway(order)
-                .then(res => {
-                    setOrderinPopup()
-                }).catch(err => {
-                    setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
-                })
-        }
+        setLoaded(false)
+        await props.onClickSendOrder(chosenItemsToDisplay, orderComment)
+        setLoaded(true)
     }
-    const setOrderinPopup = () => {
-        let person = props.orderUserDetails.personDetails
-        let personString = `${person.name} - ${person.phoneNumber}`
-        personString += props.orderUserDetails.type === 'Delivery' ? `, ${person.address.city} ${person.address.streetName} ${person.address.houseNumber} ${toText(person.address.entrance)} ${toText(person.address.apartmentNumber)}` : ""
-        let itemString = []
-        chosenItemsToDisplay.forEach(i => itemString.push(`${i.quantity} ${i.name} - ${i.price}₪`))
-        let price = `Total Price: ${chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪ `
-        setPopupMessage(
-            {
-                header: `Order Details: ${props.orderUserDetails.type}`,
-                body: { topText: personString, items: [...itemString], bottomText: `${price}. We will send SMS message when it is ready.` }
-            }
-        )
-    }
+
     const onChangeItemComment = (e, itemInOrder, ioKey) => {
         e.preventDefault();
         let chosenItems = chosenItemsToDisplay
@@ -167,7 +128,7 @@ const ItemsToOrder = (props) => {
                             categories.map((category, key) =>
                                 <Card key={key}>
                                     <Card.Header>
-                                        <CustomToggle eventKey={key} name={category}>+</CustomToggle>
+                                        <CustomToggle eventKey={key} name={category} />
                                     </Card.Header>
                                     <Accordion.Collapse eventKey={key} >
                                         <Table striped bordered hover className="m-0" >
@@ -201,18 +162,18 @@ const ItemsToOrder = (props) => {
                                 chosenItemsToDisplay.map((item, key) =>
                                     <tr key={key} className="row align-middle h4">
                                         <div className="row mb-0 pb-0">
-                                            <td className="col col-xl-7 col-lg-6 col-6 px-2">{item.name}
+                                            <td className="col col-xl-7 col-sm-6 col-12 px-2">{item.name}
                                             </td>
 
-                                            <td className="col col-2 px-2 mb-0 pb-0">{item.price}₪</td>
-                                            <td className="col col-2 p-1 mb-0 pb-0">
+                                            <td className="col col-md-2 col-3 px-2 mb-0 pb-0">{item.price}₪</td>
+                                            <td className="col col-md-2 col-3 p-1 mb-0 pb-0">
                                                 <FloatingLabel label="Quantity" style={{ fontSize: '0.8rem' }} >
                                                     <Form.Control size="sm" type="number"
                                                         min={1}
                                                         value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height: '3rem', width: '4rem' }} />
                                                 </FloatingLabel>
                                             </td>
-                                            <td className="col col-1 mb-0 pb-0">
+                                            <td className="col col-1  mb-0 pb-0">
                                                 <button className='btn btn-danger btn-sm  ms-0' style={{ borderRadius: '100%' }}
                                                     onClick={() => onClickDeleteItem(item)}>x</button>
 
@@ -222,8 +183,8 @@ const ItemsToOrder = (props) => {
                                         {
                                             item.itemsInOrder.map((itemInOrder, ioKey) =>
                                                 <div className="row my-0 py-0" key={ioKey}>
-                                                    <div className=" col col-xl-4 col-8">
-                                                        <input className="form-control mt-1" type="text" value={itemInOrder.itemComment} onChange={e => onChangeItemComment(e, itemInOrder, ioKey)} placeholder={`Comment item ${ioKey + 1}`} />
+                                                    <div className=" col col-xxl-4 col-xl-6 col-8">
+                                                        <input className="form-control  mt-1" type="text" value={itemInOrder.itemComment} onChange={e => onChangeItemComment(e, itemInOrder, ioKey)} placeholder={`Comment item ${ioKey + 1}`} />
                                                     </div>
                                                 </div>
                                             )
@@ -237,7 +198,7 @@ const ItemsToOrder = (props) => {
                                         <tr className="row align-middle h4 " style={{ height: '3rem', background: '#ffff0050' }}>
                                             <td className="col col-xl-7 col-lg-6 col-6 p-2">Total Price:</td>
                                             <td className="col col-xl-2 col-lg-2 col-2 p-2">
-                                                {chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}
+                                                {chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪
                                             </td>
                                             <td className="col col-xl-2 col-lg-3 col-3 p-0" />
                                             <td className="col  col-xl-1 col-lg-1 col-1 " />
@@ -263,13 +224,19 @@ const ItemsToOrder = (props) => {
                             <div className="d-flex justify-content-center form-group mt-4">
                                 <div className="col-md-6 form-group">
                                     <button className="btn btn-primary btn-user btn-block justify-content-center text-center"
-                                        onClick={onClickSendOrder}>Send Order</button>
+                                        onClick={onClickSendOrder}>{props.sendOrderBtnText || 'Send Order'}</button>
                                 </div>
                             </div>
                             :
                             null
                     }
-
+                    <div className="text-center ">
+                        <ColorRing
+                            visible={!loaded}
+                            ariaLabel="blocks-loading"
+                            colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                        />
+                    </div>
 
                 </div>
             </div>
@@ -294,7 +261,8 @@ const ItemsToOrder = (props) => {
 
                         }
                         onClose={() => {
-                            cleanAll()
+                            if (popupMessage.header !== 'Error')
+                                cleanAll()
                         }}
                         status={popupMessage.header === 'Error' ?
                             'error'

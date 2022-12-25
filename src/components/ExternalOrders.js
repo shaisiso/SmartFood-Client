@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { useRef } from 'react';
 import { useState } from 'react';
 import { Accordion, Card, FloatingLabel, Form, FormControl, Table } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import OrderService from '../services/OrderService';
 import { addressToString, enumForClass, enumForReading, extractHttpError, lastCharIsDigit } from '../utility/Utils';
 import CustomToggle from './CustomToggle';
@@ -13,7 +14,6 @@ const ExternalOrders = props => {
     const [statuses, setStatuses] = useState([])
     const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
     const [personUpdate, setPersonUpdate] = useState({})
-    const [orderCommentUpdate, setOrderCommentUpdate] = useState('')
     const [paymentAmount, setPaymentAmout] = useState(0)
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const mounted = useRef()
@@ -22,7 +22,6 @@ const ExternalOrders = props => {
             mounted.current = true
             getStatuses()
         }
-        console.log('ExternalOrders: ', exteranlOrders)
         setExteranlOrders(props.exteranlOrders)
     }, [props.exteranlOrders, exteranlOrders]);
 
@@ -36,7 +35,6 @@ const ExternalOrders = props => {
             })
     }
     const onChangeStatus = (e, order) => {
-        console.log(e.target.value)
         let o = { ...order, status: enumForClass(e.target.value) }
         OrderService.updateOrderStatus(o).catch(err => {
             var errMsg = extractHttpError(err)
@@ -45,19 +43,22 @@ const ExternalOrders = props => {
     }
     const onClickUpdatePerson = (e, order) => {
         e.preventDefault()
-        if (!showUpdates.person)
-            setPersonUpdate({ ...order.person })
+        if (!showUpdates.person) {
+            let address = order.person.address ? order.person.address : { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' }
+            setPersonUpdate({ ...order.person, address: address })
+        }
         else {
             //send update to api
             let items = order.items
             items.forEach(i => delete i.order)
             if (order.type === 'TA') {
-                let takeAway = { id: order.id, person: { ...personUpdate } }
+                let takeAway = { id: order.id, person: {...personUpdate, addres:{...order.person.address}} }
+                if (takeAway.person.address && takeAway.person.address.city && takeAway.person.address.city === '')
+                    delete takeAway.person.address
                 OrderService.updateTakeAway(takeAway)
-                .then(res=>console.log(res))
-                .catch(err => {
-                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-                })
+                    .catch(err => {
+                        setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                    })
             } else {
                 let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
                 OrderService.updateDelivery(delivery).catch(err => {
@@ -72,35 +73,13 @@ const ExternalOrders = props => {
         setShowUpdates({ ...showUpdates, person: false })
         setPersonUpdate({})
     }
-    const onClickCancelUpdateComment = e => {
-        e?.preventDefault()
-        setOrderCommentUpdate('')
-        setShowUpdates({ ...showUpdates, comments: false })
-    }
-    const onClickUpdateComment = (e, order) => {
-        e.preventDefault()
-        if (!showUpdates.comments)
-            setOrderCommentUpdate(order.orderComment)
-        else {
-            //send update to api
-            OrderService.updateOrderComment(order.id, orderCommentUpdate).then(res => {
-                console.log(res)
-            }).catch(err => {
-                var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: errMsg })
-            })
-        }
-        setShowUpdates({ ...showUpdates, comments: !showUpdates.comments })
-    }
-    const onChangeComment = e => {
-        e.preventDefault()
-        setOrderCommentUpdate(e.target.value)
-    }
+
+
+
     const cancelUpdates = () => {
         setPaymentAmout(0)
-        setOrderCommentUpdate('')
         setPersonUpdate({})
-        setShowUpdates({ person:false,comments:false, payment: false })
+        setShowUpdates({ person: false, payment: false })
     }
     const onClickCancelPayment = e => {
         e?.preventDefault()
@@ -143,140 +122,160 @@ const ExternalOrders = props => {
         e.preventDefault()
         setPaymentAmout(e.target.value)
     }
-
+    const onClickCancelOrder = (e, order) => {
+        e.preventDefault()
+        OrderService.deleteOrder(order).catch(err => {
+            setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+        })
+    }
     return (
         <div>
             <Accordion>
                 {
                     exteranlOrders ?
                         exteranlOrders.map((order, key) =>
-                            <Card key={key}>
-                                <Card.Header>
-                                    <CustomToggle eventKey={key} name={`#${order.id}-${order.type}: ${enumForReading(order.status)} ${order.date} ${order.hour}`} onClickToggle={cancelUpdates} />
-                                </Card.Header>
-                                <Accordion.Collapse eventKey={key} >
-                                    <Form>
-                                        <Table bordered className="m-0" >
-                                            <tbody >
-                                                <tr>
-                                                    <td className="align-middle ps-4 pe-3" ><h6>Date: </h6>{order.date}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="align-middle ps-4 pe-3" ><h6>Hour: </h6>{order.hour}</td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="align-middle ps-4 pe-3" ><h6>Stauts: </h6>
-                                                        <Form.Select className="col col-xl-2 col-lg-3 col-sm-6 " aria-label="Change Status" onChange={e => onChangeStatus(e, order)} name="Status" value={enumForReading(order.status)}>
-                                                            {
-                                                                statuses.map((status, key) => (
-                                                                    <option key={key} value={status} >{status}</option>
-                                                                ))
-                                                            }
-                                                        </Form.Select>
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <td className="align-middle ps-4 pe-3" ><h6>Customer Details: </h6>{order.person.name} - {order.person.phoneNumber}, {addressToString(order.person.address)}
-                                                        <button className="btn btn-primary btn-sm mx-2" onClick={e => onClickUpdatePerson(e, order)}>Update</button>
-                                                        {
-                                                            showUpdates.person ?
-
-                                                                <span >
-                                                                    <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdatePerson}>Cancel</button>
-                                                                    <FloatingLabel label="*Phone Number" >
-                                                                        <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="phoneNumber" placeholder="*Phone Number" required
-                                                                            value={personUpdate.phoneNumber} onChange={e => onChangePersonDetails(e, order)} />
-                                                                    </FloatingLabel>
-                                                                    <FloatingLabel controlId="floatingInput" label="*Name">
-                                                                        <FormControl type="text" name="name" className="col col-xl-2 col-lg-4 form-control" required placeholder="*Name"
-                                                                            value={personUpdate.name} onChange={e => onChangePersonDetails(e, order)} />
-                                                                    </FloatingLabel>
-
-                                                                    <FloatingLabel label="*City">
-                                                                        <input type="text" className="col col-xl-2 col-lg-4 form-control" placeholder="*City" name="address.city"
-                                                                            value={personUpdate.address.city} onChange={e => onChangePersonDetails(e, order)} required />
-                                                                    </FloatingLabel>
-                                                                    <FloatingLabel label="*Street Name">
-                                                                        <input type="text" className="col col-xl-2 col-lg-4 form-control" placeholder="*Street Name" name="address.streetName"
-                                                                            value={personUpdate.address.streetName} onChange={e => onChangePersonDetails(e, order)} required />
-                                                                    </FloatingLabel>
-                                                                    <FloatingLabel label="*House Number">
-                                                                        <input type="number" className="col col-xl-2 col-lg-4 form-control" placeholder="*House Number" name='address.houseNumber'
-                                                                            value={personUpdate.address.houseNumber} onChange={e => onChangePersonDetails(e, order)} required />
-                                                                    </FloatingLabel>
-                                                                    <FloatingLabel label="Entrance">
-                                                                        <input type="text" className="col col-xl-2 col-lg-4 form-control" name='address.entrance'
-                                                                            value={personUpdate.address.entrance || ''} onChange={e => onChangePersonDetails(e, order)} />
-                                                                    </FloatingLabel>
-                                                                    <FloatingLabel label="Apartment Number">
-                                                                        <input type="number" className="col col-xl-2 col-lg-4 form-control" name='address.apartmentNumber' min={0}
-                                                                            value={personUpdate.address.apartmentNumber || ''} onChange={e => onChangePersonDetails(e, order)} />
-                                                                    </FloatingLabel>
-                                                                </span>
-                                                                : null
-                                                        }
-                                                    </td>
-                                                </tr>
-                                                {
-                                                    order.type === 'D' ?
-                                                        <tr>
-                                                            <td className="align-middle ps-4 pe-3" ><h6>Delivery Guy: </h6>{order.deliveryGuy ? order.deliveryGuy.name : ''}</td>
-                                                        </tr>
-                                                        :
-                                                        null
+                            <div className="row"  key={key}>
+                                <div className="col col-md-10 col-12 pe-0">
+                                    <Card>
+                                        <Card.Header>
+                                            <CustomToggle eventKey={key}
+                                                name={
+                                                    <span>
+                                                        <span style={{ color: order.type === 'D' ? '#0060ff' : '#e0a000' }}>{`#${order.id}-${order.type}`}</span>
+                                                        <span>{order.type === 'D' ? ` - ${addressToString(order.person.address)}` : ''} : {`${enumForReading(order.status)} ${order.date} ${order.hour}`}  </span>
+                                                    </span>
                                                 }
-                                                <tr >
-                                                    <div className="align-middle ps-4 pe-3">
-                                                        <h6>Order items:</h6>
+                                                onClickToggle={cancelUpdates}
+                                            />
+                                        </Card.Header>
+                                        <Accordion.Collapse eventKey={key} >
+                                            <Form>
+                                                <Table bordered className="m-0" >
+                                                    <tbody >
+                                                        <tr>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>Date: </h6>{order.date}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>Hour: </h6>{order.hour}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>Stauts: </h6>
+                                                                <Form.Select className="col col-xl-2 col-lg-3 col-sm-6 " aria-label="Change Status" onChange={e => onChangeStatus(e, order)} name="Status" value={enumForReading(order.status)}>
+                                                                    {
+                                                                        statuses.map((status, key) => (
+                                                                            <option key={key} value={status} >{status}</option>
+                                                                        ))
+                                                                    }
+                                                                </Form.Select>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>Customer Details: </h6>{order.person.name} - {order.person.phoneNumber}, {addressToString(order.person.address)}
+                                                                <button className="btn btn-primary btn-sm mx-2" onClick={e => onClickUpdatePerson(e, order)}>Update</button>
+                                                                {
+                                                                    showUpdates.person ?
 
+                                                                        <span >
+                                                                            <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdatePerson}>Cancel</button>
+                                                                            <FloatingLabel label="*Phone Number" >
+                                                                                <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="phoneNumber" placeholder="*Phone Number" required
+                                                                                    value={personUpdate.phoneNumber} onChange={e => onChangePersonDetails(e, order)} />
+                                                                            </FloatingLabel>
+                                                                            <FloatingLabel controlId="floatingInput" label="*Name">
+                                                                                <FormControl type="text" name="name" className="col col-xl-2 col-lg-4 form-control" required placeholder="*Name"
+                                                                                    value={personUpdate.name} onChange={e => onChangePersonDetails(e, order)} />
+                                                                            </FloatingLabel>
+                                                                            {
+                                                                                order.type.includes('D') ?
+                                                                                    <>
+                                                                                        <FloatingLabel label="*City">
+                                                                                            <input type="text" className="col col-xl-2 col-lg-4 form-control" placeholder="*City" name="address.city"
+                                                                                                value={personUpdate.address.city || ''} onChange={e => onChangePersonDetails(e, order)} required />
+                                                                                        </FloatingLabel>
+                                                                                        <FloatingLabel label="*Street Name">
+                                                                                            <input type="text" className="col col-xl-2 col-lg-4 form-control" placeholder="*Street Name" name="address.streetName"
+                                                                                                value={personUpdate.address.streetName || ''} onChange={e => onChangePersonDetails(e, order)} required />
+                                                                                        </FloatingLabel>
+                                                                                        <FloatingLabel label="*House Number">
+                                                                                            <input type="number" className="col col-xl-2 col-lg-4 form-control" placeholder="*House Number" name='address.houseNumber' min={0}
+                                                                                                value={personUpdate.address.houseNumber || ''} onChange={e => onChangePersonDetails(e, order)} required />
+                                                                                        </FloatingLabel>
+                                                                                        <FloatingLabel label="Entrance">
+                                                                                            <input type="text" className="col col-xl-2 col-lg-4 form-control" name='address.entrance'
+                                                                                                value={personUpdate.address.entrance || ''} onChange={e => onChangePersonDetails(e, order)} />
+                                                                                        </FloatingLabel>
+                                                                                        <FloatingLabel label="Apartment Number">
+                                                                                            <input type="number" className="col col-xl-2 col-lg-4 form-control" name='address.apartmentNumber' min={0}
+                                                                                                value={personUpdate.address.apartmentNumber || ''} onChange={e => onChangePersonDetails(e, order)} />
+                                                                                        </FloatingLabel>
+                                                                                    </>
+                                                                                    : null
+                                                                            }
+
+                                                                        </span>
+                                                                        : null
+                                                                }
+                                                            </td>
+                                                        </tr>
                                                         {
-                                                            order.items.map((itemInOrder, itemKey) =>
-                                                                <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {itemInOrder.price}₪
+                                                            order.type === 'D' ?
+                                                                <tr>
+                                                                    <td className="align-middle ps-4 pe-3" ><h6>Delivery Guy: </h6>{order.deliveryGuy ? order.deliveryGuy.name : ''}</td>
                                                                 </tr>
-                                                            )
-                                                        }
-                                                    </div>
-                                                </tr>
-                                                <tr>
-                                                    <td className="align-middle ps-4 pe-3" ><h6>Comments: </h6>{order.orderComment}
-                                                        {
-                                                            showUpdates.comments ?
-                                                                <span>
-                                                                    <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="comment" placeholder="Order Comment"
-                                                                        value={orderCommentUpdate} onChange={onChangeComment} />
-                                                                    <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdateComment}>Cancel</button>
-                                                                </span>
                                                                 :
                                                                 null
                                                         }
-                                                        <button className="btn btn-primary btn-sm mx-2 my-1" onClick={e => onClickUpdateComment(e, order)}>Update</button>
+                                                        <tr >
+                                                            <td  className="align-middle ps-4 pe-3">
+                                                            <h6>Items:</h6>
+                                                                    {
+                                                                        order.items.map((itemInOrder, itemKey) =>
+                                                                            <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {itemInOrder.price}₪
+                                                                            </tr>
+                                                                        )
+                                                                    }
+                                                                    <Link to={`/employee/order/edit/${order.id}`}>
+                                                                        <button className="btn btn-primary btn-sm my-auto" >Chnage items</button>
+                                                                    </Link>
+                                                            </td>
 
-                                                    </td>
-                                                </tr>
-                                                <tr>
-                                                    <div className="align-middle ps-4 pe-3" ><h6>Bill: </h6>
-                                                        <tr> Total price: {order.totalPriceToPay}₪</tr>
-                                                        <tr> Paid: {order.alreadyPaid}₪</tr>
-                                                        <tr>
-                                                            {
-                                                                showUpdates.payment ?
-                                                                    <span>
-                                                                        <input type="number" min={0} className=" form-control" name="comment" placeholder="Order Comment"
-                                                                            value={paymentAmount} onChange={onChangePayment} />
-                                                                        <button className="btn btn-danger mx-2" onClick={onClickCancelPayment}>Cancel</button>
-                                                                    </span>
-                                                                    :
-                                                                    null
-                                                            }
-                                                            <button className="btn btn-primary  mx-2 my-1" onClick={e => onClickPay(e, order)}>Pay</button>
+
                                                         </tr>
-                                                    </div>
-                                                </tr>
-                                            </tbody>
-                                        </Table>
-                                    </Form>
-                                </Accordion.Collapse>
-                            </Card>
+                                                        <tr>
+                                                            <td className="align-middle ps-4 pe-3" ><h6>Comments: </h6>{order.orderComment}
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <div className="align-middle ps-4 pe-3" ><h6>Bill: </h6>
+                                                                <tr> Total price: {order.totalPriceToPay}₪</tr>
+                                                                <tr> Paid: {order.alreadyPaid}₪</tr>
+                                                                <tr>
+                                                                    {
+                                                                        showUpdates.payment ?
+                                                                            <span>
+                                                                                <input type="number" min={0} className=" form-control" name="comment" placeholder="Order Comment"
+                                                                                    value={paymentAmount} onChange={onChangePayment} />
+                                                                                <button className="btn btn-danger mx-2" onClick={onClickCancelPayment}>Cancel</button>
+                                                                            </span>
+                                                                            :
+                                                                            null
+                                                                    }
+                                                                    <button className="btn btn-primary  mx-2 my-1" onClick={e => onClickPay(e, order)}>Pay</button>
+                                                                </tr>
+                                                            </div>
+                                                        </tr>
+                                                    </tbody>
+                                                </Table>
+                                            </Form>
+                                        </Accordion.Collapse>
+                                    </Card>
+                                </div>
+                                <div className="col col-md-2 col-12 align middle my-auto ">
+                                    <button className="btn btn-danger  mx-auto " onClick={e => onClickCancelOrder(e, order)}>Cancel Order</button>
+
+                                </div>
+                            </div>
+
                         )
                         :
                         null

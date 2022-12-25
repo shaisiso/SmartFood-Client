@@ -68,7 +68,6 @@ const MyShifts = () => {
                         </td>
                     </tr>
                 </tbody>
-
             </table>
             {
                 shifts.length>0 ?

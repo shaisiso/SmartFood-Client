@@ -147,7 +147,8 @@ const MenuManagement = () => {
         setEditItemId(null);
     };
 
-    const handleDeleteClick = async (item) => {
+    const handleDeleteClick = async (e, item) => {
+        e.preventDefault();
         await MenuService.deleteItem(item)
             .then(response => {
                 console.log(response)
@@ -219,6 +220,11 @@ const MenuManagement = () => {
             })
         setLoaded(true)
     }
+    const getItemToDisplay = (item) => {
+        let itemToDisplay = { ...item }
+        return itemToDisplay
+    }
+
     return (
         <div className="container mx-auto text-center">
             <div className="text-center ">
@@ -297,8 +303,8 @@ const MenuManagement = () => {
                                             />
                                         ) : (
                                             <ReadOnlyRow
-                                                item={item}
-                                                withId={false}
+                                                item={getItemToDisplay(item)}
+                                                
                                                 handleEditClick={handleEditClick}
                                                 handleDeleteClick={handleDeleteClick}
                                             />

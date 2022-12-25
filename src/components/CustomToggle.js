@@ -14,7 +14,7 @@ function CustomToggle({ children, eventKey, name, onClickToggle }) {
     });
     const [sign, setSign] = useState('+')
     return (
-        <h5 onClick={decoratedOnClick} style={{ cursor: 'pointer' }}>
+        <h5  onClick={decoratedOnClick} style={{ cursor: 'pointer' }}>
             <span className="mx-2">
                 <button
                     type="button"
@@ -24,9 +24,13 @@ function CustomToggle({ children, eventKey, name, onClickToggle }) {
                 >
                     {sign}
                 </button>
+                <span className="mx-3"  >
+                    {name}
+                </span>
             </span>
-            <span className="mx-2"  >
-                {name}
+
+            <span className="my-auto float-right">
+                {children}
             </span>
         </h5>
 

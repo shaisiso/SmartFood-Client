@@ -18,6 +18,8 @@ import SockJS from 'sockjs-client';
 import { useState } from 'react';
 import ShiftService from '../services/ShiftService';
 import OrderService from '../services/OrderService';
+import MyProfile from './MyProfile';
+import EditOrder from '../components/EditOrder';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -28,12 +30,12 @@ const EmployeeHomepage = (props) => {
     useEffect(() => {
         if (!mounted.current) {
             mounted.current = true;
-            getShiftsToConfirm()
-            getExternalOrders()
+            getAllTasks()
         }
         if (RoleService.isManager(props.employee)) {
             connectWebSocekt()
         }
+        console.log('tasks', tasks)
     });
     const connectWebSocekt = () => {
         let Sock = new SockJS(SOCKET_URL);
@@ -45,30 +47,26 @@ const EmployeeHomepage = (props) => {
         stompClient.subscribe('/topic/shift', onShiftReceived)
     }
     const onShiftReceived = payload => {
-        // var payloadData = JSON.parse(payload.body);
-        // console.log(payloadData)
-        getShiftsToConfirm()
+        console.log('onShiftReceived')
+        getAllTasks()
     }
-    const getShiftsToConfirm = async () => {
-       await ShiftService.getShiftsToApprove()
-            .then(res =>{
-                setTasks({...tasks,shifts:res.data})
-            }).catch(err=>{
+    const getAllTasks = async () => {
+        let shifts = []
+        await ShiftService.getShiftsToApprove()
+            .then(res => {
+                shifts = res.data
+            }).catch(err => {
                 console.log(err)
             })
+        let orders = await OrderService.getActiveExternalOrders()
+        setTasks({ shifts: shifts, exteranlOrders: orders })
+
     }
     const onExternalOrderReceived = payload => {
-        getExternalOrders()
-        // var payloadData = JSON.parse(payload.body);
-        // let orders = tasks.exteranlOrders
-        // orders.push(payloadData);
-        // setTasks({ ...tasks, exteranlOrders: [...orders] });
+        console.log('onExternalOrderReceived')
+        getAllTasks()
     }
-    const getExternalOrders = async()=>{
-        let orders = await OrderService.getActiveExternalOrders()
-        console.log('orders',orders)
-        setTasks({...tasks,exteranlOrders:orders})
-    }
+
     const onError = (err) => {
         console.log(err);
     }
@@ -100,10 +98,22 @@ const EmployeeHomepage = (props) => {
                                     :
                                     null
                             }
+                            {
+                                RoleService.isManager(props.employee) ?
+                                    <Route path={`/order/edit/*`} element={<EditOrder />} />
+                                    :
+                                    null
+                            }
+                            {
+                                RoleService.isManager(props.employee) ?
+                                    <Route path="/tasks" element={<TasksPage tasks={tasks} />} />
+                                    :
+                                    null
+                            }
                             <Route path="/my-shifts" element={<MyShifts />} />
-                            <Route path="/tasks" element={<TasksPage tasks={tasks} />} />
                             <Route path="/tables" element={<Tables />} />
                             <Route path="/tables/*" element={<OrderOfTable />} />
+                            <Route path="/profile" element={<MyProfile />} />
                             <Route path="/*" exact={true} element={<NotFound404 />} />
                         </Routes>
                         {/* <div>

@@ -58,7 +58,7 @@ const SideNavbar = (props) => {
             <li className="nav-item">
                 <Link className="nav-link" to={'#'}>
                     <FinancialSvg width="24" height="24" />
-                    <span className="mx-2">Financial</span>
+                    <span className="mx-2">Reports</span>
                 </Link>
             </li>
             {

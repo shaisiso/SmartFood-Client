@@ -67,6 +67,7 @@ const EmployeeTopBar = (props) => {
             :
             null
         }
+        
         <div className="topbar-divider d-none d-sm-block" />
         <div className="mr-20 text-white-600 small" >
           <Dropdown >
@@ -75,7 +76,7 @@ const EmployeeTopBar = (props) => {
               <UserSvg width="48" height="48" />
             </Dropdown.Toggle>
             <Dropdown.Menu style={{ margin: 0 }}>
-              <Dropdown.Item as={Link} to="#">
+              <Dropdown.Item as={Link} to="/profile">
                 <ProfileSvg width={iconSize} height={iconSize} />
                 &nbsp; Profile
               </Dropdown.Item>

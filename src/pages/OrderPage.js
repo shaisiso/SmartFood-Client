@@ -4,8 +4,10 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
 import ItemsToOrder from "../components/ItemsToOrder";
 import PopupMessage from "../components/PopupMessage";
-import { API_URL, isValidName, isValidPhone } from '../utility/Utils'
+import { API_URL, extractHttpError, isValidName, isValidPhone, lastCharIsDigit, toText } from '../utility/Utils'
 import Axios from 'axios';
+import OrderService from "../services/OrderService";
+import ItemInOrderService from "../services/ItemInOrderService";
 
 const OrderPage = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
@@ -28,6 +30,8 @@ const OrderPage = () => {
             })
     }
     const onChangePhoneNumber = event => {
+        if (event.target.value.length > 10 || !lastCharIsDigit(event.target.value))
+            return
         setPersonDetails(
             {
                 ...personDetails,
@@ -35,8 +39,14 @@ const OrderPage = () => {
             })
     }
     const onChangeAddress = event => {
+        let fieldName = event.target.name
+        let fieldValue = event.target.value
+        if (fieldName.includes('entrance') && fieldValue.length > 1)
+            return
+        if ((fieldName.includes('apartmentNumber') || fieldName.includes('houseNumber')) && (fieldValue.length > 6 || !lastCharIsDigit(fieldValue)))
+            return
         let newAddress = personDetails.address
-        newAddress[event.target.name] = event.target.value
+        newAddress[fieldName] = fieldValue
         setPersonDetails(
             {
                 ...personDetails,
@@ -48,7 +58,10 @@ const OrderPage = () => {
     const onFocusOutPhone = () => {
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
             .then(res => {
-                setPersonDetails(res.data)
+                let address = res.data.address ? res.data.address : { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' }
+                setPersonDetails({ ...res.data, address: address })
+            }).catch(err => {
+                setPersonDetails({ ...personDetails, id: '', name: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
             })
     }
 
@@ -81,7 +94,47 @@ const OrderPage = () => {
         }
         return true
     }
-
+    const onClickSendOrder = async (chosenItemsToDisplay, orderComment,) => {
+        let itemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems(chosenItemsToDisplay)
+        let order = { items: [...itemsInOrder], orderComment: orderComment, person: { ...personDetails } }
+        if (selectedRadio.includes("D")) {
+            await OrderService.addNewDelivery(order)
+                .then(res => {
+                    setOrderinPopup(chosenItemsToDisplay)
+                }).catch(err => {
+                    console.log(err)
+                    setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
+                })
+        }
+        else { // Take Away
+            if (order.person.address && order.person.address.city && order.person.address.city === '')
+                delete order.person.address
+            console.log(order)
+            await OrderService.addNewTakeAway(order)
+                .then(res => {
+                    setOrderinPopup(chosenItemsToDisplay)
+                }).catch(err => {
+                    setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
+                })
+        }
+    }
+    const setOrderinPopup = (chosenItemsToDisplay) => {
+        console.log('chosenItemsToDisplay', chosenItemsToDisplay)
+        let personString = `${personDetails.name} - ${personDetails.phoneNumber}`
+        personString += selectedRadio.includes("D") ? `, ${personDetails.address.city} ${personDetails.address.streetName} ${personDetails.address.houseNumber} ${toText(personDetails.address.entrance)} ${toText(personDetails.address.apartmentNumber)}` : ""
+        let itemString = []
+        chosenItemsToDisplay.forEach(i => itemString.push(`${i.quantity} ${i.name} - ${i.price}₪`))
+        let price = `Total Price: ${chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪ `
+        setPopupMessage(
+            {
+                header: `Order Details: ${selectedRadio}`,
+                body: { topText: personString, items: [...itemString], bottomText: `${price}. We will send SMS message when it is ready.` }
+            }
+        )
+    }
+    const cleanAll = () => {
+        window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
+    }
     return (
         <div className="row g-1">
             <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }} >
@@ -196,31 +249,46 @@ const OrderPage = () => {
             </div>
             {
                 showMenu ?
-                    <ItemsToOrder orderUserDetails={{ type: selectedRadio, personDetails: { ...personDetails } }} />
+                    <ItemsToOrder orderUserDetails={{ type: selectedRadio, personDetails: { ...personDetails } }} onClickSendOrder={onClickSendOrder} />
                     :
                     null
             }
             {
-                popupMessage.title ?
+                popupMessage.header ?
                     <PopupMessage
-                        title={popupMessage.title}
+                        title={popupMessage.header}
                         body={
-                            <ul>
-                                {
-                                    popupMessage.messages.map((message, key) => (
-                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
-                                            {message}
-                                        </li>
-                                    ))
-                                }
-                            </ul>
+                            <div style={{ fontSize: '1.2rem' }}>
+                                <div >{popupMessage.body.topText || ''}</div>
+                                <ul>
+                                    {
+                                        popupMessage.body.items.map((message, key) => (
+                                            <li key={key} className="mt-2" >
+                                                {message}
+                                            </li>
+                                        ))
+                                    }
+                                </ul>
+                                <h5>{popupMessage.body.bottomText || ''}</h5>
+                            </div>
+
                         }
                         onClose={() => {
-                            setPopupMessage({ title: '', messages: [''] })
+                            if (popupMessage.header !== 'Error')
+                                cleanAll()
                         }}
-                        status={popupMessage.title === 'Error' ? 'error' : 'info'
+                        status={popupMessage.header === 'Error' ?
+                            'error'
+                            :
+                            popupMessage.header.includes('Order Details') ?
+                                'success'
+                                :
+                                'info'
                         }
                         closeOnlyWithBtn
+                        withOk={popupMessage.header !== 'Error'}
+                        navigateTo="/"
+                        okBtnText="Go To Homepage"
                     >
                     </PopupMessage>
                     :

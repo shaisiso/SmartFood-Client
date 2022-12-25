@@ -2,6 +2,7 @@ import React from 'react';
 
 import Tab from 'react-bootstrap/Tab';
 import Tabs from 'react-bootstrap/Tabs';
+import DiscountManagement from '../components/DiscountManagement';
 import EmployeesManagement from '../components/EmployeesManagement';
 import MenuManagement from '../components/MenuManagement';
 
@@ -21,7 +22,7 @@ const ManagementPage = () => {
                 <MenuManagement />
             </Tab>
             <Tab eventKey="3" title="Discount Management" tabClassName="text-black font-weight-bold">
-                <div></div>
+                <DiscountManagement/>
             </Tab>
             <Tab eventKey="4" title="Employees Management" tabClassName="text-black font-weight-bold">
                 <EmployeesManagement />
