@@ -43,8 +43,7 @@ const EditOrder = () => {
         let errorsMsg = []
         if (itemsToAdd.length > 0) {
             await OrderService.addItemsListToOrder(order.id, itemsToAdd)
-                .then(res => {
-                }).catch(err => {
+                .catch(err => {
                     console.log(err)
                     errorsMsg.push([...extractHttpError(err)])
                 })
@@ -58,7 +57,7 @@ const EditOrder = () => {
                     })
             })
         }
-        if (orderComment!== order.orderComment){
+        if (orderComment !== order.orderComment) {
             OrderService.updateOrderComment(order.id, orderComment).catch(err => {
                 errorsMsg.push([...extractHttpError(err)])
             })

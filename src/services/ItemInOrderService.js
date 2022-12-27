@@ -7,6 +7,8 @@ class ItemInOrderService {
         return itemsInOrder
     }
     buildChosenItems = (itemsInOrder) => {
+        if (!itemsInOrder)
+            return null
         let chosens = []
         itemsInOrder.forEach(itemInOrder => {
             let chosenItemIndex = chosens.findIndex(chosenItem => chosenItem.itemId === itemInOrder.item.itemId)

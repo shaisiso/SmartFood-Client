@@ -1,7 +1,7 @@
 import api from './api';
 
 class OrderService {
-    addOrderOfTable = async (orderOfTable) => api.post(`/table-order`, orderOfTable)
+    addOrderOfTable = async (orderOfTable) => api.post(`/orderoftable`, orderOfTable)
     getAllStatuses = async () => api.get(`/order/statuses`)
     getActiveExternalOrders = async () => {
         let deliveries = []
@@ -25,11 +25,13 @@ class OrderService {
     payment = async (orderId, amount) => api.put(`/order/pay/${orderId}/${amount}`)
     addNewDelivery = async (delivery) => api.post(`/delivery`, delivery)
     addNewTakeAway = async (takeAway) => api.post(`takeaway`, takeAway)
+    addNewOrderOfTable = async order => api.post(`/orderoftable/`, order)
     deleteOrder = async (order) => api.delete(`/order/${order.id}`)
     getOrderById = async orderId => api.get(`/order/${orderId}`)
     addItemsListToOrder = async (orderId, itemsList) => api.post(`/order/item/list/${orderId}`, itemsList)
     deleteItemsListById = async (idList) => api.delete(`/order/item/list`, idList)
-    deleteItemById= async (itemId) =>api.delete(`/order/item/${itemId}`)
+    deleteItemById = async (itemId) => api.delete(`/order/item/${itemId}`)
+    getActiveOrderOfTable = async tableId => api.get(`/orderoftable/active/${tableId}`)
 }
 
 export default new OrderService();

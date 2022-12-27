@@ -8,7 +8,7 @@ import NotFound404 from './NotFound404';
 import ManagementPage from './ManagementPage';
 import MenuManagement from '../components/MenuManagement';
 import Tables from './Tables';
-import OrderOfTable from '../components/OrderOfTable';
+import OrderOfTable from './OrderOfTable';
 import TasksPage from './TasksPage';
 import RoleService from '../services/RoleService';
 import MyShifts from './MyShifts';

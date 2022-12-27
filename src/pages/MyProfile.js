@@ -45,7 +45,7 @@ const MyProfile = () => {
     }
     const updatePassword = e => {
         e.preventDefault();
-
+        setPassword({})
     }
     return (
         <div className="wrapper ">
