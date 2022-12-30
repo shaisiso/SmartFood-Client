@@ -69,7 +69,6 @@ const DiscountManagement = () => {
             startDate: startDate, endDate: endDate,
             days: newDiscount.days.map(d => enumForClass(d)), categories: newDiscount.categories.map(c => enumForClass(c))
         }
-        console.log(discountForAPI)
         await DiscountsService.addNewDiscount(discountForAPI)
             .then(res => {
                 setPopupMessage({ title: 'New Discount', messages: [`New discount was saved: ${res.data.discountDescription}`] })

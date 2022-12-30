@@ -32,6 +32,8 @@ class OrderService {
     deleteItemsListById = async (idList) => api.delete(`/order/item/list`, idList)
     deleteItemById = async (itemId) => api.delete(`/order/item/${itemId}`)
     getActiveOrderOfTable = async tableId => api.get(`/orderoftable/active/${tableId}`)
+    addRequestForCancelItem = async (cancelRequest)=>api.post(`/orderoftable/cancel/item`,cancelRequest)
+    getItemInOrderOfTableForCancel = async tableId=> api.get(`/orderoftable/cancel/item/${tableId}`)
 }
 
 export default new OrderService();

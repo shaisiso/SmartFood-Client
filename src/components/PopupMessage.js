@@ -8,7 +8,7 @@ import { ReactComponent as SuccessSvg } from "../assets/icons/pop-success.svg";
 import { ReactComponent as InfoSvg } from "../assets/icons/pop-info.svg";
 
 const PopupMessage = (props) => {
-   // const [navigate, setNavigate] = useState(false);
+    // const [navigate, setNavigate] = useState(false);
     const getIcon = () => {
         if (!props.status) {
             return null
@@ -38,55 +38,58 @@ const PopupMessage = (props) => {
     }
     return (
         <Popup
-        trigger={<div />}
-        modal
-        open={true}
-        closeOnDocumentClick={!props.closeOnlyWithBtn}
-        onClose={() => {
-            if (props.onClose)
-                props.onClose()
-        }}  
-    >
+            trigger={<div />}
+            modal
+            open={true}
+            closeOnDocumentClick={!props.closeOnlyWithBtn}
+            onClose={() => {
+                if (props.onClose)
+                    props.onClose()
+            }}
+        >
 
-        {close => (
-            <div className="p-0 m-0" id="exampleModal" tableindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div className="modal-dialog modal-xl my-0 p-0 mx-0">
-                    <div className="modal-content  m-0 p-0">
-                        <div className="modal-header">
-                            <h4 className="modal-title text-black" id="exampleModalLabel">{props.title}</h4>
-                            <button className="btn-close" onClick={close} data-bs-dismiss="modal" aria-label="Close" />
-                        </div>
-                        <div className="modal-body">
-                            <div className="row align-items-center">
-                                <div className="col-lg-10 ">
-                                    {props.body}
-                                </div>
-                                {
-                                    getIcon()
-                                }
-
+            {close => (
+                <div className="p-0 m-0" id="exampleModal" tableindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                    <div className="modal-dialog modal-xl my-0 p-0 mx-0">
+                        <div className="modal-content  m-0 p-0">
+                            <div className="modal-header">
+                                <h4 className="modal-title text-black" id="exampleModalLabel">{props.title}</h4>
+                                <button className="btn-close" onClick={close} data-bs-dismiss="modal" aria-label="Close" />
                             </div>
-                        </div>
-                        <div className="modal-footer">
-                            {
-                                props.withOk ?
-                                    <Link to={props.navigateTo} className="btn btn-primary">{props.okBtnText}</Link>
-                                    :
-                                    null
-                            }
-                            {
-                                props.withClose ?
-                                    <Link to={props.navigateTo} className="btn btn-primary">{props.closeBtnText}</Link>
-                                    :
-                                    null
-                            }
+                            <div className="modal-body">
+                                <div className="row align-items-center">
+                                    <div className="col-lg-10 ">
+                                        {props.body}
+                                    </div>
+                                    {
+                                        getIcon()
+                                    }
+                                    
+                                </div>
+                            </div>
+                            <div className="modal-footer">
+                                {
+                                    props.withOk ?
+                                        props.onClicOk ?
+                                            <button className="btn btn-primary" onClick={props.onClicOk}>{props.okBtnText}</button>
+                                            :
+                                            <Link to={props.navigateTo} className="btn btn-primary">{props.okBtnText}</Link>
+                                        :
+                                        null
+                                }
+                                {
+                                    props.withClose ?
+                                        <Link to={props.navigateTo} className="btn btn-primary">{props.closeBtnText}</Link>
+                                        :
+                                        null
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-        )}
-    </Popup>
+            )}
+        </Popup>
     );
 };
 

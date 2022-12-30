@@ -5,6 +5,7 @@ import { useState } from 'react';
 import { Accordion, Card, FloatingLabel, Form, FormControl, Table } from 'react-bootstrap';
 import { Link } from 'react-router-dom';
 import OrderService from '../services/OrderService';
+import ShiftService from '../services/ShiftService';
 import { addressToString, enumForClass, enumForReading, extractHttpError, lastCharIsDigit } from '../utility/Utils';
 import CustomToggle from './CustomToggle';
 import PopupMessage from './PopupMessage';
@@ -16,12 +17,14 @@ const ExternalOrders = props => {
     const [personUpdate, setPersonUpdate] = useState({})
     const [paymentAmount, setPaymentAmout] = useState(0)
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [activeDeliveryGuys, setActiveDeliveryGuys] = useState([])
     const mounted = useRef()
     useEffect(() => {
         if (!mounted.current) {
             mounted.current = true
             getStatuses()
         }
+        getActiveGeliveryGuys()
         setExteranlOrders(props.exteranlOrders)
     }, [props.exteranlOrders, exteranlOrders]);
 
@@ -30,8 +33,17 @@ const ExternalOrders = props => {
             .then(res => {
                 setStatuses(res.data)
             }).catch(err => {
-                var errMsg = extractHttpError(err)
-                setPopupMessage({ title: 'Error', messages: errMsg })
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+    }
+    const getActiveGeliveryGuys = async () => {
+        await ShiftService.getDeliveryGuyInShift()
+            .then(res => {
+                let deliveryGuys = [{ id: -1, name: '' }]
+                deliveryGuys.push(...res.data)
+                setActiveDeliveryGuys(deliveryGuys)
+            }).catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
     }
     const onChangeStatus = (e, order) => {
@@ -40,6 +52,19 @@ const ExternalOrders = props => {
             var errMsg = extractHttpError(err)
             setPopupMessage({ title: 'Error', messages: errMsg })
         })
+    }
+    const onChangeDeliveryGuy = async(e, order) => {
+        let id = Number(e.target.value)
+        let deliveryGuy
+        if (id === -1)
+            deliveryGuy = null
+        else
+             deliveryGuy = activeDeliveryGuys.find(dg => dg.id === id)
+        let delivery = { id: order.id, person: order.person, deliveryGuy: deliveryGuy  }
+       await OrderService.updateDelivery(delivery).catch(err => {
+            setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+        })
+        
     }
     const onClickUpdatePerson = (e, order) => {
         e.preventDefault()
@@ -52,7 +77,7 @@ const ExternalOrders = props => {
             let items = order.items
             items.forEach(i => delete i.order)
             if (order.type === 'TA') {
-                let takeAway = { id: order.id, person: {...personUpdate, addres:{...order.person.address}} }
+                let takeAway = { id: order.id, person: { ...personUpdate, addres: { ...order.person.address } } }
                 if (takeAway.person.address && takeAway.person.address.city && takeAway.person.address.city === '')
                     delete takeAway.person.address
                 OrderService.updateTakeAway(takeAway)
@@ -134,7 +159,7 @@ const ExternalOrders = props => {
                 {
                     exteranlOrders ?
                         exteranlOrders.map((order, key) =>
-                            <div className="row"  key={key}>
+                            <div className="row" key={key}>
                                 <div className="col col-md-10 col-12 pe-0">
                                     <Card>
                                         <Card.Header>
@@ -220,23 +245,31 @@ const ExternalOrders = props => {
                                                         {
                                                             order.type === 'D' ?
                                                                 <tr>
-                                                                    <td className="align-middle ps-4 pe-3" ><h6>Delivery Guy: </h6>{order.deliveryGuy ? order.deliveryGuy.name : ''}</td>
+                                                                    <td className="align-middle ps-4 pe-3" ><h6>Delivery Guy: </h6>
+                                                                        <Form.Select className="col col-xl-2 col-lg-3 col-sm-6 " aria-label="Change Delivery Guy" onChange={e => onChangeDeliveryGuy(e, order)} value={order.deliveryGuy ? order.deliveryGuy.id : -1} >
+                                                                            {
+                                                                                activeDeliveryGuys.map((deliveryGuy, key) => (
+                                                                                    <option key={key} value={deliveryGuy.id} >{deliveryGuy.name}</option>
+                                                                                ))
+                                                                            }
+                                                                        </Form.Select>
+                                                                    </td>
                                                                 </tr>
                                                                 :
                                                                 null
                                                         }
                                                         <tr >
-                                                            <td  className="align-middle ps-4 pe-3">
-                                                            <h6>Items:</h6>
-                                                                    {
-                                                                        order.items.map((itemInOrder, itemKey) =>
-                                                                            <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {itemInOrder.price}₪
-                                                                            </tr>
-                                                                        )
-                                                                    }
-                                                                    <Link to={`/employee/order/edit/${order.id}`}>
-                                                                        <button className="btn btn-primary btn-sm my-auto" >Chnage items</button>
-                                                                    </Link>
+                                                            <td className="align-middle ps-4 pe-3">
+                                                                <h6>Items:</h6>
+                                                                {
+                                                                    order.items.map((itemInOrder, itemKey) =>
+                                                                        <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {itemInOrder.price}₪
+                                                                        </tr>
+                                                                    )
+                                                                }
+                                                                <Link to={`/employee/order/edit/${order.id}`}>
+                                                                    <button className="btn btn-primary btn-sm my-auto" >Chnage items</button>
+                                                                </Link>
                                                             </td>
 
 
@@ -280,7 +313,7 @@ const ExternalOrders = props => {
                         :
                         null
                 }
-            </Accordion>
+            </Accordion >
             {
                 popupMessage.title ?
                     <PopupMessage
@@ -311,7 +344,7 @@ const ExternalOrders = props => {
                     :
                     null
             }
-        </div>
+        </div >
     );
 };
 

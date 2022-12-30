@@ -44,7 +44,6 @@ const Discounts = (props) => {
     }
     const handleDeleteClick = (e, discount) => {
         e.preventDefault()
-        console.log('handleDeleteClick')
         DiscountsService.deleteDiscount(discount)
             .then(res => {
                 getDiscounts()
@@ -54,25 +53,25 @@ const Discounts = (props) => {
             })
     }
     return (
-        <form onSubmit={getDiscounts} >
-            <table className="mx-auto my-4">
-                <tbody>
-                    <tr className="align middle text-center">
-                        <td className="col-md-4 form-group">
+        <form onSubmit={getDiscounts} className ="py-4" >
+            <table className="mx-auto py-4">
+                <tbody >
+                    <tr className="align middle text-center ">
+                        <td className="col-md-4 form-group pb-4">
                             <FloatingLabel label="Start Date">
                                 <input type="date" style={{ textAlign: "left" }} className="form-control"
                                     name="date" value={startDate} onChange={onChangeStartDate} required
                                 />
                             </FloatingLabel>
                         </td>
-                        <td className="col-md-4 form-group">
+                        <td className="col-md-4 form-group pb-4">
                             <FloatingLabel label="End Date">
                                 <input type="date" style={{ textAlign: "left" }} className="form-control"
                                     name="date" value={endDate} onChange={onChangeEndDate} required min={startDate}
                                 />
                             </FloatingLabel>
                         </td>
-                        <td className="col-md-4 form-group">
+                        <td className="col-md-4 form-group pb-4">
                             <input type="submit" className='btn btn-primary' value="Show Discounts" />
                         </td>
                     </tr>

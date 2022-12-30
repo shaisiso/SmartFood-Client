@@ -10,6 +10,8 @@ import { enumForReading } from '../utility/Utils';
 import { FloatingLabel } from 'react-bootstrap';
 import Form from 'react-bootstrap/Form';
 import CustomToggle from './CustomToggle';
+import OrderService from '../services/OrderService';
+import ItemInOrderService from '../services/ItemInOrderService';
 
 const ItemsToOrder = (props) => {
     const [menu, setMenu] = useState([])
@@ -20,7 +22,9 @@ const ItemsToOrder = (props) => {
     const [orderComment, setOrderComment] = useState('')
     const [popupMessage, setPopupMessage] = useState({ header: '', body: { topText: '', items: [''], bottomText: '' } })
     const [loaded, setLoaded] = useState(true)
-
+    const [cancelItemQuantity, setCancelItemQuantity] = useState(1)
+    const [cancelReason, setCancelReason] = useState('')
+    const [itemToCancel, setItemToCancel] = useState({})
 
     const mounted = useRef();
     useEffect(() => {
@@ -33,7 +37,7 @@ const ItemsToOrder = (props) => {
             setOrderComment(props.orderComment)
             setChosenInitFlag(false)
         }
-    }, [props.chosenItems, chosenItemsToDisplay,chosenInitFlag,props.orderComment]);
+    }, [props.chosenItems, chosenItemsToDisplay, chosenInitFlag, props.orderComment]);
     const getMenuData = async () => {
         await Axios.get(`${API_URL}/api/menu/categorized`)
             .then(res => {
@@ -72,23 +76,92 @@ const ItemsToOrder = (props) => {
     }
     const onChangeQuantity = (event, item) => {
         let newQuantity = Number(event.target.value)
+        if (newQuantity < getMinQuantity(item))
+            return
         let itemPrice = menu[enumForReading(item.category)]
             .find(i => i.itemId === item.itemId).price
-        let itemsInOrder = item.itemsInOrder
+        let itemsInOrder = [...item.itemsInOrder]
         if (newQuantity < item.quantity)
-            itemsInOrder.splice(itemsInOrder[itemsInOrder.length - 1], 1)
+            itemPrice = -1 * itemsInOrder.splice(itemsInOrder.length - 1, 1)[0].price
         else
-            itemsInOrder.push({ ...itemsInOrder[0], itemComment: '' })
+            itemsInOrder.push({ item: { ...itemsInOrder[0].item }, price: itemsInOrder[0].price, itemComment: '' })
         const newState = chosenItemsToDisplay.map(obj => {
             if (obj.itemId === item.itemId) {
-                return { ...obj, quantity: newQuantity, price: newQuantity * itemPrice, itemsInOrder: itemsInOrder };
+                return { ...obj, quantity: newQuantity, price: obj.price + itemPrice, itemsInOrder: [...itemsInOrder] };
             }
             return obj;
         });
-        setChosenItems(newState)
+        console.log(newState)
+        setChosenItems([...newState])
+    }
+    const getMinQuantity = (item) => {
+        if (!isOldItem(item))
+            return 1
+        return props.chosenItems.find(i => i.itemId === item.itemId).quantity
     }
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItemsToDisplay.filter(item => item !== itemToDelete))
+    }
+    const onChangeCancelQuantity = e => setCancelItemQuantity(Number(e.target.value))
+
+    const onChangeCanceReason = e => setCancelReason(e.target.value)
+
+    const onClickCancelItem = async (e, item) => {
+        e.preventDefault()
+        if (item.quantity === 1)
+            cancelItem(item)
+        else {
+            setItemToCancel(item)
+            setPopupMessage(
+                {
+                    header: 'Request for cancel item',
+                    body: {
+                        topText: `Choose how many ${item.name} you want to cancel:`,
+                        items: [
+                            <FloatingLabel label="Quantity"  >
+                                <Form.Control size="sm" type="number" className='col col-xl-6 '
+                                    min={1} max={getMinQuantity(item) - props.sentForCancelQuantity} required defaultValue={1}
+                                    onChange={onChangeCancelQuantity} />
+                            </FloatingLabel>,
+                            <FloatingLabel label="Reason" >
+                                <Form.Control size="sm" type="text" className='col col-xl-6 '
+                                    onChange={onChangeCanceReason} placeholder="Reason" />
+                            </FloatingLabel>
+                        ],
+                        bottomText: 'This request will be sent for the shift manager that will decide whether to approve it or not.'
+                    }
+                })
+        }
+
+    }
+    const cancelItem = async (item) => {
+        setLoaded(false)
+        let itemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems([item])
+        let startIndex = itemsInOrder.length - cancelItemQuantity - props.sentForCancelQuantity
+        let endIndex = itemsInOrder.length - props.sentForCancelQuantity
+        console.log(startIndex)
+        console.log(endIndex)
+        for (let i = startIndex; i < endIndex; i++) {
+            console.log(i)
+            let itemInOrder = itemsInOrder[i]
+            let cancelRequest = { itemInOrder: { ...itemInOrder }, reason: cancelReason }
+            await OrderService.addRequestForCancelItem(cancelRequest)
+                .then(res => {
+                    console.log(res)
+                    setPopupMessage(
+                        {
+                            header: 'Cancel item',
+                            body: { items: [`Request for cancel ${cancelItemQuantity} ${item.name} was sent to the shift manager for approving.`] }
+                        })
+                })
+                .catch(err => {
+                    console.log(itemInOrder.id)
+                    setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
+                })
+        }
+        setCancelReason('')
+        setCancelItemQuantity(1)
+        setLoaded(true)
     }
     const onClickSendOrder = async (e) => {
         e.preventDefault();
@@ -106,6 +179,16 @@ const ItemsToOrder = (props) => {
     }
     const onChangeOrderComment = e => {
         setOrderComment(e.target.value)
+    }
+    const isOldItem = item => {
+        let isOld = false
+        item.itemsInOrder.forEach(itemInOrder => {
+            if (itemInOrder.id) {
+                isOld = true
+                return
+            }
+        })
+        return isOld
     }
     const cleanAll = () => {
         window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
@@ -153,8 +236,8 @@ const ItemsToOrder = (props) => {
                     </Accordion>
                 </div>
             </div>
-            <div className="col col-lg-6 col-sm-12 " style={{ backgroundColor: "#ffffffB0", }} >
-                <div className="container p-3 px-4" >
+            <div className="col col-lg-6 col-sm-12 px-4" style={{ backgroundColor: "#ffffffB0", }} >
+                <div className="container p-3 " >
                     <h4 className="text-center mb-4"><u>My Order</u></h4>
                     <Table className="m-0 "  >
                         <tbody >
@@ -169,13 +252,18 @@ const ItemsToOrder = (props) => {
                                             <td className="col col-md-2 col-3 p-1 mb-0 pb-0">
                                                 <FloatingLabel label="Quantity" style={{ fontSize: '0.8rem' }} >
                                                     <Form.Control size="sm" type="number"
-                                                        min={1}
+                                                        min={getMinQuantity(item)}
                                                         value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height: '3rem', width: '4rem' }} />
                                                 </FloatingLabel>
                                             </td>
                                             <td className="col col-1  mb-0 pb-0">
-                                                <button className='btn btn-danger btn-sm  ms-0' style={{ borderRadius: '100%' }}
-                                                    onClick={() => onClickDeleteItem(item)}>x</button>
+                                                {
+                                                    props.withAskForCancel && isOldItem(item) ?
+                                                        <button className='btn  btn-danger btn-sm  mx-auto' onClick={(e) => onClickCancelItem(e, item)} disabled={props.sentForCancelQuantity === item.quantity}>Cancel</button>
+                                                        :
+                                                        <button className='btn btn-outline-danger btn-sm  ms-0' style={{ borderRadius: '100%' }}
+                                                            onClick={() => onClickDeleteItem(item)}>x</button>
+                                                }
 
                                             </td>
                                         </div>
@@ -261,8 +349,11 @@ const ItemsToOrder = (props) => {
 
                         }
                         onClose={() => {
-                            if (popupMessage.header !== 'Error')
+                            if (popupMessage.header !== 'Error' && !popupMessage.header.includes('Request'))
                                 cleanAll()
+                            else
+                                setPopupMessage({ header: '', body: { topText: '', items: [''], bottomText: '' } })
+
                         }}
                         status={popupMessage.header === 'Error' ?
                             'error'
@@ -275,7 +366,13 @@ const ItemsToOrder = (props) => {
                         closeOnlyWithBtn
                         withOk={popupMessage.header !== 'Error'}
                         navigateTo="/"
-                        okBtnText="Go To Homepage"
+                        okBtnText={popupMessage.header.includes('Request') ? "Send Request" : "Go to Tables"}
+                        onClicOk={popupMessage.header.includes('Request') ? e => {
+                            e.preventDefault()
+                            cancelItem(itemToCancel)
+                        }
+                            : null
+                        }
                     >
                     </PopupMessage>
                     :

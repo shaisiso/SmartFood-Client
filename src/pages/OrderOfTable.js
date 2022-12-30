@@ -14,13 +14,13 @@ const OrderOfTable = () => {
     const [popupMessage, setPopupMessage] = useState({})
     const [showLoader, setShowLoader] = useState(true)
     const [order, setOrder] = useState({})
-
+    const [sentForCancelQuantity, setSentForCancelQuantity] = useState(0)
     const mounted = useRef();
     useEffect(() => {
         const fetchData = async () => {
             let tableId = await getTable();
-            console.log('tableId', tableId)
             getOrder(tableId)
+            getSentForCancelQuantity(tableId)
         }
         if (!mounted.current) {
             mounted.current = true;
@@ -51,6 +51,15 @@ const OrderOfTable = () => {
                 if (err.response.status !== 404)
                     setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+    }
+    const getSentForCancelQuantity = async (tableId) => {
+        await OrderService.getItemInOrderOfTableForCancel(tableId)
+            .then(res => {
+                console.log('res.data', res.data)
+                setSentForCancelQuantity(res.data.length)
+            }).catch(err =>
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            )
     }
     const onChangeDiners = e => {
         setActualDiners(e.target.value)
@@ -83,14 +92,16 @@ const OrderOfTable = () => {
             // update order
             let updatedItemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems(chosenItemsToDisplay)
             let itemsToAdd = updatedItemsInOrder.filter(newItem => !newItem.id)
+            console.log('updatedItemsInOrder', updatedItemsInOrder)
+            console.log('itemsToAdd', itemsToAdd)
             if (itemsToAdd.length > 0) {
                 await OrderService.addItemsListToOrder(order.id, itemsToAdd)
-                .then(res=>{
-                    setPopupMessage({ title: 'Order', messages: ['Order was sent to the kitchen'] })
-                })
-                .catch(err => {
-                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-                })
+                    .then(res => {
+                        setPopupMessage({ title: 'Order', messages: ['Order was sent to the kitchen'] })
+                    })
+                    .catch(err => {
+                        setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                    })
             }
         }
 
@@ -99,7 +110,7 @@ const OrderOfTable = () => {
         window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
     }
     return (
-        <div className="container">
+        <div className="container ">
             <div className=" text-center">
                 <h1 className="py-4 bold"><b><u>Table #{table.tableId}</u></b></h1>
                 <div className="row d-flex justify-content-center form-group">
@@ -130,7 +141,8 @@ const OrderOfTable = () => {
             </div>
 
             {
-                table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder} /> : null
+                table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder}
+                    withAskForCancel sentForCancelQuantity={sentForCancelQuantity} /> : null
             }
             {
                 popupMessage.title ?

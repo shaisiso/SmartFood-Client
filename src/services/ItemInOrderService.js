@@ -2,7 +2,13 @@ class ItemInOrderService {
     getItemsInOrderFromChosenItems=(chosenItemsToDisplay)=>{
         let itemsInOrder = []
         chosenItemsToDisplay.forEach(item => {
-            itemsInOrder.push(...item.itemsInOrder)
+            let itemsForApi = [...item.itemsInOrder].map(iio=>{
+                if (iio.order)
+                    delete iio.order
+                return iio
+            })
+            
+            itemsInOrder.push(...itemsForApi)
         })
         return itemsInOrder
     }
