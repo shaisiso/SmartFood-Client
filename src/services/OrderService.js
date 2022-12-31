@@ -32,8 +32,39 @@ class OrderService {
     deleteItemsListById = async (idList) => api.delete(`/order/item/list`, idList)
     deleteItemById = async (itemId) => api.delete(`/order/item/${itemId}`)
     getActiveOrderOfTable = async tableId => api.get(`/orderoftable/active/${tableId}`)
-    addRequestForCancelItem = async (cancelRequest)=>api.post(`/orderoftable/cancel/item`,cancelRequest)
-    getItemInOrderOfTableForCancel = async tableId=> api.get(`/orderoftable/cancel/item/${tableId}`)
+    addRequestForCancelItem = async (cancelRequest) => api.post(`/orderoftable/cancel/item`, cancelRequest)
+    addCancelItemRequestAndDeleteItem = async (cancelRequest) => api.post(`/orderoftable/cancel/item/delete`, cancelRequest)
+    handleRequestForCancelItem = async cancelRequest => api.put(`/orderoftable/cancel/item`, cancelRequest)
+    getItemInOrderOfTableForCancel = async tableId => api.get(`/orderoftable/cancel/item/${tableId}`)
+    getAllCancelRequests = async () => {
+        let requests = []
+        await api.get(`/orderoftable/cancel`)
+            .then(res => {
+                requests = [...res.data]
+                // .map(cr => {
+                //     let orderOfTable = {}
+                //     this.getOrderById(cr.orderOfTable)
+                //         .then(res => {
+                //             orderOfTable = { ...res.data }
+                //         }).catch(err => {
+                //             console.log(err)
+                //         })
+                //     let cancelRequest = { ...cr, orderOfTable: { ...orderOfTable } }
+                //     return cancelRequest
+                // })
+                //   console.log(requests)
+                // requests = [...requestsPromise]
+                //     requestsPromise.forEach(p => {
+                //         p.then(r => {
+                //             console.log('pr',r)
+                //             requests.push({...r})
+                //         })
+                //     })
+                // 
+            }).catch(err => console.log(err))
+
+        return requests
+    }
 }
 
 export default new OrderService();

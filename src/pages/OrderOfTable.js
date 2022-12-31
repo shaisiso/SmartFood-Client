@@ -14,13 +14,13 @@ const OrderOfTable = () => {
     const [popupMessage, setPopupMessage] = useState({})
     const [showLoader, setShowLoader] = useState(true)
     const [order, setOrder] = useState({})
-    const [sentForCancelQuantity, setSentForCancelQuantity] = useState(0)
+    const [sentForCancel, setSentForCancel] = useState([])
     const mounted = useRef();
     useEffect(() => {
         const fetchData = async () => {
             let tableId = await getTable();
-            getOrder(tableId)
-            getSentForCancelQuantity(tableId)
+            if (await getOrder(tableId))
+                getSentForCancelQuantity(tableId)
         }
         if (!mounted.current) {
             mounted.current = true;
@@ -42,21 +42,22 @@ const OrderOfTable = () => {
         setShowLoader(false)
         return tableId
     }
-    const getOrder = (tableId) => {
-        console.log('tableId', tableId)
-        OrderService.getActiveOrderOfTable(tableId || table.tableId)
+    const getOrder = async (tableId) => {
+        let existedOrder
+        await OrderService.getActiveOrderOfTable(tableId || table.tableId)
             .then(res => {
+                existedOrder = res.data
                 setOrder(res.data)
             }).catch(err => {
                 if (err.response.status !== 404)
                     setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        return existedOrder
     }
     const getSentForCancelQuantity = async (tableId) => {
         await OrderService.getItemInOrderOfTableForCancel(tableId)
             .then(res => {
-                console.log('res.data', res.data)
-                setSentForCancelQuantity(res.data.length)
+                setSentForCancel([...res.data])
             }).catch(err =>
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             )
@@ -92,8 +93,6 @@ const OrderOfTable = () => {
             // update order
             let updatedItemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems(chosenItemsToDisplay)
             let itemsToAdd = updatedItemsInOrder.filter(newItem => !newItem.id)
-            console.log('updatedItemsInOrder', updatedItemsInOrder)
-            console.log('itemsToAdd', itemsToAdd)
             if (itemsToAdd.length > 0) {
                 await OrderService.addItemsListToOrder(order.id, itemsToAdd)
                     .then(res => {
@@ -142,7 +141,7 @@ const OrderOfTable = () => {
 
             {
                 table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder}
-                    withAskForCancel sentForCancelQuantity={sentForCancelQuantity} /> : null
+                    withAskForCancel sentForCancel={sentForCancel} /> : null
             }
             {
                 popupMessage.title ?
@@ -160,8 +159,10 @@ const OrderOfTable = () => {
                             </ul>
                         }
                         onClose={() => {
-                            setPopupMessage({ title: '', messages: [''] })
-                            cleanAll()
+                            if (popupMessage.title === 'Error')
+                                setPopupMessage({ title: '', messages: [''] })
+                            else
+                                cleanAll()
                         }}
                         status={popupMessage.title === 'Error' ?
                             'error'

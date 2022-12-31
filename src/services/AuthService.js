@@ -1,4 +1,5 @@
 import api from "./api";
+import EmployeeService from "./EmployeeService";
 import TokenService from "./TokenService";
 
 // const register = (username, email, password) => {
@@ -18,6 +19,10 @@ const login = (phoneNumber, password) => {
       if (response.data.accessToken) {
         let user = {phoneNumber:phoneNumber, accessToken: response.data.accessToken, refreshToken: response.data.refreshToken}
         TokenService.setUser(user);
+        EmployeeService.findEmployeeByPhone(phoneNumber)
+        .then(res=> {
+          TokenService.setEmployee(res.data)
+        })
       }
       return response;
     });

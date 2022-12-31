@@ -25,7 +25,7 @@ const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
 
 const EmployeeHomepage = (props) => {
-    const [tasks, setTasks] = useState({ exteranlOrders: [], shifts: [] });
+    const [tasks, setTasks] = useState({ exteranlOrders: [], shifts: [], cancelRequests: [] });
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -35,7 +35,7 @@ const EmployeeHomepage = (props) => {
         if (RoleService.isManager(props.employee)) {
             connectWebSocekt()
         }
-        console.log('tasks', tasks)
+      
     });
     const connectWebSocekt = () => {
         let Sock = new SockJS(SOCKET_URL);
@@ -45,9 +45,12 @@ const EmployeeHomepage = (props) => {
     const onConnected = () => {
         stompClient.subscribe('/topic/external-orders', onExternalOrderReceived);
         stompClient.subscribe('/topic/shift', onShiftReceived)
+        stompClient.subscribe('/topic/cancel-item-requests', onCancelRequestReceived)
     }
     const onShiftReceived = payload => {
-        console.log('onShiftReceived')
+        getAllTasks()
+    }
+    const onCancelRequestReceived = payload => {
         getAllTasks()
     }
     const getAllTasks = async () => {
@@ -59,11 +62,11 @@ const EmployeeHomepage = (props) => {
                 console.log(err)
             })
         let orders = await OrderService.getActiveExternalOrders()
-        setTasks({ shifts: shifts, exteranlOrders: orders })
+        let cancelRequests = await OrderService.getAllCancelRequests()
+        setTasks({ shifts: shifts, exteranlOrders: orders, cancelRequests: cancelRequests })
 
     }
     const onExternalOrderReceived = payload => {
-        console.log('onExternalOrderReceived')
         getAllTasks()
     }
 

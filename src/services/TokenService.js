@@ -24,7 +24,14 @@ const getLocalRefreshToken = () => {
   
   const removeUser = () => {
     localStorage.removeItem("user");
+    localStorage.removeItem("employee");
   };
+  const setEmployee= (employee)=>{
+    localStorage.setItem("employee", JSON.stringify(employee));
+  }
+  const getEmployee= ()=>{
+    return JSON.parse(localStorage.getItem("employee"));
+  }
   
   const TokenService = {
     getLocalRefreshToken,
@@ -33,6 +40,8 @@ const getLocalRefreshToken = () => {
     getUser,
     setUser,
     removeUser,
+    setEmployee,
+    getEmployee
   };
   
   export default TokenService;

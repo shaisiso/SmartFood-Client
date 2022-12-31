@@ -5,12 +5,11 @@ import Confirmations from '../components/Confirmations';
 import ExternalOrders from '../components/ExternalOrders';
 
 const TasksPage = (props) => {
-    const [tasks, setTasks] = useState({ exteranlOrders: [], shifts: [] });
+    const [tasks, setTasks] = useState({ exteranlOrders: [], shifts: [], cancelRequests:[] });
     useEffect(() => {
-      //  console.log('props.tasks',props.tasks)
         setTasks(props.tasks)
     }, [props.tasks, tasks]);
-
+    const totalConfirmationsNumber= ()=>tasks.shifts.length+tasks.cancelRequests.length
     return (
         <Tabs
             justify variant="tabs"
@@ -31,11 +30,11 @@ const TasksPage = (props) => {
             <Tab eventKey="2" title=
                 {
                     <div>
-                        Confirmations {tasks.shifts.length > 0 ? <span className="notification">{tasks.shifts.length}</span> : null}
+                        Confirmations {totalConfirmationsNumber() > 0 ? <span className="notification">{totalConfirmationsNumber()}</span> : null}
                     </div>
             } 
             tabClassName="text-black font-weight-bold">
-            <Confirmations shifts={tasks.shifts} />
+            <Confirmations shifts={tasks.shifts} cancelRequests={tasks.cancelRequests}/>
         </Tab>
         </Tabs >
     );

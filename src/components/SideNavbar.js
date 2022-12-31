@@ -14,7 +14,7 @@ import RoleService from '../services/RoleService';
 
 
 const SideNavbar = (props) => {
-    const [tasks, setTasks] = useState({exteranlOrders:[] , shifts: []});
+    const [tasks, setTasks] = useState({exteranlOrders:[] , shifts: [], cancelRequests: []});
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -27,7 +27,7 @@ const SideNavbar = (props) => {
     const onClickTasks = e => {
 
     }
-    const totalTasks = ()=> tasks.exteranlOrders.length + tasks.shifts.length
+    const totalTasks = ()=> tasks.exteranlOrders.length + tasks.shifts.length +tasks.cancelRequests.length
 
     return (
         <ul className="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">

@@ -4,7 +4,7 @@ const ReadOnlyRow = ({ item, withId, handleEditClick, handleDeleteClick, rowColo
   return (
     <tr style={{ backgroundColor: rowColor ? rowColor : 'default' }}>
       {
-        Object.values(item).slice(withId ? 0 :1).map((property, key) => <td key={key} className="align-middle ">{`${property}`}</td>)
+        Object.values(item).slice(withId ? 0 :1).map((property, key) => <td key={key} className="align-middle ">{property}</td>)
       }
       {
         handleEditClick || handleDeleteClick ?
