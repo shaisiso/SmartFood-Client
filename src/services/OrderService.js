@@ -65,6 +65,7 @@ class OrderService {
 
         return requests
     }
+    
 }
 
 export default new OrderService();

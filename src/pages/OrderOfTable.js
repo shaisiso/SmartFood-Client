@@ -7,6 +7,7 @@ import ItemsToOrder from '../components/ItemsToOrder'
 import OrderService from '../services/OrderService';
 import ItemInOrderService from '../services/ItemInOrderService';
 import { FloatingLabel, FormControl } from 'react-bootstrap';
+import Payment from '../components/Payment';
 //import { Row } from 'react-bootstrap';
 const OrderOfTable = () => {
     const [table, setTable] = useState({})
@@ -142,6 +143,12 @@ const OrderOfTable = () => {
             {
                 table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder}
                     withAskForCancel sentForCancel={sentForCancel} /> : null
+            }
+            {
+                order && order.items ?
+                <Payment order={order} />
+                :
+                null
             }
             {
                 popupMessage.title ?

@@ -4,6 +4,8 @@ import { useRef } from 'react';
 import TokenService from '../services/TokenService';
 import EmployeeService from '../services/EmployeeService';
 import { enumForReading } from '../utility/Utils';
+import PopupMessage from '../components/PopupMessage';
+import { ColorRing } from 'react-loader-spinner';
 
 const MyProfile = () => {
     const [employee, setEmployee] = useState({ id: '', phoneNumber: '', name: '', email: '', address: { city: '', streetName: '', houseNumber: '' }, role: '' })
@@ -14,6 +16,8 @@ const MyProfile = () => {
         repeat: "",
         errors: []
     })
+    const [showLoader, setShowLoader] = useState(false)
+    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [] })
     const mounted = useRef()
     useEffect(() => {
         if (!mounted.current) {
@@ -35,13 +39,23 @@ const MyProfile = () => {
         setEditMode(!editMode)
     }
     const onChangeDetails = e => {
-
+        let fieldName = e.target.name
+        let fieldValue = e.target.value
+        let newDetails = { ...employee }
+        if (fieldName.includes("address")) {
+            let addressFields = fieldName.split(".")
+            newDetails[addressFields[0]][addressFields[1]] = fieldValue
+        } else {
+            newDetails[fieldName] = fieldValue
+        }
+        setEmployee({ ...newDetails })
     }
     const onChangePassword = e => {
 
     }
     const updateDetails = e => {
         e.preventDefault();
+        setShowLoader(true)
     }
     const updatePassword = e => {
         e.preventDefault();
@@ -78,7 +92,7 @@ const MyProfile = () => {
                                         type="text"
                                         className="form-control"
                                         disabled
-                                        value={enumForReading(employee.role) }
+                                        value={enumForReading(employee.role)}
                                     />
                                 </div>
                                 <div className="col-md-12">
@@ -89,6 +103,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.name}
                                         onChange={onChangeDetails}
+                                        name="name"
                                         required
                                     />
                                 </div>
@@ -100,6 +115,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.phoneNumber}
                                         onChange={onChangeDetails}
+                                        name="phoneNumber"
                                         required
                                     />
                                 </div>
@@ -112,6 +128,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.email}
                                         onChange={onChangeDetails}
+                                        name="email"
                                         required
                                     />
                                 </div>
@@ -123,6 +140,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.address.city}
                                         onChange={onChangeDetails}
+                                        name="address.city"
                                         required
                                     />
                                 </div>
@@ -134,6 +152,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.address.streetName}
                                         onChange={onChangeDetails}
+                                        name="address.streetName"
                                         required
                                     />
                                 </div>
@@ -145,6 +164,7 @@ const MyProfile = () => {
                                         disabled={!editMode}
                                         value={employee.address.houseNumber}
                                         onChange={onChangeDetails}
+                                        name="address.houseNumber"
                                         required
                                     />
                                 </div>
@@ -159,8 +179,17 @@ const MyProfile = () => {
                                         />
                                     ) : null
                                 }
+                                <div className="col col-12 text-center">
+                                    <ColorRing
+                                        className="text-center"
+                                        visible={showLoader}
+                                        ariaLabel="blocks-loading"
+                                        colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                    />
+                                </div>
                             </div>
                         </form>
+
                     </div>
                 </div>
                 <div className="col-md-7 py-5">
@@ -201,14 +230,17 @@ const MyProfile = () => {
                                     />
                                 </div>{" "}
                                 <br />
-                                <button
-                                    className="btn btn-primary profile-button"
-                                    type="button"
-                                    onClick={updatePassword}
-                                //  disabled={!allPasswordCorrect(this.state.password.errors)}
-                                >
-                                    Change Password
-                                </button>
+                                <div className="col-md-12 text-center">
+                                    <button
+                                        className="btn btn-primary profile-button"
+                                        type="button"
+                                        onClick={updatePassword}
+                                    //  disabled={!allPasswordCorrect(this.state.password.errors)}
+                                    >
+                                        Change Password
+                                    </button>
+                                </div>
+
                             </form>
 
                         </div>
@@ -234,7 +266,35 @@ const MyProfile = () => {
                     </div>
                 </div>
             </div>
-
+            {
+                popupMessage.title ?
+                    <PopupMessage
+                        title={popupMessage.title}
+                        body={
+                            <ul>
+                                {
+                                    popupMessage.messages.map((message, key) => (
+                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
+                                            {message}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        }
+                        onClose={() => {
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        status={popupMessage.title === 'Error' ?
+                            'error'
+                            :
+                            'success'
+                        }
+                        closeOnlyWithBtn
+                    >
+                    </PopupMessage>
+                    :
+                    null
+            }
         </div>
     );
 };

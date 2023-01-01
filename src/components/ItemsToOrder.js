@@ -255,7 +255,6 @@ const ItemsToOrder = (props) => {
                             colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
                         />
                     </div>
-
                     <Accordion>
                         {
                             categories.map((category, key) =>
@@ -286,6 +285,7 @@ const ItemsToOrder = (props) => {
                     </Accordion>
                 </div>
             </div>
+            
             <div className="col col-lg-6 col-sm-12 px-4" style={{ backgroundColor: "#ffffffB0", }} >
                 <div className="container p-3 " >
                     <h4 className="text-center mb-4"><u>My Order</u></h4>

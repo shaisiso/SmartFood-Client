@@ -70,7 +70,7 @@ const TableReservation = () => {
 
         var date = new Date(chosenDate)
         var reservation = {
-            customer: personDetails,
+            person: personDetails,
             date: formatDateForServer(date),
             hour: chosenHour,
             numberOfDiners: numberOfDiners

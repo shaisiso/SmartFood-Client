@@ -18,7 +18,7 @@ export function formatDateForBrowser(date) {
     return `${year}-${month}-${day}`
 }
 export function formatDateForServer(date) {
-    if (typeof(date)=== 'string')
+    if (typeof (date) === 'string')
         date = new Date(date)
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
@@ -49,7 +49,7 @@ export function isDateInFuture(date, hour) {
     else
         return false
 }
-export function getCurrentDate()  {
+export function getCurrentDate() {
     return formatDateForBrowser(new Date())
 }
 
@@ -72,7 +72,7 @@ export function extractHttpError(err) {
     // var errMsg;
     if (err.response.data) {
         if (err.response.data.message) {
-            return  [err.response.data.message];
+            return [err.response.data.message];
         } else {
             return Object.entries(err.response.data).map(([key, value]) => `${value}`); //Object.entries(err.response.data).map(([key, value]) => `${key}: ${value}`); // JSON.stringify(err.response.data).replace(/[{"}]/g, '').replace(":", ": "); //
         }
@@ -81,22 +81,30 @@ export function extractHttpError(err) {
         return [err.message]
     }
 }
-export function addressToString(address){
+export function addressToString(address) {
     if (!address || !address.city) return ''
-   return `${address.city ?? ''}, ${address.streetName ?? ''} ${address.houseNumber ?? ''}${address.entrance ? `-${address.entrance}`: ''}${address.apartmentNumber ? `, appartment ${address.apartmentNumber}`: ''}`
+    return `${address.city ?? ''}, ${address.streetName ?? ''} ${address.houseNumber ?? ''}${address.entrance ? `-${address.entrance}` : ''}${address.apartmentNumber ? `, appartment ${address.apartmentNumber}` : ''}`
 }
-export function isChar(st){
-    return !st || st.length<=1
+export function isChar(st) {
+    return !st || st.length <= 1
 }
-export function getDateOfLocalDateTimeSt(dateTime){
+export function getDateOfLocalDateTimeSt(dateTime) {
     return dateTime ? dateTime.split(' ')[0] : ''
 }
-export function getTimeOfLocalDateTimeSt(dateTime){
-    return  dateTime ?  dateTime.split(' ')[1]: ''
+export function getTimeOfLocalDateTimeSt(dateTime) {
+    return dateTime ? dateTime.split(' ')[1] : ''
 }
-export function lastCharIsDigit(str){
-    let digits =['0','1','2','3','4','5','6','7','8','9']
-    if (str.length===0)
+export function lastCharIsDigit(str) {
+    let digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    if (str.length === 0)
         return true
-    return digits.includes(str.slice(-1)) 
+    return digits.includes(str.slice(-1))
+}
+export function isValidFloatNumber(str) {
+    if (lastCharIsDigit(str))
+        return true
+    return str.slice(-1) === '.' && str.length > 1 && str.split(".").length - 1 === 1
+}
+export function cleanAll() {
+    window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
 }

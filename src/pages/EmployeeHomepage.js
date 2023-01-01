@@ -20,6 +20,7 @@ import ShiftService from '../services/ShiftService';
 import OrderService from '../services/OrderService';
 import MyProfile from './MyProfile';
 import EditOrder from '../components/EditOrder';
+import TokenService from '../services/TokenService';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -90,25 +91,25 @@ const EmployeeHomepage = (props) => {
                             <Route path="/menu" element={<MenuEmployees />} />
                             {/* Routes should be define only to specifc roles with permission */}
                             {
-                                RoleService.isGeneralManager(props.employee) ?
+                                RoleService.isGeneralManager(TokenService.getEmployee()) ?
                                     <Route path="/management" element={<ManagementPage />} />
                                     :
                                     null
                             }
                             {
-                                RoleService.isGeneralManager(props.employee) ?
+                                RoleService.isGeneralManager(TokenService.getEmployee()) ?
                                     <Route path="/management/menu" element={<MenuManagement />} />
                                     :
                                     null
                             }
                             {
-                                RoleService.isManager(props.employee) ?
+                                RoleService.isManager(TokenService.getEmployee()) ?
                                     <Route path={`/order/edit/*`} element={<EditOrder />} />
                                     :
                                     null
                             }
                             {
-                                RoleService.isManager(props.employee) ?
+                                RoleService.isManager(TokenService.getEmployee()) ?
                                     <Route path="/tasks" element={<TasksPage tasks={tasks} />} />
                                     :
                                     null
