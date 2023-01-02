@@ -49,6 +49,18 @@ export function isDateInFuture(date, hour) {
     else
         return false
 }
+export function isValidDateForReservation(date, time){
+    let currentDate = new Date()
+    let timeSplited = time.split(":")
+    let hourForDate =  parseInt(timeSplited[0]) ;
+    let minuteForDate  = parseInt(timeSplited[1]);
+    date.setHours(hourForDate-1)
+    date.setMinutes(minuteForDate)
+    if (date > currentDate)
+        return true
+    else
+        return false
+}
 export function getCurrentDate() {
     return formatDateForBrowser(new Date())
 }

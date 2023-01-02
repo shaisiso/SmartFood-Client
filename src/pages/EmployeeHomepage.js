@@ -21,6 +21,7 @@ import OrderService from '../services/OrderService';
 import MyProfile from './MyProfile';
 import EditOrder from '../components/EditOrder';
 import TokenService from '../services/TokenService';
+import Reservations from './Reservations';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -114,6 +115,7 @@ const EmployeeHomepage = (props) => {
                                     :
                                     null
                             }
+                            <Route path="/reservations" element={<Reservations />} />
                             <Route path="/my-shifts" element={<MyShifts />} />
                             <Route path="/tables" element={<Tables />} />
                             <Route path="/tables/*" element={<OrderOfTable />} />

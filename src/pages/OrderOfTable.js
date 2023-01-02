@@ -8,9 +8,13 @@ import OrderService from '../services/OrderService';
 import ItemInOrderService from '../services/ItemInOrderService';
 import { FloatingLabel, FormControl } from 'react-bootstrap';
 import Payment from '../components/Payment';
-//import { Row } from 'react-bootstrap';
+import TableReservationService from '../services/TableReservationService';
+
+const INTERVAL_MS = 60000;
+
 const OrderOfTable = () => {
     const [table, setTable] = useState({})
+    const [tableReservation, setTableReservation] = useState({})
     const [actualDinersNum, setActualDiners] = useState(1)
     const [popupMessage, setPopupMessage] = useState({})
     const [showLoader, setShowLoader] = useState(true)
@@ -20,6 +24,7 @@ const OrderOfTable = () => {
     useEffect(() => {
         const fetchData = async () => {
             let tableId = await getTable();
+            await getReservationIfExists(tableId);
             if (await getOrder(tableId))
                 getSentForCancelQuantity(tableId)
         }
@@ -27,6 +32,11 @@ const OrderOfTable = () => {
             mounted.current = true;
             fetchData()
         }
+        const reservationsInterval = setInterval(() => {
+            getReservationIfExists(table.tableId)
+            console.log('Check Reservation if exists');
+        }, INTERVAL_MS);
+        return () => clearInterval(reservationsInterval);
     });
     const getTable = async () => {
         setShowLoader(true)
@@ -42,6 +52,18 @@ const OrderOfTable = () => {
             })
         setShowLoader(false)
         return tableId
+    }
+    const getReservationIfExists = async (tableId) => {
+        setShowLoader(true)
+        await TableReservationService.getCurrentReservations()
+            .then(res => {
+                let reservation = [...res.data].find(r => r.table.tableId === Number(tableId))
+                console.log('reservation', reservation)
+                setTableReservation(reservation)
+            }).catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader(false)
     }
     const getOrder = async (tableId) => {
         let existedOrder
@@ -112,7 +134,16 @@ const OrderOfTable = () => {
     return (
         <div className="container ">
             <div className=" text-center">
-                <h1 className="py-4 bold"><b><u>Table #{table.tableId}</u></b></h1>
+                <h1 className="py-3 bold"><b><u>Table #{table.tableId}</u></b></h1>
+                {
+                    tableReservation && tableReservation.person ?
+                        <div className="row mb-3 h5 justify-content-center text-center" style={{ color: 'red' }}>
+                            *This table is reserved for {tableReservation.person.name} at {tableReservation.hour}. Phone: {tableReservation.person.phoneNumber}
+                        </div>
+                        :
+                        null
+                }
+
                 <div className="row d-flex justify-content-center form-group">
                     <div className="col col-xxl-2 col-md-3 form-group">
                         <FloatingLabel controlId="floatingInput" label="Number Of Diners">
@@ -146,9 +177,9 @@ const OrderOfTable = () => {
             }
             {
                 order && order.items ?
-                <Payment order={order} />
-                :
-                null
+                    <Payment order={order} />
+                    :
+                    null
             }
             {
                 popupMessage.title ?

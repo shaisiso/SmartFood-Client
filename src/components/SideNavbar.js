@@ -6,6 +6,7 @@ import { ReactComponent as MenuSvg } from '../assets/icons/menu.svg'
 import { ReactComponent as TableSvg } from '../assets/icons/tables.svg'
 import { ReactComponent as ManagementSvg } from '../assets/icons/management.svg'
 import { ReactComponent as CutlerytSvg } from '../assets/icons/cutlery.svg'
+import { ReactComponent as ReservationSvg } from '../assets/icons/reservations.svg'
 import RoleService from '../services/RoleService';
 // import { over } from 'stompjs';
 // import SockJS from 'sockjs-client';
@@ -86,6 +87,12 @@ const SideNavbar = (props) => {
                 <Link className="nav-link" to={'/employee/tables'}>
                     <TableSvg width="24" height="24" />
                     <span className="mx-2">Tables</span>
+                </Link>
+            </li>
+            <li className="nav-item">
+                <Link className="nav-link" to={'/employee/reservations'}>
+                    <ReservationSvg width="24" height="24" />
+                    <span className="mx-2">Reservations</span>
                 </Link>
             </li>
 

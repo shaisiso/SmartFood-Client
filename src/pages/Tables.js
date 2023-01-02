@@ -1,12 +1,16 @@
 import React, { useState, useEffect, useRef } from 'react';
 import RestaurantTable from '../components/RestaurantTable';
 import PopupMessage from '../components/PopupMessage';
-import {  extractHttpError } from '../utility/Utils';
+import { extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner';
 import TableService from '../services/TableService';
+import TableReservationService from '../services/TableReservationService';
+
+const INTERVAL_MS = 60000
 
 const Tables = () => {
     const [tables, setTables] = useState([])
+    const [currentReservations, setCurrentReservations] = useState([])
     const [errorMessage, setErrorMessage] = useState('');
     const [loaded, setLoaded] = useState(false)
 
@@ -16,10 +20,20 @@ const Tables = () => {
             mounted.current = true;
             getData();
         }
+        //This will run each minute to check reservations
+        const reservationsInterval = setInterval(() => {
+            getCurrentReservations()
+            console.log('Get Current Reservations');
+        }, INTERVAL_MS);
+        return () => clearInterval(reservationsInterval);
     });
-    const getData = async () => {
+    const getData = () => {
+        getAllTables()
+        getCurrentReservations()
+    }
+    const getAllTables = async () => {
         setLoaded(false)
-       await TableService.getAllTables()
+        await TableService.getAllTables()
             .then((res) => {
                 setTables(res.data)
             })
@@ -27,7 +41,22 @@ const Tables = () => {
                 var errMsg = extractHttpError(err)[0]
                 setErrorMessage(errMsg)
             })
-            setLoaded(true)
+        setLoaded(true)
+    }
+    const getCurrentReservations = async () => {
+        setLoaded(false)
+        TableReservationService.getCurrentReservations()
+            .then(res => {
+                setCurrentReservations(res.data)
+            }).catch(err => {
+                var errMsg = extractHttpError(err)[0]
+                setErrorMessage(errMsg)
+            })
+        setLoaded(true)
+    }
+    const isTableReserved = (table) => {
+        let answer = [...currentReservations].findIndex(r => r.table.tableId === table.tableId) !== -1
+        return answer
     }
     return (
         <div className='container text-center p-5'>
@@ -39,7 +68,7 @@ const Tables = () => {
             <div className="row">
                 {
                     tables.map((t, index) =>
-                        <RestaurantTable className="m-3" table={t} key={index} />
+                        <RestaurantTable className="m-3" table={t} key={index} isReserved={isTableReserved(t)} />
                     )
                 }
             </div>

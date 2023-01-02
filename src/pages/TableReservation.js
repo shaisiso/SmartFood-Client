@@ -1,14 +1,16 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate } from "../utility/Utils";
+import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { FormControl } from "react-bootstrap";
+import TableReservationService from "../services/TableReservationService";
+import WaitingListService from "../services/WaitingListService";
 
-const hoursList = [12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22];
+const hoursList = ['12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30'];
 const getMaxDate = () => {
     let date = new Date();
     date.setFullYear(date.getFullYear() + 1)
@@ -19,7 +21,7 @@ const getMaxDate = () => {
 const TableReservation = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '' })
     const [chosenDate, setChosenDate] = useState(getCurrentDate());
-    const [chosenHour, setChosenHour] = useState(`${hoursList[hoursList.length - 1]}:00`)
+    const [chosenHour, setChosenHour] = useState(`${hoursList[hoursList.length - 1]}`)
     const [numberOfDiners, setNumberOfDiners] = useState(1)
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
@@ -49,7 +51,7 @@ const TableReservation = () => {
                 email: event.target.value
             })
     }
-    const onChangeHour = event => setChosenHour(`${event.target.value}:00`)
+    const onChangeHour = event => setChosenHour(`${event.target.value}`)
     const onChangeNumberOfDiners = event => setNumberOfDiners(event.target.value)
     const onChangeAdditionalDetails = event => setAdditionalDetails(event.target.value)
 
@@ -73,19 +75,25 @@ const TableReservation = () => {
             person: personDetails,
             date: formatDateForServer(date),
             hour: chosenHour,
-            numberOfDiners: numberOfDiners
+            numberOfDiners: numberOfDiners,
+            additionalDetails: additionalDetails
         }
-        await Axios.post(`${API_URL}/api/reservation`, reservation)
+        await TableReservationService.addTableReservation(reservation)
             .then((res) => {
-                setPopupMessage({
-                    title: 'New Reservation', messages: ['Your reservation was saved and SMS will be sent for you',
-                        `Phone Number: ${personDetails.phoneNumber}`, `At: ${formatDateWithSlash(date)} - ${chosenHour}`,
-                        `Diners: ${numberOfDiners}`]
-                })
+                let messages = ['Your reservation was saved and SMS will be sent for you',
+                    `Phone Number: ${personDetails.phoneNumber}`, `At: ${formatDateWithSlash(date)} - ${chosenHour}`,
+                    `Diners: ${numberOfDiners}`]
+                if (additionalDetails)
+                    messages.push(`Additional Details: ${additionalDetails}`)
+                setPopupMessage({ title: 'New Reservation', messages: messages })
                 cleanForm()
             }).catch(err => {
-                var errMsg =extractHttpError(err);
-                setPopupMessage({ title: 'Error', messages: errMsg })
+                var errMsg = extractHttpError(err);
+                if (err.response.status === 409) {// Conflict -> waiting list
+                    setPopupMessage({ title: 'Reservation Not Available', messages: [...errMsg, "Do you want to enter the waiting list?"] })
+                } else {
+                    setPopupMessage({ title: 'Error', messages: errMsg })
+                }
             })
         setShowLoader(false)
     }
@@ -106,10 +114,30 @@ const TableReservation = () => {
         }
         return true
     }
+    const addToWaitingList = async () => {
+        setShowLoader(true)
+        var date = new Date(chosenDate)
+        var waitingListRequest = {
+            person: personDetails,
+            date: formatDateForServer(date),
+            hour: chosenHour,
+            numberOfDiners: numberOfDiners
+        }
+        await WaitingListService.add(waitingListRequest)
+            .then(res => {
+                let messages = ['You were added to the waiting list and we will notify you if your reservation can be saved.',
+                    `Phone Number: ${personDetails.phoneNumber}`, `At: ${formatDateWithSlash(date)} - ${chosenHour}`,
+                    `Diners: ${numberOfDiners}`]
+                setPopupMessage({ title: 'Waiting List', messages: messages })
+            }).catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader(false)
+    }
     const cleanForm = () => {
         setPersonDetails({ name: '', phoneNumber: '', email: '' })
         setChosenDate(getCurrentDate())
-        setChosenHour(`${hoursList[hoursList.length - 1]}:00`)
+        setChosenHour(`${hoursList[hoursList.length - 1]}`)
         setNumberOfDiners(1)
         setAdditionalDetails('')
     }
@@ -162,7 +190,7 @@ const TableReservation = () => {
                                 <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
                                     {
                                         hoursList.map((item, key) => (
-                                            <option key={key} value={item} disabled={!isDateInFuture(new Date(chosenDate), `${item}`)}>{item}:00</option>
+                                            <option key={key} value={item} disabled={!isValidDateForReservation(new Date(chosenDate), item)}>{item}</option>
                                         ))
                                     }
                                 </Form.Select>
@@ -219,6 +247,16 @@ const TableReservation = () => {
                                 :
                                 'info'
                         }
+                        withOk={popupMessage.title.includes('Not Available')}
+                        okBtnText="Enter Waiting List"
+                        onClicOk={e => {
+                            e.preventDefault()
+                            addToWaitingList()
+                        }}
+                        cancelBtnText={popupMessage.title.includes('Not Available') ? "Change Details" : null}
+                        onClickCancel={e => {
+                            e.preventDefault()
+                        }}
                         closeOnlyWithBtn
                     >
                     </PopupMessage>

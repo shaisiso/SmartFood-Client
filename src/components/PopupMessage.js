@@ -64,7 +64,7 @@ const PopupMessage = (props) => {
                                     {
                                         getIcon()
                                     }
-                                    
+
                                 </div>
                             </div>
                             <div className="modal-footer">
@@ -78,8 +78,11 @@ const PopupMessage = (props) => {
                                         null
                                 }
                                 {
-                                    props.withClose ?
-                                        <Link to={props.navigateTo} className="btn btn-primary">{props.closeBtnText}</Link>
+                                    props.cancelBtnText ?
+                                        props.onClickCancel ?
+                                            <button className="btn btn-danger" onClick={props.onClickCancel}>{props.cancelBtnText}</button>
+                                            :
+                                            <Link to={props.navigateTo} className="btn btn-primary">{props.cancelBtnText}</Link>
                                         :
                                         null
                                 }
