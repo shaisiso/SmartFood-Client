@@ -7,4 +7,5 @@ class EmployeeService {
     addEmployee = async (employee)=> api.post(`/employee`,employee)
     deleteEmployee = async employee => api.delete(`/employee/${employee.id}`)
     updateEmployee = async employee => api.put(`/employee`,employee)
+    updatePassowrd = async changePassordRequest => api.put(`/employee/password`,changePassordRequest)
 } export default new EmployeeService()

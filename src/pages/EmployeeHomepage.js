@@ -77,13 +77,13 @@ const EmployeeHomepage = (props) => {
 
     return (
         <div id="wrapper">
-            <SideNavbar employee={props.employee} tasks={tasks} />
+            <SideNavbar employee={TokenService.getEmployee()} tasks={tasks} />
             <div id="content-wrapper" className="d-flex flex-column">
                 <div id="content">
                     <EmployeeTopBar
                         userDetails={props.userDetails}
                         handleLogout={props.handleLogout}
-                        employee={props.employee}
+                        employee={TokenService.getEmployee()}
                     />
                     <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '93vh', backgroundRepeat: 'repeat' }}>
                         <Routes>

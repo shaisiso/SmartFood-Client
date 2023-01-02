@@ -66,12 +66,14 @@ const EmployeeTopBar = (props) => {
             <div className="my-auto" style={{ color: 'yellow' }}> You started shift at: {shift.shiftEntrance}</div>
             :
             null
-        }       
+        }
         <div className="topbar-divider d-none d-sm-block" />
         <div className="mr-20 text-white-600 small " >
           <Dropdown >
             <Dropdown.Toggle className='text-white' variant="transparent" >
-              {props.employee.name} -  {props.employee.role ? enumForReading(props.employee.role) : ''} &nbsp; &nbsp;
+              {
+                props.employee ? `${props.employee.name} - ${enumForReading(props.employee.role)}` : ''
+              }&nbsp; &nbsp;
               <UserSvg width="48" height="48" />
             </Dropdown.Toggle>
             <Dropdown.Menu style={{ marginLeft: 100 }}>

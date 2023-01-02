@@ -2,38 +2,24 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import TokenService from '../services/TokenService';
-import EmployeeService from '../services/EmployeeService';
-import { enumForReading } from '../utility/Utils';
+import { enumForReading, extractHttpError } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 import { ColorRing } from 'react-loader-spinner';
+import EmployeeService from '../services/EmployeeService';
 
 const MyProfile = () => {
     const [employee, setEmployee] = useState({ id: '', phoneNumber: '', name: '', email: '', address: { city: '', streetName: '', houseNumber: '' }, role: '' })
     const [editMode, setEditMode] = useState(false)
-    const [password, setPassword] = useState({
-        old: "",
-        new: "",
-        repeat: "",
-        errors: []
-    })
-    const [showLoader, setShowLoader] = useState(false)
+    const [password, setPassword] = useState({ old: "", new: "", repeat: "", errors: [] })
+    const [showLoader, setShowLoader] = useState({ details: false, password: false })
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [] })
     const mounted = useRef()
     useEffect(() => {
         if (!mounted.current) {
             mounted.current = true
-            let phoneNumber = TokenService.getUser().phoneNumber
-            EmployeeService.findEmployeeByPhone(phoneNumber)
-                .then(res => {
-                    setEmployee(res.data)
-                })
-                .catch(err => {
-                    console.log(err)
-                })
+            setEmployee(TokenService.getEmployee())
         }
-        console.log(employee)
-
-    })
+    }, [])
     const handleEditClick = e => {
         e.preventDefault()
         setEditMode(!editMode)
@@ -51,15 +37,44 @@ const MyProfile = () => {
         setEmployee({ ...newDetails })
     }
     const onChangePassword = e => {
-
+        let fieldName = e.target.name
+        let fieldValue = e.target.value
+        let newPassowrdState = { ...password }
+        newPassowrdState[fieldName] = fieldValue
+        setPassword({ ...newPassowrdState })
     }
-    const updateDetails = e => {
+    const updateDetails = async e => {
         e.preventDefault();
-        setShowLoader(true)
+        setShowLoader({ ...showLoader, details: true })
+        await EmployeeService.updateEmployee(employee)
+            .then(res => {
+                TokenService.setEmployee(res.data)
+                setPopupMessage({ title: 'Update Details', messages: ["Your details were updated successfully"] })
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader({ ...showLoader, details: false })
     }
     const updatePassword = e => {
         e.preventDefault();
-        setPassword({})
+        setShowLoader({ ...showLoader, password: true })
+        if (password.new !== password.repeat){
+            setPopupMessage({ title: 'Error', messages: ["Password are not match!"] })
+            setShowLoader({ ...showLoader, password: false })
+            return
+        }
+
+        let changePasswordRequest = { userId: employee.id, oldPassword: password.old, newPassword: password.new }
+        EmployeeService.updatePassowrd(changePasswordRequest)
+            .then(res => {
+                setPassword({ old: "", new: "", repeat: "", errors: [] })
+                setPopupMessage({ title: 'Update Passord', messages: ["Your password was updated successfully"] })
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        
     }
     return (
         <div className="wrapper ">
@@ -182,7 +197,7 @@ const MyProfile = () => {
                                 <div className="col col-12 text-center">
                                     <ColorRing
                                         className="text-center"
-                                        visible={showLoader}
+                                        visible={showLoader.details}
                                         ariaLabel="blocks-loading"
                                         colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
                                     />
@@ -205,6 +220,7 @@ const MyProfile = () => {
                                         autoComplete="on"
                                         value={password.old}
                                         onChange={onChangePassword}
+                                        name="old"
                                     />
                                 </div>{" "}
                                 <br />
@@ -213,9 +229,11 @@ const MyProfile = () => {
                                     <input
                                         type="password"
                                         className="form-control"
+                                        autoComplete="on"
                                         value={password.new}
                                         onChange={onChangePassword}
-                                        autoComplete="on"
+                                        name="new"
+
                                     />
                                 </div>{" "}
                                 <br />
@@ -227,6 +245,7 @@ const MyProfile = () => {
                                         autoComplete="on"
                                         value={password.repeat}
                                         onChange={onChangePassword}
+                                        name="repeat"
                                     />
                                 </div>{" "}
                                 <br />
@@ -235,34 +254,23 @@ const MyProfile = () => {
                                         className="btn btn-primary profile-button"
                                         type="button"
                                         onClick={updatePassword}
-                                    //  disabled={!allPasswordCorrect(this.state.password.errors)}
                                     >
                                         Change Password
                                     </button>
                                 </div>
-
+                                <div className="col col-12 text-center">
+                                    <ColorRing
+                                        className="text-center"
+                                        visible={showLoader.password}
+                                        ariaLabel="blocks-loading"
+                                        colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                    />
+                                </div>
                             </form>
 
                         </div>
-
-                        {/* <div className="col-md-5 mt-5 text-left">
-                            {
-                                password.errors.length > 0 ?
-                                    <>
-                                        {password.errors.map((item, key) => (
-                                            <div key={key}>
-                                                < ShowPasswordMsg
-                                                    match={item.valid}
-                                                    text={item.msg}
-                                                />
-                                                <br />
-                                            </div>
-                                        ))}
-                                    </>
-                                    :
-                                    null
-                            }
-                        </div> */}
+                        <div className="col-md-5 mt-5 text-left">
+                        </div>
                     </div>
                 </div>
             </div>
