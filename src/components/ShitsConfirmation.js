@@ -1,14 +1,17 @@
 import React from 'react';
 import { Fragment } from 'react';
 import ReadOnlyRow from './ReadOnlyRow';
-import { enumForReading } from '../utility/Utils';
+import { enumForReading, extractHttpError } from '../utility/Utils';
 import ShiftService from '../services/ShiftService';
 import { useState } from 'react';
 import { useEffect } from 'react';
+import PopupMessage from './PopupMessage';
 
 
 const ShitsConfirmation = props => {
     const [shifts, setShifts] = useState([]);
+    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+
     useEffect(() => {
         setShifts(props.shifts)
     }, [props.shifts, shifts]);
@@ -18,14 +21,14 @@ const ShitsConfirmation = props => {
         shift.isApproved = true
         ShiftService.updateShift(shift)
             .catch(err => {
-                console.log(err)
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
     }
     const onClickDecline = (event, shift) => {
         event.preventDefault();
         ShiftService.deleteShift(shift)
             .catch(err => {
-                console.log(err)
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
     }
     return (
@@ -62,6 +65,31 @@ const ShitsConfirmation = props => {
                     ))}
                 </tbody>
             </table>
+            {
+                popupMessage.title ?
+                    <PopupMessage
+                        title={popupMessage.title}
+                        body={
+                            <ul>
+                                {
+                                    popupMessage.messages.map((message, key) => (
+                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
+                                            {message}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        }
+                        onClose={() => {
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        status={popupMessage.title === 'Error' ? 'error' : 'info'}
+                        closeOnlyWithBtn
+                    >
+                    </PopupMessage>
+                    :
+                    null
+            }
         </div>
     );
 };

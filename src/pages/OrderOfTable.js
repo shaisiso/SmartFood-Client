@@ -176,7 +176,7 @@ const OrderOfTable = () => {
                     withAskForCancel sentForCancel={sentForCancel} /> : null
             }
             {
-                order && order.items ?
+                table.isBusy && order && order.items ?
                     <Payment order={order} />
                     :
                     null

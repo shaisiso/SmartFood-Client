@@ -2,11 +2,15 @@ import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Fragment } from 'react';
 import OrderService from '../services/OrderService';
+import { extractHttpError } from '../utility/Utils';
+import PopupMessage from './PopupMessage';
 import ReadOnlyRow from './ReadOnlyRow';
 
 const CancelItemsCofiramtions = props => {
     const [cancelRequests, setCancelRequests] = useState([]);
     const [orderOfTables, setOrderOfTables] = useState([])
+    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+
 
     useEffect(() => {
         const buildCOrderOfTables = async () => {
@@ -16,7 +20,7 @@ const CancelItemsCofiramtions = props => {
                     .then(res => {
                         o.push(res.data)
                     }).catch(err => {
-                        console.log(err)
+                        setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                     })
             }
             setOrderOfTables([...o])
@@ -32,7 +36,8 @@ const CancelItemsCofiramtions = props => {
         delete cancelRequest.itemInOrder
         OrderService.handleRequestForCancelItem(cancelRequest)
             .catch(err => {
-                console.log(err)
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+
             })
     }
 
@@ -75,6 +80,31 @@ const CancelItemsCofiramtions = props => {
                     ))}
                 </tbody>
             </table>
+            {
+                popupMessage.title ?
+                    <PopupMessage
+                        title={popupMessage.title}
+                        body={
+                            <ul>
+                                {
+                                    popupMessage.messages.map((message, key) => (
+                                        <li key={key} className="mt-2" style={{ fontSize: '1.2rem' }}>
+                                            {message}
+                                        </li>
+                                    ))
+                                }
+                            </ul>
+                        }
+                        onClose={() => {
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        status={popupMessage.title === 'Error' ? 'error' : 'info'}
+                        closeOnlyWithBtn
+                    >
+                    </PopupMessage>
+                    :
+                    null
+            }
         </div>
     );
 };

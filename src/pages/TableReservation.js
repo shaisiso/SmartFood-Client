@@ -63,7 +63,7 @@ const TableReservation = () => {
     }
 
     const onSubmit = async (e) => {
-        e.preventDefault();
+        e?.preventDefault();
         setShowLoader(true)
         if (!fieldsAreValid()) {
             setShowLoader(false)
@@ -90,7 +90,7 @@ const TableReservation = () => {
             }).catch(err => {
                 var errMsg = extractHttpError(err);
                 if (err.response.status === 409) {// Conflict -> waiting list
-                    setPopupMessage({ title: 'Reservation Not Available', messages: [...errMsg, "Do you want to enter the waiting list?"] })
+                    setPopupMessage({ title: 'Reservation Not Available', messages: [...errMsg, "Do you want to enter the waiting list?", "You can also check for other availble hours."] })
                 } else {
                     setPopupMessage({ title: 'Error', messages: errMsg })
                 }
@@ -130,6 +130,34 @@ const TableReservation = () => {
                     `Diners: ${numberOfDiners}`]
                 setPopupMessage({ title: 'Waiting List', messages: messages })
             }).catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader(false)
+    }
+    const getAvailableHours = async () => {
+        setShowLoader(true)
+        let dateForAPI = formatDateForServer(new Date(chosenDate))
+        TableReservationService.getAvailableHoursByDateAndDiners(dateForAPI, numberOfDiners)
+            .then(res => {
+                console.log(res)
+                let availableHours =[...res.data]
+                setChosenHour(availableHours[0])
+                setPopupMessage({
+                    title: 'Available Hours', messages: ['Your reservation request can be save for the following hours:',
+                        <FloatingLabel label="Choose Hour">
+                            <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={availableHours[0]}>
+                                {
+                                    availableHours.map((item, key) => (
+                                        <option key={key} value={item} disabled={!isValidDateForReservation(new Date(chosenDate), item)}>{item}</option>
+                                    ))
+                                }
+                            </Form.Select>
+                        </FloatingLabel>
+                    ]
+                })
+            })
+            .catch(err => {
+                console.log(err)
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
         setShowLoader(false)
@@ -247,15 +275,23 @@ const TableReservation = () => {
                                 :
                                 'info'
                         }
-                        withOk={popupMessage.title.includes('Not Available')}
-                        okBtnText="Enter Waiting List"
-                        onClicOk={e => {
-                            e.preventDefault()
-                            addToWaitingList()
-                        }}
-                        cancelBtnText={popupMessage.title.includes('Not Available') ? "Change Details" : null}
+                        withOk={popupMessage.title.includes('Available')}
+                        okBtnText={popupMessage.title.includes('Available Hours') ? "Send Reservation Request" : "Enter Waiting List"}
+                        onClicOk={
+                            popupMessage.title.includes('Available Hours') ?
+                                e => { //send table reservation
+                                    e.preventDefault()
+                                    onSubmit()
+                                }
+                                : //add to waiting lists
+                                e => {
+                                    e.preventDefault()
+                                    addToWaitingList()
+                                }}
+                        cancelBtnText={popupMessage.title.includes('Not Available') ? "Other Available Hours" : null}
                         onClickCancel={e => {
                             e.preventDefault()
+                            getAvailableHours()
                         }}
                         closeOnlyWithBtn
                     >
