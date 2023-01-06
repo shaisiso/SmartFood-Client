@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import Axios from 'axios';
-import { API_URL, extractHttpError } from '../utility/Utils';
+import { API_URL, extractHttpError, format2Decimals } from '../utility/Utils';
 import Accordion from 'react-bootstrap/Accordion';
 import Card from 'react-bootstrap/Card';
 import { ColorRing } from 'react-loader-spinner'
@@ -93,7 +93,8 @@ const ItemsToOrder = (props) => {
     const getMinQuantity = (item) => {
         if (!isOldItem(item))
             return 1
-        return props.chosenItems.find(i => i.itemId === item.itemId).quantity
+        let chosenItem = props.chosenItems.find(i => i.itemId === item.itemId)
+        return  chosenItem ? chosenItem.quantity :1
     }
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItemsToDisplay.filter(item => item !== itemToDelete))
@@ -180,7 +181,7 @@ const ItemsToOrder = (props) => {
         setCancelItemQuantity(1)
         setLoaded(true)
     }
-    const cancelAndDeleteItem = async item=>{
+    const cancelAndDeleteItem = async item => {
         setLoaded(false)
         let itemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems([item])
         let startIndex = itemsInOrder.length - cancelItemQuantity - quantityOfItemInOrder(item)
@@ -267,7 +268,6 @@ const ItemsToOrder = (props) => {
                                             <tbody >
                                                 {
                                                     menu[category].map((item, itemKey) =>
-
                                                         <tr key={itemKey} style={{ cursor: 'pointer' }} onClick={() => clickOnItem(item)}>
                                                             <td className="align-middle ps-4 pe-3" ><h6>{item.name}</h6> </td>
                                                             <td>{item.description}</td>
@@ -285,7 +285,7 @@ const ItemsToOrder = (props) => {
                     </Accordion>
                 </div>
             </div>
-            
+
             <div className="col col-lg-6 col-sm-12 px-4" style={{ backgroundColor: "#ffffffB0", }} >
                 <div className="container p-3 " >
                     <h4 className="text-center mb-4"><u>My Order</u></h4>
@@ -298,12 +298,12 @@ const ItemsToOrder = (props) => {
                                             <td className="col col-xl-7 col-sm-6 col-12 px-2">{item.name}
                                             </td>
 
-                                            <td className="col col-md-2 col-3 px-2 mb-0 pb-0">{item.price}₪</td>
+                                            <td className="col col-md-2 col-3 px-2 mb-0 pb-0">{format2Decimals(item.price)}₪</td>
                                             <td className="col col-md-2 col-3 p-1 mb-0 pb-0">
                                                 <FloatingLabel label="Quantity" style={{ fontSize: '0.8rem' }} >
                                                     <Form.Control size="sm" type="number"
                                                         min={getMinQuantity(item)}
-                                                        value={item.quantity} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height: '3rem', width: '4rem' }} />
+                                                        value={item.quantity || '0'} onChange={(e) => onChangeQuantity(e, item)} style={{ fontSize: '0.8rem', height: '3rem', width: '4rem' }} />
                                                 </FloatingLabel>
                                             </td>
                                             <td className="col col-1  mb-0 pb-0">
@@ -336,7 +336,7 @@ const ItemsToOrder = (props) => {
                                         <tr className="row align-middle h4 " style={{ height: '3rem', background: '#ffff0050' }}>
                                             <td className="col col-xl-7 col-lg-6 col-6 p-2">Total Price:</td>
                                             <td className="col col-xl-2 col-lg-2 col-2 p-2">
-                                                {chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪
+                                                {format2Decimals(chosenItemsToDisplay.reduce((total, item) => total + item.price, 0))}₪
                                             </td>
                                             <td className="col col-xl-2 col-lg-3 col-3 p-0" />
                                             <td className="col  col-xl-1 col-lg-1 col-1 " />

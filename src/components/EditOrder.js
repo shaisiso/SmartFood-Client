@@ -3,10 +3,11 @@ import { useState } from 'react';
 import { useEffect } from 'react';
 import { useRef } from 'react';
 import OrderService from '../services/OrderService';
-import { extractHttpError } from '../utility/Utils';
+import { cleanAll, extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
 import ItemsToOrder from './ItemsToOrder'
 import ItemInOrderService from '../services/ItemInOrderService';
+import Payment from './Payment';
 const EditOrder = () => {
     const [order, setOrder] = useState({})
     const [chosenItemsToDisplay, setChosenItems] = useState({})
@@ -49,13 +50,13 @@ const EditOrder = () => {
                 })
         }
         if (itemsIdToDelete.length > 0) {
-            itemsIdToDelete.forEach(async itemId => {
-                await OrderService.deleteItemById(itemId)
-                    .catch(err => {
-                        errorsMsg.push([...extractHttpError(err)])
-                        return
-                    })
-            })
+            console.log('itemsIdToDelete', itemsIdToDelete)
+            await OrderService.deleteItemsListById(itemsIdToDelete)
+                .catch(err => {
+                    errorsMsg.push([...extractHttpError(err)])
+                    return
+                })
+
         }
         if (orderComment !== order.orderComment) {
             OrderService.updateOrderComment(order.id, orderComment).catch(err => {
@@ -72,6 +73,7 @@ const EditOrder = () => {
     return (
         <div>
             <ItemsToOrder chosenItems={chosenItemsToDisplay} sendOrderBtnText="Update Order" onClickSendOrder={onClickSendOrder} orderComment={order.orderComment} />
+            <Payment order={order} />
             {
                 popupMessage.title ?
                     <PopupMessage
@@ -88,8 +90,9 @@ const EditOrder = () => {
                             </ul>
                         }
                         onClose={() => {
-                            setPopupMessage({ title: '', messages: [''] })
-                            getOrder()
+                            // setPopupMessage({ title: '', messages: [''] })
+                            // getOrder()
+                            cleanAll()
                         }}
                         status={popupMessage.title === 'Error' ?
                             'error'

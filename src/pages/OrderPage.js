@@ -14,7 +14,7 @@ const OrderPage = () => {
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [selectedRadio, setSelected] = useState('Take-Away');
     const [showMenu, setShowMenu] = useState(false);
-    const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [popupMessage, setPopupMessage] = useState({ header: '', body: { topText: '', items: [''], bottomText: '' } })
     const [disableForm, setDisableForm] = useState(false);
     const [detailsButtonText, setButtonText] = useState('Continue');
 
@@ -89,7 +89,7 @@ const OrderPage = () => {
             errors.push('Name must have at least 2 letters and contain only letters in english.')
 
         if (errors.length > 0) {
-            setPopupMessage({ title: 'Error', messages: errors })
+            setPopupMessage({ header: `Error`, body: { items: errors } })
             return false
         }
         return true
@@ -107,13 +107,14 @@ const OrderPage = () => {
                 })
         }
         else { // Take Away
-            if (order.person.address && order.person.address.city && order.person.address.city === '')
-                delete order.person.address
-            console.log(order)
-            await OrderService.addNewTakeAway(order)
+            let takeAway = {...order}
+            if (takeAway.person.address && !takeAway.person.address.city)
+                delete takeAway.person.address
+            await OrderService.addNewTakeAway(takeAway)
                 .then(res => {
                     setOrderinPopup(chosenItemsToDisplay)
                 }).catch(err => {
+                    console.log(err)
                     setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
                 })
         }
@@ -276,6 +277,10 @@ const OrderPage = () => {
                         onClose={() => {
                             if (popupMessage.header !== 'Error')
                                 cleanAll()
+                            else
+                            {
+                                setPopupMessage({ header: '', body: { topText: '', items: [''], bottomText: '' } })
+                            }
                         }}
                         status={popupMessage.header === 'Error' ?
                             'error'

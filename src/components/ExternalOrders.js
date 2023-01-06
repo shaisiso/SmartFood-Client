@@ -6,7 +6,7 @@ import { Accordion, Card, FloatingLabel, Form, FormControl, Table } from 'react-
 import { Link } from 'react-router-dom';
 import OrderService from '../services/OrderService';
 import ShiftService from '../services/ShiftService';
-import { addressToString, enumForClass, enumForReading, extractHttpError, lastCharIsDigit } from '../utility/Utils';
+import { addressToString, enumForClass, enumForReading, extractHttpError, format2Decimals, lastCharIsDigit } from '../utility/Utils';
 import CustomToggle from './CustomToggle';
 import PopupMessage from './PopupMessage';
 
@@ -15,7 +15,7 @@ const ExternalOrders = props => {
     const [statuses, setStatuses] = useState([])
     const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
     const [personUpdate, setPersonUpdate] = useState({})
-    const [paymentAmount, setPaymentAmout] = useState(0)
+    //const [paymentAmount, setPaymentAmout] = useState(0)
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [activeDeliveryGuys, setActiveDeliveryGuys] = useState([])
     const mounted = useRef()
@@ -53,18 +53,18 @@ const ExternalOrders = props => {
             setPopupMessage({ title: 'Error', messages: errMsg })
         })
     }
-    const onChangeDeliveryGuy = async(e, order) => {
+    const onChangeDeliveryGuy = async (e, order) => {
         let id = Number(e.target.value)
         let deliveryGuy
         if (id === -1)
             deliveryGuy = null
         else
-             deliveryGuy = activeDeliveryGuys.find(dg => dg.id === id)
-        let delivery = { id: order.id, person: order.person, deliveryGuy: deliveryGuy  }
-       await OrderService.updateDelivery(delivery).catch(err => {
+            deliveryGuy = activeDeliveryGuys.find(dg => dg.id === id)
+        let delivery = { id: order.id, person: order.person, deliveryGuy: deliveryGuy }
+        await OrderService.updateDelivery(delivery).catch(err => {
             setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
         })
-        
+
     }
     const onClickUpdatePerson = (e, order) => {
         e.preventDefault()
@@ -102,15 +102,15 @@ const ExternalOrders = props => {
 
 
     const cancelUpdates = () => {
-        setPaymentAmout(0)
+        //setPaymentAmout(0)
         setPersonUpdate({})
         setShowUpdates({ person: false, payment: false })
     }
-    const onClickCancelPayment = e => {
-        e?.preventDefault()
-        setPaymentAmout(0)
-        setShowUpdates({ ...showUpdates, payment: false })
-    }
+    // const onClickCancelPayment = e => {
+    //     e?.preventDefault()
+    //     setPaymentAmout(0)
+    //     setShowUpdates({ ...showUpdates, payment: false })
+    // }
     const onChangePersonDetails = (e, order) => {
         let fieldName = e.target.getAttribute("name")
         let fieldValue = e.target.value
@@ -127,32 +127,33 @@ const ExternalOrders = props => {
         }
         setPersonUpdate({ ...details })
     }
-    const onClickPay = (e, order) => {
-        e.preventDefault()
-        setShowUpdates({ ...showUpdates, payment: !showUpdates.payment })
-        if (showUpdates.payment) {
-            OrderService.payment(order.id, paymentAmount)
-                .then(res => {
-                    setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of ${paymentAmount}₪ has been confirmed`, `Remaining Price: ${res.data.totalPriceToPay - res.data.alreadyPaid}₪`] })
-                })
-                .catch(err => {
-                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-                })
-        }
-        else {
-            setPaymentAmout(order.totalPriceToPay - order.alreadyPaid)
-        }
-    }
-    const onChangePayment = (e) => {
-        e.preventDefault()
-        setPaymentAmout(e.target.value)
-    }
+    // const onClickPay = (e, order) => {
+    //     e.preventDefault()
+    //     setShowUpdates({ ...showUpdates, payment: !showUpdates.payment })
+    //     if (showUpdates.payment) {
+    //         OrderService.payment(order.id, paymentAmount)
+    //             .then(res => {
+    //                 setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of ${paymentAmount}₪ has been confirmed`, `Remaining Price: ${res.data.totalPriceToPay - res.data.alreadyPaid}₪`] })
+    //             })
+    //             .catch(err => {
+    //                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+    //             })
+    //     }
+    //     else {
+    //         setPaymentAmout(getRemainingAmount(order))
+    //     }
+    // }
+    // const onChangePayment = (e) => {
+    //     e.preventDefault()
+    //     setPaymentAmout(e.target.value)
+    // }
     const onClickCancelOrder = (e, order) => {
         e.preventDefault()
         OrderService.deleteOrder(order).catch(err => {
             setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
         })
     }
+    const getRemainingAmount = (order) => Math.max(format2Decimals(order.totalPriceToPay - order.alreadyPaid),0) 
     return (
         <div>
             <Accordion>
@@ -263,12 +264,12 @@ const ExternalOrders = props => {
                                                                 <h6>Items:</h6>
                                                                 {
                                                                     order.items.map((itemInOrder, itemKey) =>
-                                                                        <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {itemInOrder.price}₪
+                                                                        <tr key={itemKey} className="align-middle ps-4 pe-3" >{itemInOrder.item.name} {itemInOrder.itemComment} - {format2Decimals(itemInOrder.price)}₪
                                                                         </tr>
                                                                     )
                                                                 }
                                                                 <Link to={`/employee/order/edit/${order.id}`}>
-                                                                    <button className="btn btn-primary btn-sm my-auto" >Chnage items</button>
+                                                                    <button className="btn btn-primary btn-sm my-auto" >Edit Items or Payment</button>
                                                                 </Link>
                                                             </td>
 
@@ -280,21 +281,22 @@ const ExternalOrders = props => {
                                                         </tr>
                                                         <tr>
                                                             <div className="align-middle ps-4 pe-3" ><h6>Bill: </h6>
-                                                                <tr> Total price: {order.totalPriceToPay}₪</tr>
-                                                                <tr> Paid: {order.alreadyPaid}₪</tr>
-                                                                <tr>
+                                                                <tr> Total price: {format2Decimals(order.totalPriceToPay)}₪</tr>
+                                                                <tr> Paid: {format2Decimals(order.alreadyPaid)}₪</tr>
+                                                                <tr> Remaining Amount: {getRemainingAmount(order)}₪</tr>
+                                                                {/* <tr>
                                                                     {
                                                                         showUpdates.payment ?
                                                                             <span>
-                                                                                <input type="number" min={0} className=" form-control" name="comment" placeholder="Order Comment"
+                                                                                <input type="number" min={0} max={getRemainingAmount(order)} className=" form-control" name="comment" placeholder="Order Comment"
                                                                                     value={paymentAmount} onChange={onChangePayment} />
                                                                                 <button className="btn btn-danger mx-2" onClick={onClickCancelPayment}>Cancel</button>
                                                                             </span>
                                                                             :
                                                                             null
                                                                     }
-                                                                    <button className="btn btn-primary  mx-2 my-1" onClick={e => onClickPay(e, order)}>Pay</button>
-                                                                </tr>
+                                                                    <button className="btn btn-primary  mx-2 my-1" onClick={e => onClickPay(e, order)} disabled={getRemainingAmount(order) === 0}>Pay</button>
+                                                                </tr> */}
                                                             </div>
                                                         </tr>
                                                     </tbody>

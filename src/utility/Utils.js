@@ -49,12 +49,12 @@ export function isDateInFuture(date, hour) {
     else
         return false
 }
-export function isValidDateForReservation(date, time){
+export function isValidDateForReservation(date, time) {
     let currentDate = new Date()
     let timeSplited = time.split(":")
-    let hourForDate =  parseInt(timeSplited[0]) ;
-    let minuteForDate  = parseInt(timeSplited[1]);
-    date.setHours(hourForDate-1)
+    let hourForDate = parseInt(timeSplited[0]);
+    let minuteForDate = parseInt(timeSplited[1]);
+    date.setHours(hourForDate - 1)
     date.setMinutes(minuteForDate)
     if (date > currentDate)
         return true
@@ -117,6 +117,10 @@ export function isValidFloatNumber(str) {
         return true
     return str.slice(-1) === '.' && str.length > 1 && str.split(".").length - 1 === 1
 }
+export function format2Decimals(str) {
+    const num = parseFloat(str);
+    return Math.round(num * 100) / 100;
+}
 export function cleanAll() {
-    window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
+    window.location.reload(true); // false - cached version of the page, true - complete page refresh from the server
 }

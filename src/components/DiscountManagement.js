@@ -139,7 +139,7 @@ const DiscountManagement = () => {
                             </div>
                             <div className="col-md-12 form-group mt-3 mt-md-0">
                                 <FloatingLabel label="If You Order">
-                                    <input type="number" className="form-control" min={1} name="ifYouOrder" required placeholder="If You Order"
+                                    <input type="number" className="form-control" min={0} name="ifYouOrder" required placeholder="If You Order"
                                         value={newDiscount.ifYouOrder} onChange={onChangeNewDiscount} />
                                 </FloatingLabel>
                             </div>

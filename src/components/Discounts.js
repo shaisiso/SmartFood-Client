@@ -38,8 +38,7 @@ const Discounts = (props) => {
             .forEach(c => categoriesStr += `${c}, `);
         discount.days.map(d => enumForReading(d))
             .forEach(day => daysStr += `${day}, `);
-        let d = { ...discount, categories: categoriesStr.slice(0, -2), days: daysStr.slice(0, -2), percent: `${discount.percent}%` }
-        //delete d.discountId
+        let d = { ...discount, forMembersOnly: discount.forMembersOnly ? 'Yes' : 'No', categories: categoriesStr.slice(0, -2), days: daysStr.slice(0, -2), percent: `${discount.percent}%` }
         return d
     }
     const handleDeleteClick = (e, discount) => {

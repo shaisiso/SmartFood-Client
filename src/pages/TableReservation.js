@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
 import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation } from "../utility/Utils";
 import Axios from 'axios';
-import { API_URL } from '../utility/Utils';
+import { API_URL, cleanAll } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
 import { ColorRing } from 'react-loader-spinner'
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
@@ -86,7 +86,6 @@ const TableReservation = () => {
                 if (additionalDetails)
                     messages.push(`Additional Details: ${additionalDetails}`)
                 setPopupMessage({ title: 'New Reservation', messages: messages })
-                cleanForm()
             }).catch(err => {
                 var errMsg = extractHttpError(err);
                 if (err.response.status === 409) {// Conflict -> waiting list
@@ -140,7 +139,7 @@ const TableReservation = () => {
         TableReservationService.getAvailableHoursByDateAndDiners(dateForAPI, numberOfDiners)
             .then(res => {
                 console.log(res)
-                let availableHours =[...res.data]
+                let availableHours = [...res.data]
                 setChosenHour(availableHours[0])
                 setPopupMessage({
                     title: 'Available Hours', messages: ['Your reservation request can be save for the following hours:',
@@ -163,11 +162,12 @@ const TableReservation = () => {
         setShowLoader(false)
     }
     const cleanForm = () => {
-        setPersonDetails({ name: '', phoneNumber: '', email: '' })
-        setChosenDate(getCurrentDate())
-        setChosenHour(`${hoursList[hoursList.length - 1]}`)
-        setNumberOfDiners(1)
-        setAdditionalDetails('')
+        // setPersonDetails({ name: '', phoneNumber: '', email: '' })
+        // setChosenDate(getCurrentDate())
+        // setChosenHour(`${hoursList[hoursList.length - 1]}`)
+        // setNumberOfDiners(1)
+        // setAdditionalDetails('')
+        cleanAll()
     }
     return (
         <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }}>
@@ -264,9 +264,17 @@ const TableReservation = () => {
                                 }
                             </ul>
                         }
-                        onClose={() => {
-                            setPopupMessage({ title: '', messages: [''] })
-                        }}
+                        onClose={
+                            popupMessage.title.includes('New') ?
+                            e => {
+                             //   e.preventDefault()
+                                cleanForm()
+                            }
+                            :
+                            e => {
+                              //  e.preventDefault()
+                                setPopupMessage({ title: '', messages: [''] })
+                            }}
                         status={popupMessage.title === 'Error' ?
                             'error'
                             :

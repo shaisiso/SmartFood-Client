@@ -36,8 +36,8 @@ function App() {
       accessToken: window.localStorage.getItem("accessToken") || "",
       refreshToken: window.localStorage.getItem("refreshToken") || "",
     })
-    if (phoneFromStorage)
-      getPersonDetails(phoneFromStorage)
+    // if (phoneFromStorage)
+    //   getPersonDetails(phoneFromStorage)
   }
   const getPersonDetails = phone => {
     EmployeeService.findEmployeeByPhone(phone)

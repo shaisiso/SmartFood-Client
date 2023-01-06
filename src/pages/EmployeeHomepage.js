@@ -34,10 +34,9 @@ const EmployeeHomepage = (props) => {
             mounted.current = true;
             getAllTasks()
         }
-        if (RoleService.isManager(props.employee)) {
+        if (RoleService.isManager(TokenService.getEmployee())) {
             connectWebSocekt()
         }
-      
     });
     const connectWebSocekt = () => {
         let Sock = new SockJS(SOCKET_URL);
