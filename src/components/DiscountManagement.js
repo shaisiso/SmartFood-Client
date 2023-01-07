@@ -100,7 +100,7 @@ const DiscountManagement = () => {
                                 <Form.Check
                                     inline
                                     label="For All Customers"
-                                    name="forMembersOnly"
+                                    name="forAll"
                                     type='radio'
                                     id={`2`}
                                     value={false}

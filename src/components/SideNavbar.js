@@ -57,7 +57,7 @@ const SideNavbar = (props) => {
                     null
             }
             <li className="nav-item">
-                <Link className="nav-link" to={'#'}>
+                <Link className="nav-link" to={'/employee/reports'}>
                     <FinancialSvg width="24" height="24" />
                     <span className="mx-2">Reports</span>
                 </Link>

@@ -114,17 +114,24 @@ const OrderOfTable = () => {
                 })
         } else {
             // update order
+            let errorsMsg = []
             let updatedItemsInOrder = ItemInOrderService.getItemsInOrderFromChosenItems(chosenItemsToDisplay)
             let itemsToAdd = updatedItemsInOrder.filter(newItem => !newItem.id)
             if (itemsToAdd.length > 0) {
                 await OrderService.addItemsListToOrder(order.id, itemsToAdd)
-                    .then(res => {
-                        setPopupMessage({ title: 'Order', messages: ['Order was sent to the kitchen'] })
-                    })
                     .catch(err => {
-                        setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                        errorsMsg.push([...extractHttpError(err)])
                     })
             }
+            if (orderComment !== order.orderComment) {
+                OrderService.updateOrderComment(order.id, orderComment).catch(err => {
+                    errorsMsg.push([...extractHttpError(err)])
+                })
+            }
+            if (errorsMsg.length > 0)
+                setPopupMessage({ title: 'Error', messages: [...errorsMsg] })
+            else
+                setPopupMessage({ title: 'Update Succeed', messages: ['Order was updated'] })
         }
 
     }
@@ -172,7 +179,7 @@ const OrderOfTable = () => {
             </div>
 
             {
-                table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder}
+                table.isBusy ? <ItemsToOrder chosenItems={ItemInOrderService.buildChosenItems(order.items)} onClickSendOrder={onClickSendOrder} orderComment={order.orderComment}
                     withAskForCancel sentForCancel={sentForCancel} /> : null
             }
             {

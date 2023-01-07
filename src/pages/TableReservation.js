@@ -285,7 +285,7 @@ const TableReservation = () => {
                         }
                         withOk={popupMessage.title.includes('Available')}
                         okBtnText={popupMessage.title.includes('Available Hours') ? "Send Reservation Request" : "Enter Waiting List"}
-                        onClicOk={
+                        onClickOk={
                             popupMessage.title.includes('Available Hours') ?
                                 e => { //send table reservation
                                     e.preventDefault()

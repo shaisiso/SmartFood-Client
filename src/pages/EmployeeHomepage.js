@@ -22,6 +22,7 @@ import MyProfile from './MyProfile';
 import EditOrder from '../components/EditOrder';
 import TokenService from '../services/TokenService';
 import Reservations from './Reservations';
+import ChartExample from '../components/ChartExample';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -99,6 +100,12 @@ const EmployeeHomepage = (props) => {
                             {
                                 RoleService.isGeneralManager(TokenService.getEmployee()) ?
                                     <Route path="/management/menu" element={<MenuManagement />} />
+                                    :
+                                    null
+                            }
+                                                        {
+                                RoleService.isGeneralManager(TokenService.getEmployee()) ?
+                                    <Route path="/reports" element={<ChartExample />} />
                                     :
                                     null
                             }

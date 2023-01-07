@@ -49,7 +49,7 @@ const PopupMessage = (props) => {
         >
 
             {close => (
-                <div className="p-0 m-0" id="exampleModal" tableindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                <div className="p-0 m-0 " id="exampleModal" tableindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
                     <div className="modal-dialog modal-xl my-0 p-0 mx-0">
                         <div className="modal-content  m-0 p-0">
                             <div className="modal-header">
@@ -70,8 +70,8 @@ const PopupMessage = (props) => {
                             <div className="modal-footer">
                                 {
                                     props.withOk ?
-                                        props.onClicOk ?
-                                            <button className="btn btn-primary" onClick={props.onClicOk}>{props.okBtnText}</button>
+                                        props.onClickOk ?
+                                            <button className="btn btn-primary" onClick={props.onClickOk}>{props.okBtnText}</button>
                                             :
                                             <Link to={props.navigateTo} className="btn btn-primary">{props.okBtnText}</Link>
                                         :

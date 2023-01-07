@@ -7,7 +7,7 @@
 
 // --- Local Environment --- //
 export const SERVER_PORT = "8080"
-export const API_URL = `http://localhost:${SERVER_PORT}`; //`http://10.100.102.20:${SERVER_PORT}`
+export const API_URL = `http://10.100.102.20:${SERVER_PORT}`//`http://localhost:${SERVER_PORT}`; //
 
 
 //functions
@@ -29,10 +29,28 @@ export function formatDateForServer(date) {
     return `${day}-${month}-${year}`
 }
 export function formatDateWithSlash(date) {
+    if (typeof (date) === 'string')
+        date = new Date(date)
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
     return `${day}/${month}/${year}`
+}
+
+export function formatDateWithSlashNoYear(date){
+    if (typeof (date) === 'string')
+        date = new Date(date)
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    return `${day}/${month}`
+}
+export function formatDateWithDots(date) {
+    if (typeof (date) === 'string')
+        date = new Date(date)
+    let year = date.getFullYear();
+    let month = date.getMonth() + 1;
+    let day = date.getDate();
+    return `${day}.${month}.${year}`
 }
 export function isValidPhone(phone) {
     return /[0][5][0-9]{8}$/.test(phone)
@@ -64,7 +82,10 @@ export function isValidDateForReservation(date, time) {
 export function getCurrentDate() {
     return formatDateForBrowser(new Date())
 }
-
+export function substractDate(numOfDays, date = new Date()) {
+    date.setDate(date.getDate() - numOfDays);
+    return formatDateForBrowser(date);
+}
 export function enumForReading(enumType) {
     if (!enumType)
         return ''

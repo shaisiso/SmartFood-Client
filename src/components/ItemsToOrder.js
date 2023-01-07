@@ -245,7 +245,7 @@ const ItemsToOrder = (props) => {
         window.location.reload(false); // false - cached version of the page, true - complete page refresh from the server
     }
     return (
-        <div className="row g-1">
+        <div className="row g-1" >
             <div className="col col-lg-5 col-sm-12 col-12  me-1" style={{ backgroundColor: "#ffffff90", minHeight: '29rem' }}>
                 <div className="container p-3" >
                     <h4 className="text-center mb-4"><u>Choose Items</u></h4>
@@ -333,7 +333,7 @@ const ItemsToOrder = (props) => {
                             {
                                 chosenItemsToDisplay.length > 0 ?
                                     <>
-                                        <tr className="row align-middle h4 " style={{ height: '3rem', background: '#ffff0050' }}>
+                                        <tr className="row align-middle h4 " style={{ height: '3rem', background: '#ffff0040' }}>
                                             <td className="col col-xl-7 col-lg-6 col-6 p-2">Total Price:</td>
                                             <td className="col col-xl-2 col-lg-2 col-2 p-2">
                                                 {format2Decimals(chosenItemsToDisplay.reduce((total, item) => total + item.price, 0))}₪
@@ -349,7 +349,7 @@ const ItemsToOrder = (props) => {
                                                 <input className="form-control " type="text" value={orderComment} onChange={onChangeOrderComment} placeholder={`Additional requests`} />
                                             </td>
                                         </tr>
-
+                                       
                                     </>
                                     :
                                     null
@@ -417,7 +417,7 @@ const ItemsToOrder = (props) => {
                         withOk={popupMessage.header !== 'Error'}
                         navigateTo="/"
                         okBtnText={popupMessage.header.includes('Request') ? "Send Request" : popupMessage.header.includes('Delete') ? "Delete Items" : "Go to Tables"}
-                        onClicOk=
+                        onClickOk=
                         {
                             popupMessage.header.includes('Request') ?
                                 e => {

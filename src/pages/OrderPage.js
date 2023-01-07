@@ -8,6 +8,8 @@ import { API_URL, extractHttpError, isValidName, isValidPhone, lastCharIsDigit, 
 import Axios from 'axios';
 import OrderService from "../services/OrderService";
 import ItemInOrderService from "../services/ItemInOrderService";
+import DiscountsService from "../services/DiscountsService";
+import Payment from '../components/Payment';
 
 const OrderPage = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
@@ -17,7 +19,7 @@ const OrderPage = () => {
     const [popupMessage, setPopupMessage] = useState({ header: '', body: { topText: '', items: [''], bottomText: '' } })
     const [disableForm, setDisableForm] = useState(false);
     const [detailsButtonText, setButtonText] = useState('Continue');
-
+    const [savedOrder, setSavedOrder] = useState()
     const onChangeRadio = event => {
         setSelected(event.target.value);
     };
@@ -100,36 +102,40 @@ const OrderPage = () => {
         if (selectedRadio.includes("D")) {
             await OrderService.addNewDelivery(order)
                 .then(res => {
-                    setOrderinPopup(chosenItemsToDisplay)
+                    setSavedOrder(res.data)
+                    setOrderinPopup(chosenItemsToDisplay, res)
                 }).catch(err => {
                     console.log(err)
                     setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
                 })
         }
         else { // Take Away
-            let takeAway = {...order}
+            let takeAway = { ...order }
             if (takeAway.person.address && !takeAway.person.address.city)
                 delete takeAway.person.address
             await OrderService.addNewTakeAway(takeAway)
                 .then(res => {
-                    setOrderinPopup(chosenItemsToDisplay)
+                    setSavedOrder(res.data)
+                    setOrderinPopup(chosenItemsToDisplay, res)
                 }).catch(err => {
                     console.log(err)
                     setPopupMessage({ header: `Error`, body: { items: extractHttpError(err) } })
                 })
         }
     }
-    const setOrderinPopup = (chosenItemsToDisplay) => {
+    const setOrderinPopup = async (chosenItemsToDisplay, httpResponse) => {
         console.log('chosenItemsToDisplay', chosenItemsToDisplay)
         let personString = `${personDetails.name} - ${personDetails.phoneNumber}`
         personString += selectedRadio.includes("D") ? `, ${personDetails.address.city} ${personDetails.address.streetName} ${personDetails.address.houseNumber} ${toText(personDetails.address.entrance)} ${toText(personDetails.address.apartmentNumber)}` : ""
         let itemString = []
         chosenItemsToDisplay.forEach(i => itemString.push(`${i.quantity} ${i.name} - ${i.price}₪`))
-        let price = `Total Price: ${chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪ `
+        console.log(httpResponse)
+        let price = `Total Price: ${httpResponse.data.totalPriceToPay}₪`//${chosenItemsToDisplay.reduce((total, item) => total + item.price, 0)}₪ `
+        let discounts = (await DiscountsService.getAllDiscountsAppliedToOrder(httpResponse.data)).map(d => `-${d.discountDescription}`)
         setPopupMessage(
             {
                 header: `Order Details: ${selectedRadio}`,
-                body: { topText: personString, items: [...itemString], bottomText: `${price}. We will send SMS message when it is ready.` }
+                body: { topText: personString, items: [...itemString, ...discounts], bottomText: `${price}. We will send SMS message when it is ready.` }
             }
         )
     }
@@ -241,7 +247,7 @@ const OrderPage = () => {
                     }
                     <div className="d-flex justify-content-center form-group mt-3">
                         <div className="col-md-6 form-group">
-                            <input type="submit" value={detailsButtonText}
+                            <input type="submit" value={detailsButtonText} disabled={savedOrder}
                                 className={disableForm ? "btn btn-secondary btn-user btn-block" : "btn btn-primary btn-user btn-block"}
                             />
                         </div>
@@ -249,10 +255,10 @@ const OrderPage = () => {
                 </Form>
             </div>
             {
-                showMenu ?
+                showMenu && !savedOrder ?
                     <ItemsToOrder orderUserDetails={{ type: selectedRadio, personDetails: { ...personDetails } }} onClickSendOrder={onClickSendOrder} />
                     :
-                    null
+                    savedOrder ? <Payment order={savedOrder} /> : null
             }
             {
                 popupMessage.header ?
@@ -277,8 +283,7 @@ const OrderPage = () => {
                         onClose={() => {
                             if (popupMessage.header !== 'Error')
                                 cleanAll()
-                            else
-                            {
+                            else {
                                 setPopupMessage({ header: '', body: { topText: '', items: [''], bottomText: '' } })
                             }
                         }}
@@ -292,8 +297,14 @@ const OrderPage = () => {
                         }
                         closeOnlyWithBtn
                         withOk={popupMessage.header !== 'Error'}
+                        okBtnText="Payment"
+                        onClickOk={e => {
+                            e.preventDefault()
+                            setPopupMessage({ header: '', body: { topText: '', items: [''], bottomText: '' } })
+                            // setSavedOrder(true)
+                        }}
+                        cancelBtnText="Homepage"
                         navigateTo="/"
-                        okBtnText="Go To Homepage"
                     >
                     </PopupMessage>
                     :

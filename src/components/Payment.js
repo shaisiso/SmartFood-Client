@@ -65,7 +65,9 @@ const Payment = (props) => {
                     setRelevantDiscounts([...regular, ...members])
                 })
                 .catch(err => {
-                    if (err.response.status !== 404)
+                    if (err.response.status === 404)
+                        setRelevantDiscounts([...regular])
+                    else
                         setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                 })
 
@@ -95,6 +97,7 @@ const Payment = (props) => {
         setShowLoader(true)
         await OrderService.payment(order.id, paymentAmount)
             .then(res => {
+                setOrder({ ...res.data })
                 setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of ${paymentAmount}₪ has been confirmed`, `Remaining Price: ${format2Decimals(res.data.totalPriceToPay - res.data.alreadyPaid)}₪`] })
             }).catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
@@ -119,10 +122,11 @@ const Payment = (props) => {
 
         setShowLoader(false)
     }
-
+    const getRemainingAmount = ()=>format2Decimals(order.totalPriceToPay - order.alreadyPaid)
+    
     return (
-        <div className="row g-1 mt-1 mx-auto text-center"  >
-            <div className="col col-lg-6 col-12 mx-auto text-center h4 py-2" style={{ backgroundColor: "#ffffff90", minHeight: '9rem' }}>
+        <div className="row g-1 mt-1 mx-auto"  >
+            <div className="col col-lg-4 col-12 h4 py-2  mx-auto " style={{ backgroundColor: "#ffffff90", minHeight: '9rem' }}>
                 {
                     showMemberDiscount && membersDiscounts && membersDiscounts.length > 0 ?
                         <div className="col h5 mb-4">
@@ -132,7 +136,7 @@ const Payment = (props) => {
                                     <div className="col mx-auto my-2 h6" key={key}>- {discount.discountDescription}</div>
                                 )
                             }
-                            <table className='text-center mx-auto my-1'> <tbody> <tr>
+                            <table className=' my-1'> <tbody> <tr>
                                 <td>
                                     <FloatingLabel label="Phone Number" style={{ fontSize: '1rem' }}  >
                                         <Form.Control size="sm" type="text" placeholder="Phone Number" required
@@ -147,7 +151,7 @@ const Payment = (props) => {
                         </div>
                         : null
                 }
-                <h4 className=" mb-3"><u>Payment</u></h4>
+                <h4 className="mx-2 mb-3 text-center"><u>Payment</u></h4>
                 {
                     order ?
                         <Form onSubmit={onSubmitPayment}>
@@ -172,18 +176,18 @@ const Payment = (props) => {
                             }
                             <div className="col mx-auto my-3">Price to Pay: {format2Decimals(order.totalPriceToPay)}₪</div>
                             <div className="col mx-auto my-3">Already Paid: {format2Decimals(order.alreadyPaid)}₪</div>
-                            <div className="col mx-auto  py-1" style={{ background: '#ffff0080' }}>Remaining: {format2Decimals(order.totalPriceToPay - order.alreadyPaid)}₪</div>
+                            <div className="col mx-auto  py-1" style={{ background: '#ffff0080' }}>Remaining: {getRemainingAmount()}₪</div>
                             <div className="col mx-auto mt-3">
-                                <table className='text-center mx-auto my-1'>
+                                <table className=' my-1 mx-auto'>
                                     <tbody> <tr><td>
                                         <FloatingLabel label="Amount" style={{ fontSize: '0.9rem' }}  >
-                                            <Form.Control size="sm" type="text" placeholder="Amount" required
+                                            <Form.Control size="sm" type="text" placeholder="Amount" required disabled ={getRemainingAmount()===0}
                                                 value={paymentAmount} onChange={onChangePaymentAmount}
                                                 style={{ fontSize: '1rem', height: '3rem', width: '6rem' }} />
                                         </FloatingLabel>
                                     </td>
                                         <td>
-                                            <input type="submit" className="btn btn-primary my-1" value="Pay" />
+                                            <input type="submit" className="btn btn-primary my-1" value="Pay" disabled ={getRemainingAmount()===0} />
                                         </td>
                                     </tr></tbody> </table>
                             </div>
@@ -213,10 +217,14 @@ const Payment = (props) => {
                             </ul>
                         }
                         onClose={() => {
-                            if (popupMessage.title === 'Error')
-                                setPopupMessage({ title: '', messages: [''] })
-                            else
+                            if (order.totalPriceToPay === order.alreadyPaid)
                                 cleanAll()
+                            setPopupMessage({ title: '', messages: [''] })
+                            setPaymentAmount('')
+                            // if (popupMessage.title === 'Error')
+                            //     setPopupMessage({ title: '', messages: [''] })
+                            // else
+                            //     cleanAll()
                         }}
                         status={popupMessage.title === 'Error' ?
                             'error'
@@ -225,9 +233,14 @@ const Payment = (props) => {
                         }
                         withOk={!popupMessage.title.includes('Error')}
                         okBtnText='OK'
-                        onClicOk={e => {
+                        onClickOk={e => {
                             // e.preventDefault()
-                            cleanAll()
+                            // cleanAll()
+                            if (order.totalPriceToPay === order.alreadyPaid)
+                                cleanAll()
+                            setPopupMessage({ title: '', messages: [''] })
+                            setPaymentAmount('')
+
                         }}
                         closeOnlyWithBtn
                     >
