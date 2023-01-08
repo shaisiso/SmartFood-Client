@@ -9,6 +9,7 @@ import ShiftService from '../services/ShiftService';
 import { FloatingLabel } from 'react-bootstrap';
 import { extractHttpError, formatDateForServer, getCurrentDate, getDateOfLocalDateTimeSt, getTimeOfLocalDateTimeSt } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
+import { ColorRing } from 'react-loader-spinner';
 
 const notApprovedColor = '#F9FF9E'
 const approvedColor = '#AAFF8A'
@@ -18,6 +19,7 @@ const MyShifts = () => {
     const [startDate, setStartDate] = useState(getCurrentDate())
     const [endDate, setEndDate] = useState(getCurrentDate())
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState(false)
 
     const mounted = useRef()
     useEffect(() => {
@@ -33,7 +35,7 @@ const MyShifts = () => {
     }
     const getShifts = async (e) => {
         e.preventDefault()
-
+        setShowLoader(true)
         let employee = { phoneNumber: TokenService.getUser().phoneNumber }
         let startDateAPI = formatDateForServer(new Date(startDate))
         let endDateAPI = formatDateForServer(new Date(endDate))
@@ -46,6 +48,7 @@ const MyShifts = () => {
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
     }
     return (
         <form onSubmit={getShifts} className="container col col-lg-6 col-sm-10 py-3 px-5 text-center ">
@@ -70,6 +73,11 @@ const MyShifts = () => {
                         </td>
                         <td className="col-md-4 form-group">
                             <input type="submit" className='btn btn-primary' value="Find Shifts" />
+                            <ColorRing
+                                    visible={showLoader}
+                                    ariaLabel="blocks-loading"
+                                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                />
                         </td>
                     </tr>
                 </tbody>

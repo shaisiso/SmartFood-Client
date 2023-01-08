@@ -2,6 +2,7 @@ import React from 'react';
 import { useState } from 'react';
 import { Fragment } from 'react';
 import { FloatingLabel } from 'react-bootstrap';
+import { ColorRing } from 'react-loader-spinner';
 import DiscountsService from '../services/DiscountsService';
 import { enumForReading, extractHttpError, formatDateForServer, getCurrentDate } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
@@ -12,6 +13,7 @@ const Discounts = (props) => {
     const [startDate, setStartDate] = useState(getCurrentDate())
     const [endDate, setEndDate] = useState(getCurrentDate())
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState(false)
 
     const onChangeStartDate = (e) => {
         setStartDate(e.target.value)
@@ -21,6 +23,7 @@ const Discounts = (props) => {
     }
     const getDiscounts = async (e) => {
         e?.preventDefault()
+        setShowLoader(true)
         let startDateAPI = formatDateForServer(new Date(startDate))
         let endDateAPI = formatDateForServer(new Date(endDate))
         await DiscountsService.getDiscountsByDates(startDateAPI, endDateAPI)
@@ -30,6 +33,7 @@ const Discounts = (props) => {
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
     }
     const getDiscountToDisplay = (discount) => {
         let daysStr = ''
@@ -41,18 +45,20 @@ const Discounts = (props) => {
         let d = { ...discount, forMembersOnly: discount.forMembersOnly ? 'Yes' : 'No', categories: categoriesStr.slice(0, -2), days: daysStr.slice(0, -2), percent: `${discount.percent}%` }
         return d
     }
-    const handleDeleteClick = (e, discount) => {
+    const handleDeleteClick = async (e, discount) => {
         e.preventDefault()
-        DiscountsService.deleteDiscount(discount)
+        setShowLoader(true)
+        await DiscountsService.deleteDiscount(discount)
             .then(res => {
                 getDiscounts()
             })
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
     }
     return (
-        <form onSubmit={getDiscounts} className ="py-4" >
+        <form onSubmit={getDiscounts} className="py-4" >
             <table className="mx-auto py-4">
                 <tbody >
                     <tr className="align middle text-center ">
@@ -72,6 +78,11 @@ const Discounts = (props) => {
                         </td>
                         <td className="col-md-4 form-group pb-4">
                             <input type="submit" className='btn btn-primary' value="Show Discounts" />
+                            <ColorRing
+                                visible={showLoader}
+                                ariaLabel="blocks-loading"
+                                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                            />
                         </td>
                     </tr>
                 </tbody>

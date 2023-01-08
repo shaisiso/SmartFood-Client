@@ -37,7 +37,7 @@ export function formatDateWithSlash(date) {
     return `${day}/${month}/${year}`
 }
 
-export function formatDateWithSlashNoYear(date){
+export function formatDateWithSlashNoYear(date) {
     if (typeof (date) === 'string')
         date = new Date(date)
     let month = date.getMonth() + 1;
@@ -97,6 +97,14 @@ export function enumForClass(toStringEnum) {
     return toStringEnum.split(" ")
         .map(word => word.toUpperCase())
         .join("_")
+}
+export function toCamelCase(str) {
+    // converting all characters to lowercase
+    var ans = str.toLowerCase();
+
+    // Returning string to camelcase
+    return ans.split(" ").reduce((s, c) => s
+        + (c.charAt(0).toUpperCase() + c.slice(1)));
 }
 export function toText(str) {
     return str ? str : ""
