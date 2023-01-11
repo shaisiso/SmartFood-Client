@@ -12,7 +12,7 @@ import TableReservationService from '../services/TableReservationService';
 
 const INTERVAL_MS = 60000;
 
-const OrderOfTable = () => {
+const OrderOfTable = (props) => {
     const [table, setTable] = useState({})
     const [tableReservation, setTableReservation] = useState({})
     const [actualDinersNum, setActualDiners] = useState(1)
@@ -40,8 +40,12 @@ const OrderOfTable = () => {
     });
     const getTable = async () => {
         setShowLoader(true)
-        var regEx = new RegExp('/employee/tables/', "ig");
-        let tableId = window.location.pathname.replace(regEx, '')
+        let tableId
+        if (!props.tableId) {
+            var regEx = new RegExp('/employee/tables/', "ig");
+            tableId = window.location.pathname.replace(regEx, '')
+        } else
+            tableId = props.tableId
         await TableService.getTableByTableId(tableId)
             .then(res => {
                 setTable(res.data)
@@ -61,6 +65,7 @@ const OrderOfTable = () => {
                 console.log('reservation', reservation)
                 setTableReservation(reservation)
             }).catch(err => {
+                console.log(err)
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
         setShowLoader(false)
@@ -72,6 +77,7 @@ const OrderOfTable = () => {
                 existedOrder = res.data
                 setOrder(res.data)
             }).catch(err => {
+                console.log(err)
                 if (err.response.status !== 404)
                     setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
@@ -81,9 +87,10 @@ const OrderOfTable = () => {
         await OrderService.getItemInOrderOfTableForCancel(tableId)
             .then(res => {
                 setSentForCancel([...res.data])
-            }).catch(err =>
+            }).catch(err => {
+                console.log(err)
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-            )
+            })
     }
     const onChangeDiners = e => {
         setActualDiners(e.target.value)
@@ -96,6 +103,7 @@ const OrderOfTable = () => {
                 setTable(res.data)
                 //setOrder({ ...order, table: res.data })
             }).catch(err => {
+                console.log(err)
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
         setShowLoader(false)
@@ -110,6 +118,7 @@ const OrderOfTable = () => {
                     setPopupMessage({ title: 'New Order', messages: ['Order was sent to the kitchen'] })
                 })
                 .catch(err => {
+                    console.log(err)
                     setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                 })
         } else {
@@ -120,11 +129,13 @@ const OrderOfTable = () => {
             if (itemsToAdd.length > 0) {
                 await OrderService.addItemsListToOrder(order.id, itemsToAdd)
                     .catch(err => {
+                        console.log(err)
                         errorsMsg.push([...extractHttpError(err)])
                     })
             }
             if (orderComment !== order.orderComment) {
                 OrderService.updateOrderComment(order.id, orderComment).catch(err => {
+                    console.log(err)
                     errorsMsg.push([...extractHttpError(err)])
                 })
             }
@@ -184,7 +195,7 @@ const OrderOfTable = () => {
             }
             {
                 table.isBusy && order && order.items ?
-                    <Payment order={order} />
+                    <Payment order={order} isCustomer={props.isCustomer} />
                     :
                     null
             }
@@ -216,7 +227,11 @@ const OrderOfTable = () => {
                         }
                         withOk={popupMessage.title.includes('Order')}
                         okBtnText='OK'
-                        navigateTo="/employee/tables"
+                        onClickOk={e=>{
+                            e.preventDefault()
+                            cleanAll()
+                        }}
+                       // navigateTo="/employee/tables"
                         closeOnlyWithBtn
                     >
                     </PopupMessage>

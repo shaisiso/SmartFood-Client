@@ -21,7 +21,7 @@ class OrderService {
     updateOrderStatus = async (order) => api.put(`/order/status/${order.id}/${order.status}`)
     updateDelivery = async delivery => api.put(`/delivery`, delivery)
     updateTakeAway = async takeAway => api.put(`/takeaway`, takeAway)
-    updateOrderComment = async (orderId, comment) => api.put(`/order/comment/${orderId}`, comment)
+    updateOrderComment = async (orderId, comment) => api.put(`/order/comment/${orderId}`, comment,{ headers: {'Content-Type': 'text/plain'}})
     payment = async (orderId, amount) => api.put(`/order/pay/${orderId}/${amount}`)
     applyMemberDiscount = async (order,phoneNumber)=>api.put(`/order/price/member/${order.id}/${phoneNumber}`)
     addNewDelivery = async (delivery) => api.post(`/delivery`, delivery)

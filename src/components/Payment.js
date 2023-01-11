@@ -122,8 +122,8 @@ const Payment = (props) => {
 
         setShowLoader(false)
     }
-    const getRemainingAmount = ()=>format2Decimals(order.totalPriceToPay - order.alreadyPaid)
-    
+    const getRemainingAmount = () => format2Decimals(order.totalPriceToPay - order.alreadyPaid)
+
     return (
         <div className="row g-1 mt-1 mx-auto"  >
             <div className="col col-lg-4 col-12 h4 py-2  mx-auto " style={{ backgroundColor: "#ffffff90", minHeight: '9rem' }}>
@@ -177,20 +177,25 @@ const Payment = (props) => {
                             <div className="col mx-auto my-3">Price to Pay: {format2Decimals(order.totalPriceToPay)}₪</div>
                             <div className="col mx-auto my-3">Already Paid: {format2Decimals(order.alreadyPaid)}₪</div>
                             <div className="col mx-auto  py-1" style={{ background: '#ffff0080' }}>Remaining: {getRemainingAmount()}₪</div>
-                            <div className="col mx-auto mt-3">
-                                <table className=' my-1 mx-auto'>
-                                    <tbody> <tr><td>
-                                        <FloatingLabel label="Amount" style={{ fontSize: '0.9rem' }}  >
-                                            <Form.Control size="sm" type="text" placeholder="Amount" required disabled ={getRemainingAmount()===0}
-                                                value={paymentAmount} onChange={onChangePaymentAmount}
-                                                style={{ fontSize: '1rem', height: '3rem', width: '6rem' }} />
-                                        </FloatingLabel>
-                                    </td>
-                                        <td>
-                                            <input type="submit" className="btn btn-primary my-1" value="Pay" disabled ={getRemainingAmount()===0} />
-                                        </td>
-                                    </tr></tbody> </table>
-                            </div>
+                            {
+                                !props.isCustomer ?
+                                    <div className="col mx-auto mt-3">
+                                        <table className=' my-1 mx-auto'>
+                                            <tbody> <tr><td>
+                                                <FloatingLabel label="Amount" style={{ fontSize: '0.9rem' }}  >
+                                                    <Form.Control size="sm" type="text" placeholder="Amount" required disabled={getRemainingAmount() === 0}
+                                                        value={paymentAmount} onChange={onChangePaymentAmount}
+                                                        style={{ fontSize: '1rem', height: '3rem', width: '6rem' }} />
+                                                </FloatingLabel>
+                                            </td>
+                                                <td>
+                                                    <input type="submit" className="btn btn-primary my-1" value="Pay" disabled={getRemainingAmount() === 0} />
+                                                </td>
+                                            </tr></tbody> </table>
+                                    </div>
+                                    : 
+                                    <div className="col mx-auto my-2 h6" >*Currently only payment in cash is accepted</div>
+                            }
                         </Form>
                         :
                         null

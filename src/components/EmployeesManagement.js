@@ -109,7 +109,8 @@ const EmployeesManagement = () => {
         setEditEmployeeId(null);
     };
 
-    const handleDeleteClick = async (employee) => {
+    const handleDeleteClick = async (e,employee) => {
+        e.preventDefault()
         console.log(employee)
         await EmployeeService.deleteEmployee(employee)
             .then(response => {

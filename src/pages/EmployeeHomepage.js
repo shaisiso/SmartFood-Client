@@ -6,7 +6,6 @@ import MenuEmployees from './MenuEmployees';
 import WoodImg from '../assets/backgrounds/white_wood.jpg'
 import NotFound404 from './NotFound404';
 import ManagementPage from './ManagementPage';
-import MenuManagement from '../components/MenuManagement';
 import Tables from './Tables';
 import OrderOfTable from './OrderOfTable';
 import TasksPage from './TasksPage';
@@ -23,6 +22,7 @@ import EditOrder from '../components/EditOrder';
 import TokenService from '../services/TokenService';
 import Reservations from './Reservations';
 import ReportsPage from './ReportsPage';
+import TableQRCode from './TableQRCode';
 
 const SOCKET_URL = `${API_URL}/api/ws`;
 var stompClient = null;
@@ -99,7 +99,7 @@ const EmployeeHomepage = (props) => {
                             }
                             {
                                 RoleService.isGeneralManager(TokenService.getEmployee()) ?
-                                    <Route path="/management/menu" element={<MenuManagement />} />
+                                    <Route path="/management/qr/*" element={<TableQRCode />} />
                                     :
                                     null
                             }

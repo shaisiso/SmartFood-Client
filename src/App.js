@@ -16,6 +16,7 @@ import EmployeeLogin from './pages/EmployeeLogin';
 import EmployeeHomepage from './pages/EmployeeHomepage';
 import NotFound404 from './pages/NotFound404';
 import EmployeeService from './services/EmployeeService';
+import QROrder from './pages/QROrder';
 
 function App() {
 
@@ -123,6 +124,9 @@ function App() {
                   :
                   <Navigate to="/login" />
               } />
+            <Route path="/qr-order/*"
+              element={<QROrder />}>
+            </Route>
 
             {isLogged ?
               <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />} />

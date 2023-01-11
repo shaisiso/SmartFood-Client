@@ -94,7 +94,7 @@ const ItemsToOrder = (props) => {
         if (!isOldItem(item))
             return 1
         let chosenItem = props.chosenItems.find(i => i.itemId === item.itemId)
-        return  chosenItem ? chosenItem.quantity :1
+        return chosenItem ? chosenItem.quantity : 1
     }
     const onClickDeleteItem = (itemToDelete) => {
         setChosenItems(chosenItemsToDisplay.filter(item => item !== itemToDelete))
@@ -349,7 +349,7 @@ const ItemsToOrder = (props) => {
                                                 <input className="form-control " type="text" value={orderComment} onChange={onChangeOrderComment} placeholder={`Additional requests`} />
                                             </td>
                                         </tr>
-                                       
+
                                     </>
                                     :
                                     null
@@ -415,8 +415,8 @@ const ItemsToOrder = (props) => {
                         }
                         closeOnlyWithBtn
                         withOk={popupMessage.header !== 'Error'}
-                        navigateTo="/"
-                        okBtnText={popupMessage.header.includes('Request') ? "Send Request" : popupMessage.header.includes('Delete') ? "Delete Items" : "Go to Tables"}
+                        //    navigateTo="/"
+                        okBtnText={popupMessage.header.includes('Request') ? "Send Request" : popupMessage.header.includes('Delete') ? "Delete Items" : "OK"}
                         onClickOk=
                         {
                             popupMessage.header.includes('Request') ?
@@ -431,7 +431,10 @@ const ItemsToOrder = (props) => {
                                         cancelAndDeleteItem(itemToCancel)
                                     }
                                     :
-                                    null
+                                    e => {
+                                        e.preventDefault()
+                                        cleanAll()
+                                    }
                         }
                     >
                     </PopupMessage>

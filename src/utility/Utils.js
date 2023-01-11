@@ -7,8 +7,8 @@
 
 // --- Local Environment --- //
 export const SERVER_PORT = "8080"
-export const API_URL = `http://10.100.102.20:${SERVER_PORT}`//`http://localhost:${SERVER_PORT}`; //
-
+export const API_URL = `http://localhost:${SERVER_PORT}`; //    `http://10.100.102.20:${SERVER_PORT}`    //
+export const DOMAIN_URL =`http://10.100.102.20:3000`
 
 //functions
 export function formatDateForBrowser(date) {
@@ -140,6 +140,17 @@ export function lastCharIsDigit(str) {
     if (str.length === 0)
         return true
     return digits.includes(str.slice(-1))
+}
+export function allCharsAreDigits(str) {
+    let digits = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+    if (str.length === 0)
+        return false
+    var i = str.length;
+    while (i--) {
+        if (!digits.includes(str.charAt(i)))
+            return false
+    }
+    return true
 }
 export function isValidFloatNumber(str) {
     if (lastCharIsDigit(str))

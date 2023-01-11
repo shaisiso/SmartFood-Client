@@ -258,7 +258,7 @@ const OrderPage = () => {
                 showMenu && !savedOrder ?
                     <ItemsToOrder orderUserDetails={{ type: selectedRadio, personDetails: { ...personDetails } }} onClickSendOrder={onClickSendOrder} />
                     :
-                    savedOrder ? <Payment order={savedOrder} /> : null
+                    savedOrder ? <Payment order={savedOrder} isCustomer/> : null
             }
             {
                 popupMessage.header ?

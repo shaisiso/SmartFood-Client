@@ -74,7 +74,7 @@ const MyProfile = () => {
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
-        
+            setShowLoader({ ...showLoader, password: false })
     }
     return (
         <div className="wrapper ">
