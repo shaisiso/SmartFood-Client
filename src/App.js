@@ -17,6 +17,7 @@ import EmployeeHomepage from './pages/EmployeeHomepage';
 import NotFound404 from './pages/NotFound404';
 import EmployeeService from './services/EmployeeService';
 import QROrder from './pages/QROrder';
+import WaitingListApprove from './pages/WaitingListApprove';
 
 function App() {
 
@@ -127,7 +128,10 @@ function App() {
             <Route path="/qr-order/*"
               element={<QROrder />}>
             </Route>
-
+            <Route path="/waiting-list/*"
+              element={< WaitingListApprove />}>
+            </Route>
+           
             {isLogged ?
               <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />} />
               :
