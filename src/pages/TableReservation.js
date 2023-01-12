@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import { formatDateForBrowser, formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation } from "../utility/Utils";
+import {  formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation, getMaxDateForReservation, reservationHoursList } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL, cleanAll } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -10,18 +10,13 @@ import { FormControl } from "react-bootstrap";
 import TableReservationService from "../services/TableReservationService";
 import WaitingListService from "../services/WaitingListService";
 
-const hoursList = ['12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30'];
-const getMaxDate = () => {
-    let date = new Date();
-    date.setFullYear(date.getFullYear() + 1)
-    return formatDateForBrowser(date)
-}
+
 
 
 const TableReservation = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '' })
     const [chosenDate, setChosenDate] = useState(getCurrentDate());
-    const [chosenHour, setChosenHour] = useState(`${hoursList[hoursList.length - 1]}`)
+    const [chosenHour, setChosenHour] = useState(`${reservationHoursList[reservationHoursList.length - 1]}`)
     const [numberOfDiners, setNumberOfDiners] = useState(1)
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
@@ -210,14 +205,14 @@ const TableReservation = () => {
                             <FloatingLabel label="Choose Date">
                                 <input type="date" style={{ textAlign: "left" }} className="form-control"
                                     name="date" value={chosenDate} onChange={onChangeDate} required
-                                    min={getCurrentDate()} max={getMaxDate()} />
+                                    min={getCurrentDate()} max={getMaxDateForReservation()} />
                             </FloatingLabel>
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <FloatingLabel label="Choose Hour">
-                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={hoursList[hoursList.length - 1]}>
+                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={reservationHoursList[reservationHoursList.length - 1]}>
                                     {
-                                        hoursList.map((item, key) => (
+                                        reservationHoursList.map((item, key) => (
                                             <option key={key} value={item} disabled={!isValidDateForReservation(new Date(chosenDate), item)}>{item}</option>
                                         ))
                                     }

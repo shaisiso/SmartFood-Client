@@ -5,10 +5,11 @@ import { useEffect } from 'react';
 import { Fragment } from 'react';
 import { FloatingLabel } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
+import EditableReservation from '../components/EditableReservation';
 import PopupMessage from '../components/PopupMessage';
 import ReadOnlyRow from '../components/ReadOnlyRow';
 import TableReservationService from '../services/TableReservationService';
-import { extractHttpError, formatDateForServer, getCurrentDate } from '../utility/Utils';
+import { allCharsAreDigits, extractHttpError, formatDateForServer, getCurrentDate, hebrewStDateToBrowserDate } from '../utility/Utils';
 
 const Reservations = () => {
     const [reservations, setReservations] = useState([])
@@ -16,6 +17,9 @@ const Reservations = () => {
     const [endDate, setEndDate] = useState(getCurrentDate())
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [showLoader, setShowLoader] = useState(false)
+    const [editReservationId, setEditReservationId] = useState(null);
+    const [editFormData, setEditFormData] = useState(null);
+    const [reservationToDelete, setReservationToDelete] = useState(null)
 
     const mounted = useRef()
     useEffect(() => {
@@ -42,6 +46,69 @@ const Reservations = () => {
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
+    }
+    const handleEditClick = (event, resrevation) => {
+        setEditReservationId(resrevation.reservationId);
+        setEditFormData({ ...resrevation, date: hebrewStDateToBrowserDate(resrevation.date) });
+    };
+
+    const handleCancelClick = () => {
+        setEditReservationId(null);
+    };
+    const handleDeleteClick = (e, resrevation) => {
+        e.preventDefault();
+        setReservationToDelete(resrevation)
+        setPopupMessage({
+            title: 'Delete Request',
+            messages: ['Are you sure you want to delete this table reservation ?']
+        })
+    };
+    const deleteReservation = async () => {
+        setShowLoader(true)
+        await TableReservationService.delete(reservationToDelete)
+            .then(res => {
+                getReservations()
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader(false)
+    }
+    const handleEditFormChange = (event) => {
+        event.preventDefault();
+
+        const fieldName = event.target.getAttribute("name");
+
+        const fieldValue = event.target.value;
+        const newFormData = { ...editFormData };
+        newFormData[fieldName] = fieldValue;
+
+        setEditFormData(newFormData);
+    };
+    const updateTableClick = async event => {
+        event.preventDefault()
+        if (!allCharsAreDigits(editFormData.numberOfDiners)) {
+            setPopupMessage({ title: 'Error', messages: ['Enter valid number of diners'] })
+            return
+        }
+        setShowLoader(true)
+        let r = reservations.find(r => r.reservationId === editFormData.reservationId)
+        let reservationToSave = {
+            reservationId: editFormData.reservationId,
+            date: formatDateForServer(editFormData.date),
+            hour: editFormData.hour,
+            numberOfDiners: editFormData.numberOfDiners,
+            additionalDetails: editFormData.additionalDetails,
+            person: { ...r.person }
+        }
+        await TableReservationService.updateTableReservation(reservationToSave)
+            .then(() => {
+                setPopupMessage({ title: 'Reservation Update', messages: ['The table reservation details were updated'] })
+                getReservations()
+                setEditReservationId(null)
+            })
+            .catch(err => setPopupMessage({ title: 'Error', messages: extractHttpError(err) }))
         setShowLoader(false)
     }
     return (
@@ -82,21 +149,36 @@ const Reservations = () => {
                         <thead>
                             <tr>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Date </th>
-                                <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Hour </th>
+                                <th style={{ cursor: 'pointer', minWidth: '8rem ' }} /*onClick={sortByName}*/> Hour </th>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Name </th>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Phone Number </th>
-                                <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Table Number </th>
+                                <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Email </th>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Number of Diners </th>
+                                <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Table Number </th>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Additional Details </th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
                             {reservations.map((r, key) => (
                                 <Fragment key={key}>
-                                    <ReadOnlyRow
-                                        item={{ date: r.date, hour: r.hour, name: r.person.name, phone: r.person.phoneNumber, tableId: r.table.tableId, numberOfDiners: r.numberOfDiners, additionalDetails: r.additionalDetails }}
-                                        withId
-                                    />
+                                    {
+                                        editReservationId === r.reservationId ?
+                                            <EditableReservation
+                                                editFormData={editFormData}
+                                                handleEditFormChange={handleEditFormChange}
+                                                handleCancelClick={handleCancelClick}
+                                                handleSaveClick={updateTableClick}
+                                            />
+                                            :
+
+                                            <ReadOnlyRow
+                                                item={{ reservationId: r.reservationId, date: r.date, hour: r.hour, name: r.person.name, phoneNumber: r.person.phoneNumber, email: r.person.email, numberOfDiners: r.numberOfDiners, tableId: r.table.tableId, additionalDetails: r.additionalDetails }}
+                                                // withId
+                                                handleEditClick={handleEditClick}
+                                                handleDeleteClick={handleDeleteClick}
+                                            />
+                                    }
                                 </Fragment>
                             ))}
                         </tbody>
@@ -125,9 +207,33 @@ const Reservations = () => {
                         status={popupMessage.title === 'Error' ?
                             'error'
                             :
-                            'info'
+                            popupMessage.title.toLowerCase().includes('update') ?
+                                'success'
+                                :
+                                'info'
                         }
                         closeOnlyWithBtn
+                        withOk={popupMessage.title.toLowerCase().includes('delete')}
+                        okBtnText={popupMessage.title.toLowerCase().includes('delete') ? "Yes" : ''}
+                        cancelBtnText={popupMessage.title.toLowerCase().includes('delete') ? "No" : ''}
+
+                        onClickOk={popupMessage.title.toLowerCase().includes('delete') ?
+                            e => {
+                                e.preventDefault();
+                                deleteReservation()
+                                setPopupMessage({ title: '', messages: [''] })
+                            }
+                            : null
+                        }
+                        onClickCancel={
+                            popupMessage.title.toLowerCase().includes('delete') ?
+                                e => {
+                                    e.preventDefault();
+                                    setReservationToDelete(null)
+                                    setPopupMessage({ title: '', messages: [''] })
+                                }
+                                : null
+                        }
                     >
                     </PopupMessage>
                     :
