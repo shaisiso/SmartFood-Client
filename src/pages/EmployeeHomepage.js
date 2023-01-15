@@ -82,7 +82,6 @@ const EmployeeHomepage = (props) => {
             <div id="content-wrapper" className="d-flex flex-column">
                 <div id="content">
                     <EmployeeTopBar
-                        userDetails={props.userDetails}
                         handleLogout={props.handleLogout}
                         employee={TokenService.getEmployee()}
                     />

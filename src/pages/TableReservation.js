@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Form from 'react-bootstrap/Form';
-import {  formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation, getMaxDateForReservation, reservationHoursList } from "../utility/Utils";
+import { formatDateForServer, formatDateWithSlash, isValidPhone, isValidName, isDateInFuture, extractHttpError, getCurrentDate, isValidDateForReservation, getMaxDateForReservation, reservationHoursList, lastCharIsDigit } from "../utility/Utils";
 import Axios from 'axios';
 import { API_URL, cleanAll } from '../utility/Utils';
 import PopupMessage from '../components/PopupMessage';
@@ -9,11 +9,16 @@ import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import { FormControl } from "react-bootstrap";
 import TableReservationService from "../services/TableReservationService";
 import WaitingListService from "../services/WaitingListService";
+import { useRef } from "react";
+import TokenService from "../services/TokenService";
+import { useEffect } from "react";
+import TableService from "../services/TableService";
 
 
 
 
 const TableReservation = () => {
+    const [tableMaxSize, setTableMaxSize] = useState(1);
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '' })
     const [chosenDate, setChosenDate] = useState(getCurrentDate());
     const [chosenHour, setChosenHour] = useState(`${reservationHoursList[reservationHoursList.length - 1]}`)
@@ -21,7 +26,23 @@ const TableReservation = () => {
     const [additionalDetails, setAdditionalDetails] = useState('')
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [showLoader, setShowLoader] = useState(false)
-
+    const mounted = useRef()
+    useEffect(() => {
+        if (!mounted.current) {
+            mounted.current = true
+            getTableMaxSize()
+            let member = TokenService.getMember()
+            if (member)
+                setPersonDetails({ ...member })
+        }
+    }, [])
+    const getTableMaxSize = async () => {
+        setShowLoader(true)
+        await TableService.getTableMaxSize()
+            .then(res => setTableMaxSize(res.data))
+            .catch(err => setPopupMessage({ title: 'Error', messages: extractHttpError(err) }))
+        setShowLoader(false)
+    }
     const onChangeDate = (event) => {
         setChosenDate(event.target.value)
     }
@@ -33,6 +54,9 @@ const TableReservation = () => {
             })
     }
     const onChangePhoneNumber = event => {
+        let phone = event.target.value
+        if (!lastCharIsDigit(phone) || phone.length > 10)
+            return
         setPersonDetails(
             {
                 ...personDetails,
@@ -54,6 +78,8 @@ const TableReservation = () => {
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
             .then(res => {
                 setPersonDetails(res.data)
+            }).catch(err => {
+                setPersonDetails({ name: '', phoneNumber: personDetails.phoneNumber, email: '' })
             })
     }
 
@@ -64,7 +90,6 @@ const TableReservation = () => {
             setShowLoader(false)
             return
         }
-
         var date = new Date(chosenDate)
         var reservation = {
             person: personDetails,
@@ -167,7 +192,7 @@ const TableReservation = () => {
     return (
         <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }}>
             <div className="section-title">
-                <h1 className="hRestaurant" style={{ color: "black" }}>Table Reservation</h1>
+                <h1 className="hRestaurant" style={{ color: "black" }}><b><u></u></b>Table Reservation</h1>
             </div>
             <form onSubmit={onSubmit}>
                 <div className="row">
@@ -188,13 +213,13 @@ const TableReservation = () => {
                 <div className="row form-group mt-3">
                     <div className="col-md-6 form-group">
                         <FloatingLabel label="Email">
-                            <input type="email" className="form-control" name="email" id="email"
+                            <input type="email" className="form-control" name="email" id="email" required
                                 value={personDetails.email} onChange={onChangeEmail} />
                         </FloatingLabel>
                     </div>
                     <div className="col-md-6 form-group mt-3 mt-md-0">
                         <FloatingLabel controlId="floatingDiners" label="Number of Diners">
-                            <input type="number" className="form-control" min={1} max={15}
+                            <input type="number" className="form-control" min={1} max={tableMaxSize} required
                                 value={numberOfDiners} onChange={onChangeNumberOfDiners} />
                         </FloatingLabel>
                     </div>
@@ -210,7 +235,7 @@ const TableReservation = () => {
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <FloatingLabel label="Choose Hour">
-                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={reservationHoursList[reservationHoursList.length - 1]}>
+                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={reservationHoursList[reservationHoursList.length - 1]} required>
                                     {
                                         reservationHoursList.map((item, key) => (
                                             <option key={key} value={item} disabled={!isValidDateForReservation(new Date(chosenDate), item)}>{item}</option>
@@ -242,7 +267,7 @@ const TableReservation = () => {
                         </div>
                     </div>
                 </div>
-                <h6 className="text-center mt-4">*For reservations with more than 15 diners please call us</h6>
+                <h6 className="text-center mt-4">*For reservations with more than {tableMaxSize} diners please call us</h6>
             </form>
             {
                 popupMessage.title ?
@@ -261,15 +286,15 @@ const TableReservation = () => {
                         }
                         onClose={
                             popupMessage.title.includes('New') ?
-                            e => {
-                             //   e.preventDefault()
-                                cleanForm()
-                            }
-                            :
-                            e => {
-                              //  e.preventDefault()
-                                setPopupMessage({ title: '', messages: [''] })
-                            }}
+                                e => {
+                                    //   e.preventDefault()
+                                    cleanForm()
+                                }
+                                :
+                                e => {
+                                    //  e.preventDefault()
+                                    setPopupMessage({ title: '', messages: [''] })
+                                }}
                         status={popupMessage.title === 'Error' ?
                             'error'
                             :

@@ -2,13 +2,13 @@ import React from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { getCurrentDate, getMaxDateForReservation, isValidDateForReservation, reservationHoursList } from '../utility/Utils';
 
-const EditableReservation = ({ editFormData, handleEditFormChange, handleCancelClick, handleSaveClick }) => {
+const EditableRowReservation = ({ editFormData, handleEditFormChange, handleCancelClick, handleSaveClick }) => {
     return (
         <tr style={{ backgroundColor: 'yellow' }}>
             <td className="align-middle">
                 <FloatingLabel label="Choose Date">
                     <input type="date" style={{ textAlign: "left" }} className="form-control"
-                        name="date" value={editFormData.date } onChange={handleEditFormChange} required
+                        name="date" value={editFormData.date} onChange={handleEditFormChange} required
                         min={getCurrentDate()} max={getMaxDateForReservation()} />
                 </FloatingLabel>
             </td>
@@ -33,19 +33,15 @@ const EditableReservation = ({ editFormData, handleEditFormChange, handleCancelC
                 {editFormData.email}
             </td>
             <td className="align-middle">
-                <FloatingLabel controlId="floatingDiners" label="# Diners">
-                    <input type="number" className="form-control" min={1} max={15} name="numberOfDiners"
-                        value={editFormData.numberOfDiners} onChange={handleEditFormChange} />
-                </FloatingLabel>
+                <input type="number" className="form-control" min={1} max={15} name="numberOfDiners" placeholder='# Diners'
+                    value={editFormData.numberOfDiners} onChange={handleEditFormChange} />
             </td>
             <td className="align-middle">
                 {editFormData.tableId}
             </td>
             <td className="align-middle">
-                <FloatingLabel label="Additional Details" >
-                    <textarea className="form-control" rows="4" name="additionalDetails"
-                        value={editFormData.additionalDetails || ''} onChange={handleEditFormChange}  />
-                </FloatingLabel>
+                <textarea className="form-control" rows="4" name="additionalDetails" placeholder='Additional Details'
+                    value={editFormData.additionalDetails || ''} onChange={handleEditFormChange} style={{ height: '5rem' }} />
             </td>
             <td>
                 <button type="submit" className="form-control btn btn-primary mt-1 mx-auto" onClick={handleSaveClick}>Save</button>
@@ -57,4 +53,4 @@ const EditableReservation = ({ editFormData, handleEditFormChange, handleCancelC
     );
 };
 
-export default EditableReservation;
+export default EditableRowReservation;

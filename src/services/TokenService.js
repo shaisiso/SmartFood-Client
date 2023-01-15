@@ -19,12 +19,14 @@ const getLocalRefreshToken = () => {
   };
   
   const setUser = (user) => {
+    removeUser()
     localStorage.setItem("user", JSON.stringify(user));
   };
   
   const removeUser = () => {
     localStorage.removeItem("user");
     localStorage.removeItem("employee");
+    localStorage.removeItem("member");
   };
   const setEmployee= (employee)=>{
     localStorage.setItem("employee", JSON.stringify(employee));
@@ -32,7 +34,13 @@ const getLocalRefreshToken = () => {
   const getEmployee= ()=>{
     return JSON.parse(localStorage.getItem("employee"));
   }
-  
+  const setMember= (member)=>{
+    console.log(member)
+    localStorage.setItem("member", JSON.stringify(member));
+  }
+  const getMember= ()=>{
+    return JSON.parse(localStorage.getItem("member"));
+  }
   const TokenService = {
     getLocalRefreshToken,
     getLocalAccessToken,
@@ -41,7 +49,9 @@ const getLocalRefreshToken = () => {
     setUser,
     removeUser,
     setEmployee,
-    getEmployee
+    getEmployee,
+    setMember,
+    getMember
   };
   
   export default TokenService;

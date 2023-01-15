@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import EmployeeService from '../services/EmployeeService';
-import { addressToString, enumForClass, enumForReading, extractHttpError, isChar } from '../utility/Utils';
+import { addressToString, enumForClass, enumForReading, extractHttpError, isChar, lastCharIsDigit } from '../utility/Utils';
 import ReadOnlyRow from './ReadOnlyRow';
 import EditableRowEmployee from './EditableRowEmployee';
 const EmployeesManagement = () => {
@@ -29,7 +29,7 @@ const EmployeesManagement = () => {
         phoneNumber: '',
         name: "",
         email: "",
-        address: {},
+        address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' },
         password: "",
         role: "",
     });
@@ -61,7 +61,7 @@ const EmployeesManagement = () => {
 
     const addEmployee = async event => {
         event.preventDefault()
-        if (!isChar(newEmployee.address.entrance)){
+        if (!isChar(newEmployee.address.entrance)) {
             setPopupMessage({ title: 'Error', messages: ['Entrance should be one charcter'] })
             return
         }
@@ -85,10 +85,10 @@ const EmployeesManagement = () => {
     const onChangeNewEmployee = e => {
         let fieldName = e.target.getAttribute("name")
         let newEmployeeChange = { ...newEmployee }
-        if (fieldName.includes("address")){
+        if (fieldName.includes("address")) {
             let addressField = fieldName.split(":")
             newEmployeeChange[addressField[0]][addressField[1]] = e.target.value
-        }else{
+        } else {
             newEmployeeChange[fieldName] = e.target.value
         }
         setNewEmployee({ ...newEmployeeChange })
@@ -96,60 +96,64 @@ const EmployeesManagement = () => {
 
     const handleEditClick = (event, employee) => {
         event.preventDefault();
+
         setEditEmployeeId(employee.id);
         let employeeObj = employees.find(e => e.id === employee.id)
+
         const formValues = {
             ...employee,
-            address: employeeObj.address
+            address: { ...employeeObj.address }
         };
-        setEditFormData(formValues);
+        setEditFormData({ ...formValues });
     };
 
     const handleCancelClick = () => {
         setEditEmployeeId(null);
     };
 
-    const handleDeleteClick = async (e,employee) => {
+    const handleDeleteClick = async (e, employee) => {
         e.preventDefault()
-        console.log(employee)
         await EmployeeService.deleteEmployee(employee)
             .then(response => {
-                console.log(response)
                 const newEmployeesList = [...employees];
                 const index = employees.findIndex((e) => e.id === employee.id);
                 newEmployeesList.splice(index, 1);
                 setEmployees(newEmployeesList);
             })
             .catch(err => {
-                console.log(err)
                 var errMsg = extractHttpError(err)
                 setPopupMessage({ title: 'Error', messages: errMsg })
             })
     };
-    //
+
     const handleEditFormChange = (event) => {
         event.preventDefault();
         const fieldName = event.target.getAttribute("name");
-        console.log(event.target)
         const fieldValue = event.target.value;
         const newFormData = { ...editFormData };
-        if (fieldName === "address"){
+        if (fieldName === "address") {
             let addressField = event.target.getAttribute("id")
+            if (!isAddressValidOnChange(addressField, fieldValue))
+                return
             newFormData[fieldName][addressField] = fieldValue
-        }else{
+        } else {
+            if (!isValidPhoneOnChange(fieldName, fieldValue))
+                return
             newFormData[fieldName] = fieldValue;
         }
-        setEditFormData(newFormData);
+        setEditFormData({ ...newFormData, address: { ...newFormData.address } });
     };
-    
+    const isAddressValidOnChange = (addressFieldName, fieldValue) => ((addressFieldName !== 'apartmentNumber' && addressFieldName !== 'houseNumber') || lastCharIsDigit(fieldValue)) && (addressFieldName !== 'entrance' || fieldValue.length <= 1)
+    const isValidPhoneOnChange = (fieldName, fieldValue) => fieldName !== 'phoneNumber' || (lastCharIsDigit(fieldValue) && fieldValue.length <= 10)
+
     const updateEmployeeClick = async event => {
         event.preventDefault();
-        if (!isChar(editFormData.address.entrance)){
+        if (!isChar(editFormData.address.entrance)) {
             setPopupMessage({ title: 'Error', messages: ['Entrance should be one charcter'] })
             return
         }
         setLoaded(false)
-        let employeeObj = employees.find(e=>e.id===editEmployeeId)
+        let employeeObj = employees.find(e => e.id === editEmployeeId)
         let employee = { ...editFormData, password: employeeObj.password, role: enumForClass(editFormData.role) }
         await EmployeeService.updateEmployee(employee)
             .then(response => {

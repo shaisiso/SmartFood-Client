@@ -8,6 +8,7 @@ import { ReactComponent as ManagementSvg } from '../assets/icons/management.svg'
 import { ReactComponent as CutlerytSvg } from '../assets/icons/cutlery.svg'
 import { ReactComponent as ReservationSvg } from '../assets/icons/reservations.svg'
 import RoleService from '../services/RoleService';
+import TokenService from '../services/TokenService';
 // import { over } from 'stompjs';
 // import SockJS from 'sockjs-client';
 // import { API_URL } from '../utility/Utils';
@@ -15,7 +16,7 @@ import RoleService from '../services/RoleService';
 
 
 const SideNavbar = (props) => {
-    const [tasks, setTasks] = useState({exteranlOrders:[] , shifts: [], cancelRequests: []});
+    const [tasks, setTasks] = useState({ exteranlOrders: [], shifts: [], cancelRequests: [] });
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -24,11 +25,11 @@ const SideNavbar = (props) => {
         if (RoleService.isManager(props.employee)) {
             setTasks(props.tasks)
         }
-    },[props.employee, props.tasks]);
+    }, [props.employee, props.tasks]);
     const onClickTasks = e => {
 
     }
-    const totalTasks = ()=> tasks.exteranlOrders.length + tasks.shifts.length +tasks.cancelRequests.length
+    const totalTasks = () => tasks.exteranlOrders.length + tasks.shifts.length + tasks.cancelRequests.length
 
     return (
         <ul className="navbar-nav bg-dark sidebar sidebar-dark accordion" id="accordionSidebar">
@@ -46,7 +47,7 @@ const SideNavbar = (props) => {
                 Operation:
             </div>
             {
-                RoleService.isManager(props.employee) ?
+                RoleService.isGeneralManager(TokenService.getEmployee()) ?
                     <li className="nav-item">
                         <Link className="nav-link" to={'/employee/management'}>
                             <ManagementSvg width="24" height="24" />
@@ -56,20 +57,25 @@ const SideNavbar = (props) => {
                     :
                     null
             }
-            <li className="nav-item">
-                <Link className="nav-link" to={'/employee/reports'}>
-                    <FinancialSvg width="24" height="24" />
-                    <span className="mx-2">Reports</span>
-                </Link>
-            </li>
             {
-                RoleService.isManager(props.employee) ?
+                RoleService.isGeneralManager(TokenService.getEmployee()) ?
                     <li className="nav-item">
-                        <Link className="nav-link" to={'/employee/tasks'}  onClick={onClickTasks}>
+                        <Link className="nav-link" to={'/employee/reports'}>
+                            <FinancialSvg width="24" height="24" />
+                            <span className="mx-2">Reports</span>
+                        </Link>
+                    </li>
+                    : null
+            }
+
+            {
+                RoleService.isManager(TokenService.getEmployee()) ?
+                    <li className="nav-item">
+                        <Link className="nav-link" to={'/employee/tasks'} onClick={onClickTasks}>
                             <TasksSvg width="24" height="24" />
                             <span className="mx-2">Tasks</span>
                             {
-                               totalTasks() > 0 ? <span className="notification">{totalTasks()}</span> : null
+                                totalTasks() > 0 ? <span className="notification">{totalTasks()}</span> : null
                             }
                         </Link>
                     </li>

@@ -1,3 +1,4 @@
+import { compareDatesHour } from '../utility/Utils';
 import api from './api';
 
 class OrderService {
@@ -18,12 +19,30 @@ class OrderService {
         orders.sort((o1, o2) => o1.hour.localeCompare(o2.hour))
         return orders
     }
+
+    getExternalOrdersOfMember = async memberId => {
+        let deliveries = []
+        let takeAways = []
+        console.log(memberId)
+        await api.get(`/delivery/member/${memberId}`).then(res => {
+            console.log(res)
+            res.data.forEach(d => {
+                deliveries.push({ ...d, type: 'D' })
+            })
+        }).catch(err => { console.log(err) })
+        await api.get(`/takeaway/member/${memberId}`).then(res => {
+            res.data.forEach(t => takeAways.push({ ...t, type: 'TA' }))
+        }).catch(err => { console.log(err) })
+        let orders = deliveries.concat(takeAways)
+        orders.sort((o1, o2) => compareDatesHour(o1.date, o1.hour, o2.date, o2.hour))
+        return orders
+    }
     updateOrderStatus = async (order) => api.put(`/order/status/${order.id}/${order.status}`)
     updateDelivery = async delivery => api.put(`/delivery`, delivery)
-    updateTakeAway = async takeAway => api.put(`/takeaway`, takeAway)
-    updateOrderComment = async (orderId, comment) => api.put(`/order/comment/${orderId}`, comment,{ headers: {'Content-Type': 'text/plain'}})
+    updatePerson = async (orderId, person) => api.put(`/order/person/${orderId}`, person)
+    updateOrderComment = async (orderId, comment) => api.put(`/order/comment/${orderId}`, comment, { headers: { 'Content-Type': 'text/plain' } })
     payment = async (orderId, amount) => api.put(`/order/pay/${orderId}/${amount}`)
-    applyMemberDiscount = async (order,phoneNumber)=>api.put(`/order/price/member/${order.id}/${phoneNumber}`)
+    applyMemberDiscount = async (order, phoneNumber) => api.put(`/order/price/member/${order.id}/${phoneNumber}`)
     addNewDelivery = async (delivery) => api.post(`/delivery`, delivery)
     addNewTakeAway = async (takeAway) => api.post(`takeaway`, takeAway)
     addNewOrderOfTable = async order => api.post(`/orderoftable/`, order)
@@ -66,7 +85,7 @@ class OrderService {
 
         return requests
     }
-    
+
 }
 
 export default new OrderService();

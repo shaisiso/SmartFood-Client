@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FormControl } from "react-bootstrap";
 import FloatingLabel from 'react-bootstrap/FloatingLabel';
 import Form from 'react-bootstrap/Form';
@@ -10,6 +10,7 @@ import OrderService from "../services/OrderService";
 import ItemInOrderService from "../services/ItemInOrderService";
 import DiscountsService from "../services/DiscountsService";
 import Payment from '../components/Payment';
+import TokenService from "../services/TokenService";
 
 const OrderPage = () => {
     const [personDetails, setPersonDetails] = useState({ name: '', phoneNumber: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
@@ -23,7 +24,15 @@ const OrderPage = () => {
     const onChangeRadio = event => {
         setSelected(event.target.value);
     };
-
+    const mounted = useRef()
+    useEffect(() => {
+        if (!mounted.current) {
+            mounted.current = true
+            let member = TokenService.getMember()
+            if (member)
+                setPersonDetails({ ...member })
+        }
+    }, [])
     const onChangeName = event => {
         setPersonDetails(
             {
@@ -63,7 +72,7 @@ const OrderPage = () => {
                 let address = res.data.address ? res.data.address : { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' }
                 setPersonDetails({ ...res.data, address: address })
             }).catch(err => {
-                setPersonDetails({ ...personDetails, id: '', name: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
+                setPersonDetails({ ...personDetails, name: '', email: '', address: { city: '', streetName: '', houseNumber: '', entrance: '', apartmentNumber: '' } })
             })
     }
 
@@ -145,8 +154,8 @@ const OrderPage = () => {
     return (
         <div className="row g-1">
             <div className="container col col-lg-6 col-sm-10 py-3 px-5" style={{ backgroundColor: "#ffffff90", }} >
-                <div className="section-title">
-                    <h4 style={{ color: "black" }}><u>Your Details</u></h4>
+                <div className="section-title hRestaurant">
+                    <h1 style={{ color: "black" }}><u>Your Details</u></h1>
                 </div>
                 <Form onSubmit={onSubmit} >
                     <div className="d-flex justify-content-center mb-3">
@@ -220,7 +229,7 @@ const OrderPage = () => {
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Entrance">
                                             <input type="text" className="form-control" name='entrance' disabled={disableForm}
-                                                value={personDetails.address.entrance} onChange={onChangeAddress} />
+                                                value={personDetails.address.entrance || ''} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
                                 </div>
@@ -228,7 +237,7 @@ const OrderPage = () => {
                                     <div className="col-md-6 form-group">
                                         <FloatingLabel label="Apartment Number">
                                             <input type="text" className="form-control" name='apartmentNumber' disabled={disableForm}
-                                                value={personDetails.address.apartmentNumber} onChange={onChangeAddress} />
+                                                value={personDetails.address.apartmentNumber || ''} onChange={onChangeAddress} />
                                         </FloatingLabel>
                                     </div>
                                 </div>
@@ -258,7 +267,7 @@ const OrderPage = () => {
                 showMenu && !savedOrder ?
                     <ItemsToOrder orderUserDetails={{ type: selectedRadio, personDetails: { ...personDetails } }} onClickSendOrder={onClickSendOrder} />
                     :
-                    savedOrder ? <Payment order={savedOrder} isCustomer/> : null
+                    savedOrder ? <Payment order={savedOrder} isCustomer /> : null
             }
             {
                 popupMessage.header ?

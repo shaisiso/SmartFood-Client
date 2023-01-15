@@ -3,16 +3,20 @@ import { useState } from 'react';
 import { useRef } from 'react';
 import { useEffect } from 'react';
 import { Fragment } from 'react';
-import { FloatingLabel } from 'react-bootstrap';
+import { FloatingLabel, Form } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
-import EditableReservation from '../components/EditableReservation';
+import EditableRowReservation from '../components/EditableReservation';
 import PopupMessage from '../components/PopupMessage';
 import ReadOnlyRow from '../components/ReadOnlyRow';
 import TableReservationService from '../services/TableReservationService';
-import { allCharsAreDigits, extractHttpError, formatDateForServer, getCurrentDate, hebrewStDateToBrowserDate } from '../utility/Utils';
+import { allCharsAreDigits, extractHttpError, formatDateForServer, getCurrentDate, hebrewStDateToBrowserDate, isDateInFuture } from '../utility/Utils';
 
-const Reservations = () => {
+const INTERVAL_MS = 60_000; // one minute
+
+const Reservations = (props) => {
     const [reservations, setReservations] = useState([])
+    const [showOldReservations, setShowOldReservations] = useState(JSON.parse(window.localStorage.getItem("showOldReservations") || 'true'));
+    const [reservationsToShow, setReservationsToShow] = useState([]);
     const [startDate, setStartDate] = useState(getCurrentDate())
     const [endDate, setEndDate] = useState(getCurrentDate())
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
@@ -27,7 +31,25 @@ const Reservations = () => {
             mounted.current = true
             getReservations()
         }
+        const reservationsInterval = setInterval(() => {
+            getReservations()
+        }, INTERVAL_MS);
+        return () => clearInterval(reservationsInterval);
     })
+    const onChangeShowOldReservations = e => {
+        let fieldValue = e.target.checked
+        setShowOldReservations(fieldValue)
+        window.localStorage.setItem("showOldReservations", fieldValue)
+        filterReservations(reservations, fieldValue)
+    }
+    const filterReservations = (allReservations, showOld) => {
+        if (showOld)
+            setReservationsToShow(allReservations)
+        else {
+            allReservations = [...allReservations].filter(r => isDateInFuture(r.date, r.hour))
+            setReservationsToShow([...allReservations])
+        }
+    }
     const onChangeStartDate = (e) => {
         setStartDate(e.target.value)
     }
@@ -36,17 +58,25 @@ const Reservations = () => {
     }
     const getReservations = async (e) => {
         e?.preventDefault()
-        setShowLoader(true)
-        let startDateAPI = formatDateForServer(new Date(startDate))
-        let endDateAPI = formatDateForServer(new Date(endDate))
-        await TableReservationService.getTableReservationsByDates(startDateAPI, endDateAPI)
-            .then(res => {
-                setReservations(res.data)
-            })
-            .catch(err => {
-                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-            })
-        setShowLoader(false)
+        if (props.userReservations) {
+            setReservations(props.userReservations)
+            filterReservations(props.userReservations, showOldReservations)
+        }
+        else {
+            setShowLoader(true)
+            let startDateAPI = formatDateForServer(new Date(startDate))
+            let endDateAPI = formatDateForServer(new Date(endDate))
+            await TableReservationService.getTableReservationsByDates(startDateAPI, endDateAPI)
+                .then(res => {
+                    setReservations(res.data)
+                    filterReservations(res.data, showOldReservations)
+                })
+                .catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
+            setShowLoader(false)
+        }
+
     }
     const handleEditClick = (event, resrevation) => {
         setEditReservationId(resrevation.reservationId);
@@ -68,7 +98,10 @@ const Reservations = () => {
         setShowLoader(true)
         await TableReservationService.delete(reservationToDelete)
             .then(res => {
-                getReservations()
+                if (props.onChangeReservations)
+                    props.onChangeReservations()
+                else
+                    getReservations()
             })
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
@@ -105,8 +138,6 @@ const Reservations = () => {
         await TableReservationService.updateTableReservation(reservationToSave)
             .then(() => {
                 setPopupMessage({ title: 'Reservation Update', messages: ['The table reservation details were updated'] })
-                getReservations()
-                setEditReservationId(null)
             })
             .catch(err => setPopupMessage({ title: 'Error', messages: extractHttpError(err) }))
         setShowLoader(false)
@@ -114,38 +145,53 @@ const Reservations = () => {
     return (
         <form onSubmit={getReservations} className="container col  py-4 px-5 text-center ">
             <h2><b><u>Table Reservations</u></b></h2>
-            <table className="mx-auto my-4">
-                <tbody>
-                    <tr className="align middle text center">
-
-                        <td className="col-md-4 form-group">
-                            <FloatingLabel label="Start Date">
-                                <input type="date" style={{ textAlign: "left" }} className="form-control"
-                                    name="date" value={startDate} onChange={onChangeStartDate} required
-                                />
-                            </FloatingLabel>
-                        </td>
-                        <td className="col-md-4 form-group">
-                            <FloatingLabel label="End Date">
-                                <input type="date" style={{ textAlign: "left" }} className="form-control"
-                                    name="date" value={endDate} onChange={onChangeEndDate} required min={startDate}
-                                />
-                            </FloatingLabel>
-                        </td>
-                        <td className="col-md-4 form-group">
-                            <input type="submit" className='btn btn-primary' value="Find Reservations" />
-                            <ColorRing
-                                visible={showLoader}
-                                ariaLabel="blocks-loading"
-                                colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
-                            />
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
             {
-                reservations.length > 0 ?
-                    <table className="table table-striped table-bordered text-center" style={{ backgroundColor: 'white' }}>
+                !props.userReservations ?
+                    <table className="mx-auto mt-4">
+                        <tbody>
+                            <tr className="align middle text center">
+                                <td className="col-md-4 form-group">
+                                    <FloatingLabel label="Start Date">
+                                        <input type="date" style={{ textAlign: "left" }} className="form-control"
+                                            name="date" value={startDate} onChange={onChangeStartDate} required
+                                        />
+                                    </FloatingLabel>
+                                </td>
+                                <td className="col-md-4 form-group">
+                                    <FloatingLabel label="End Date">
+                                        <input type="date" style={{ textAlign: "left" }} className="form-control"
+                                            name="date" value={endDate} onChange={onChangeEndDate} required min={startDate}
+                                        />
+                                    </FloatingLabel>
+                                </td>
+                                <td className="col-md-4 form-group">
+                                    <input type="submit" className='btn btn-primary' value="Find Reservations" />
+                                    <ColorRing
+                                        visible={showLoader}
+                                        ariaLabel="blocks-loading"
+                                        colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                    />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    : null
+            }
+            <div className="d-flex justify-content-center pt-5 h5">
+                <Form.Check
+                    inline
+                    label="Show Old Reservations"
+                    name="forMembersOnly"
+                    type='checkbox'
+                    id={`1`}
+                    value={true}
+                    checked={showOldReservations === true}
+                    onChange={onChangeShowOldReservations}
+                />
+            </div>
+            {
+                reservationsToShow.length > 0 ?
+                    <table className="table table-striped table-bordered text-center my-4" style={{ backgroundColor: 'white' }}>
                         <thead>
                             <tr>
                                 <th style={{ cursor: 'pointer' }} /*onClick={sortByName}*/> Date </th>
@@ -160,23 +206,24 @@ const Reservations = () => {
                             </tr>
                         </thead>
                         <tbody>
-                            {reservations.map((r, key) => (
+                            {reservationsToShow.map((r, key) => (
                                 <Fragment key={key}>
                                     {
                                         editReservationId === r.reservationId ?
-                                            <EditableReservation
+                                            <EditableRowReservation
                                                 editFormData={editFormData}
                                                 handleEditFormChange={handleEditFormChange}
                                                 handleCancelClick={handleCancelClick}
                                                 handleSaveClick={updateTableClick}
                                             />
                                             :
-
                                             <ReadOnlyRow
                                                 item={{ reservationId: r.reservationId, date: r.date, hour: r.hour, name: r.person.name, phoneNumber: r.person.phoneNumber, email: r.person.email, numberOfDiners: r.numberOfDiners, tableId: r.table.tableId, additionalDetails: r.additionalDetails }}
                                                 // withId
                                                 handleEditClick={handleEditClick}
                                                 handleDeleteClick={handleDeleteClick}
+                                                disabledActions={!isDateInFuture(r.date, r.hour)}
+                                                rowColor={isDateInFuture(r.date, r.hour) ? 'white' : '#80808090'}
                                             />
                                     }
                                 </Fragment>
@@ -203,6 +250,13 @@ const Reservations = () => {
                         }
                         onClose={() => {
                             setPopupMessage({ title: '', messages: [''] })
+                            if (popupMessage.title.toLowerCase().includes('update')) {
+                                if (props.onChangeReservations)
+                                    props.onChangeReservations()
+                                else
+                                    getReservations()
+                                setEditReservationId(null)
+                            }
                         }}
                         status={popupMessage.title === 'Error' ?
                             'error'

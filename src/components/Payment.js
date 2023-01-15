@@ -4,6 +4,7 @@ import { useEffect } from 'react';
 import { useState } from 'react';
 import { FloatingLabel, Form } from 'react-bootstrap';
 import { ColorRing } from 'react-loader-spinner';
+import { useNavigate } from 'react-router-dom';
 import DiscountsService from '../services/DiscountsService';
 import OrderService from '../services/OrderService';
 import { cleanAll, extractHttpError, format2Decimals, isValidFloatNumber, lastCharIsDigit } from '../utility/Utils';
@@ -18,6 +19,7 @@ const Payment = (props) => {
     const [paymentAmount, setPaymentAmount] = useState('')
     const [phoneNumber, setPhoneNumber] = useState('')
     const [showMemberDiscount, setShowMemberDiscount] = useState(true)
+    const navigate = useNavigate()
     let mounted = useRef()
     useEffect(() => {
         const getMembersDiscounts = async () => {
@@ -193,7 +195,7 @@ const Payment = (props) => {
                                                 </td>
                                             </tr></tbody> </table>
                                     </div>
-                                    : 
+                                    :
                                     <div className="col mx-auto my-2 h6" >*Currently only payment in cash is accepted</div>
                             }
                         </Form>
@@ -222,8 +224,12 @@ const Payment = (props) => {
                             </ul>
                         }
                         onClose={() => {
-                            if (order.totalPriceToPay === order.alreadyPaid)
-                                cleanAll()
+                            if (order.totalPriceToPay === order.alreadyPaid) {
+                                if (props.navigateAfterPayment)
+                                    navigate(props.navigateAfterPayment)
+                                else
+                                    cleanAll()
+                            }
                             setPopupMessage({ title: '', messages: [''] })
                             setPaymentAmount('')
                             // if (popupMessage.title === 'Error')
@@ -239,10 +245,12 @@ const Payment = (props) => {
                         withOk={!popupMessage.title.includes('Error')}
                         okBtnText='OK'
                         onClickOk={e => {
-                            // e.preventDefault()
-                            // cleanAll()
-                            if (order.totalPriceToPay === order.alreadyPaid)
-                                cleanAll()
+                            if (order.totalPriceToPay === order.alreadyPaid) {
+                                if (props.navigateAfterPayment)
+                                    navigate(props.navigateAfterPayment)
+                                else
+                                    cleanAll()
+                            }
                             setPopupMessage({ title: '', messages: [''] })
                             setPaymentAmount('')
 

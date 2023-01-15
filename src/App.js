@@ -12,81 +12,56 @@ import WoodImg from './assets/backgrounds/white_wood.jpg'
 import Header from './components/Header';
 import TableReservation from './pages/TableReservation';
 import OrderPage from './pages/OrderPage';
-import EmployeeLogin from './pages/EmployeeLogin';
+import Login from './pages/Login';
 import EmployeeHomepage from './pages/EmployeeHomepage';
 import NotFound404 from './pages/NotFound404';
-import EmployeeService from './services/EmployeeService';
 import QROrder from './pages/QROrder';
 import WaitingListApprove from './pages/WaitingListApprove';
+import MyReservations from './pages/MyReservations';
+import MemberRegistration from './pages/MemberRegistration';
+import About from './pages/About';
+import Contact from './pages/Contact';
+import MyOrders from './pages/MyOrders';
 
 function App() {
 
-  const [isLogged, setIsLogged] = useState(JSON.parse(window.localStorage.getItem("isLogged")) || false)
-  const [userDetails, setUserDetails] = useState({ phoneNumber: '', accessToken: '', refreshToken: '' })
-  const [person, setPerson] = useState({})
+  const [isEmployeeLogged, setIsEmployeeLogged] = useState(JSON.parse(window.localStorage.getItem("isEmployeeLogged")) || false)
+  const [isMemberLogged, setIsMemberLogged] = useState(JSON.parse(window.localStorage.getItem("isMemberLogged")) || false)
+
   const mounted = useRef();
   useEffect(() => {
     if (!mounted.current) {
       mounted.current = true;
-      getUserDetails()
     }
   });
-  const getUserDetails = () => {
-    let phoneFromStorage = window.localStorage.getItem("phoneNumber") || ""
-    setUserDetails({
-      phoneNumber: phoneFromStorage,
-      accessToken: window.localStorage.getItem("accessToken") || "",
-      refreshToken: window.localStorage.getItem("refreshToken") || "",
-    })
-    // if (phoneFromStorage)
-    //   getPersonDetails(phoneFromStorage)
-  }
-  const getPersonDetails = phone => {
-    EmployeeService.findEmployeeByPhone(phone)
-      .then(res => {
-        setPerson(res.data)
-      })
-      .catch(err => {
-        console.log(err)
-        // TODO: call PersonService.findPersonByPhone(phone)  or MemberService
-      })
-  }
 
-  const handleLogin = (phoneNumber, tokens) => {
-    window.localStorage.setItem("isLogged", true);
-    window.localStorage.setItem("accessToken", tokens.accessToken);
-    window.localStorage.setItem("refreshToken", tokens.refreshToken);
-    window.localStorage.setItem("phoneNumber", phoneNumber);
-
-    setIsLogged(true)
-    setUserDetails({
-      ...userDetails,
-      phoneNumber: phoneNumber,
-      accessToken: tokens.accessToken,
-      refreshToken: tokens.refreshToken,
-    })
-    getPersonDetails(phoneNumber)
+  const handleEmployeeLogin = () => {
+    window.localStorage.setItem("isEmployeeLogged", true);
+    setIsEmployeeLogged(true)
+  }
+  const handleMemberLogin = ()=>{
+    window.localStorage.setItem("isMemberLogged", true);
+    setIsMemberLogged(true)
   }
   const handleLogout = () => {
     localStorage.clear();
-
-    setIsLogged(false);
+    setIsEmployeeLogged(false);
+    setIsMemberLogged(false);
   }
 
   const getNavbar = () => {
-    if (isLogged)
+    if (isEmployeeLogged)
       return null
     else
-      return <NavbarRestaurant />
-
+      return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout}/>
   }
   const getHeader = () => {
-    return isLogged ? null : <Header />
+    return isEmployeeLogged ? null : <Header />
   }
   return (
     <Router>
       {getNavbar()}
-      <div style={!isLogged ?
+      <div style={!isEmployeeLogged ?
         {
           backgroundImage: `url(${RestaurantImg})`, backgroundPosition: 'top center',
           minHeight: '87vh', backgroundRepeat: 'repeat'
@@ -94,46 +69,34 @@ function App() {
         <div className="container-fluid p-0">
           {getHeader()}
           <Routes>
-            <Route exact path="/"
-              element={isLogged ?
-                <Navigate to="/employee" />
-                :
-                <Homepage />}>
-            </Route>
-            <Route path="/menu"
-              element={<MenuPage />}>
-            </Route>
-            <Route path="/reservation"
-              element={<TableReservation />}>
-            </Route>
-            <Route path="/order"
-              element={<OrderPage />}>
-            </Route>
-
-            <Route path="/login"
+            <Route exact path="/" element={isEmployeeLogged ? <Navigate to="/employee" /> : <Homepage />} />
+            <Route path="/menu" element={<MenuPage />} />
+            <Route path="/reservation" element={<TableReservation />} />
+            <Route path="/order" element={<OrderPage />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/user/reservations" element={<MyReservations />} />
+            <Route path="/user/orders" element={<MyOrders />} />
+            <Route path="/sign-up" element={<MemberRegistration />} />
+            <Route path="/login/member" element={<Login type="Members" handleMemberLogin={handleMemberLogin}/>} />
+            <Route path="/login/employee"
               element={
-                isLogged ?
+                isEmployeeLogged ?
                   <Navigate to="/employee" />
                   :
-                  <EmployeeLogin handleLogin={handleLogin} />
-              }>
-            </Route>
+                  <Login handleEmployeeLogin={handleEmployeeLogin} type="Employees" />
+              } />
             <Route path="employee/*"
               element={
-                isLogged ?
-                  <EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />
+                isEmployeeLogged ?
+                  <EmployeeHomepage handleLogout={handleLogout} />
                   :
-                  <Navigate to="/login" />
+                  <Navigate to="/login/employee" />
               } />
-            <Route path="/qr-order/*"
-              element={<QROrder />}>
-            </Route>
-            <Route path="/waiting-list/*"
-              element={< WaitingListApprove />}>
-            </Route>
-           
-            {isLogged ?
-              <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} userDetails={userDetails} employee={person} />} />
+            <Route path="/qr-order/*" element={<QROrder />} />
+            <Route path="/waiting-list/*" element={< WaitingListApprove />} />
+            {isEmployeeLogged ?
+              <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} />} />
               :
               <Route path="*" exact={true} element={<NotFound404 />} />
             }

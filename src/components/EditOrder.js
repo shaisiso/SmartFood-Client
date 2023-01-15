@@ -73,7 +73,7 @@ const EditOrder = () => {
     return (
         <div>
             <ItemsToOrder chosenItems={chosenItemsToDisplay} sendOrderBtnText="Update Order" onClickSendOrder={onClickSendOrder} orderComment={order.orderComment} />
-            <Payment order={order} />
+            <Payment order={order} navigateAfterPayment='/employee/tasks'/>
             {
                 popupMessage.title ?
                     <PopupMessage

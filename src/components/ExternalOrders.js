@@ -15,7 +15,7 @@ const ExternalOrders = props => {
     const [statuses, setStatuses] = useState([])
     const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
     const [personUpdate, setPersonUpdate] = useState({})
-    //const [paymentAmount, setPaymentAmout] = useState(0)
+    const [orderToUpdate, setOrderToUpdate] = useState(null);
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
     const [activeDeliveryGuys, setActiveDeliveryGuys] = useState([])
     const mounted = useRef()
@@ -47,7 +47,17 @@ const ExternalOrders = props => {
             })
     }
     const onChangeStatus = (e, order) => {
-        let o = { ...order, status: enumForClass(e.target.value) }
+        let status = e.target.value
+        if (status.includes('Closed')) {
+            setOrderToUpdate({ ...order })
+            setPopupMessage({ title: 'Closing Order', messages: ['Are you sure you want to close this order ?'] })
+        }
+        else {
+            updateOrderStatus(order, status)
+        }
+    }
+    const updateOrderStatus = (order, status) => {
+        let o = { ...order, status: enumForClass(status) }
         OrderService.updateOrderStatus(o).catch(err => {
             var errMsg = extractHttpError(err)
             setPopupMessage({ title: 'Error', messages: errMsg })
@@ -76,17 +86,24 @@ const ExternalOrders = props => {
             //send update to api
             let items = order.items
             items.forEach(i => delete i.order)
+            console.log('personUpdate ', personUpdate.phoneNumber)
+            console.log('old', exteranlOrders.find(o => o.id === order.id).person.phoneNumber)
             if (order.type === 'TA') {
                 let takeAway = { id: order.id, person: { ...personUpdate, addres: { ...order.person.address } } }
-                if (takeAway.person.address && takeAway.person.address.city && takeAway.person.address.city === '')
+                if (takeAway.person.address && (!takeAway.person.address.city || (takeAway.person.address.city && takeAway.person.address.city === '')))
                     delete takeAway.person.address
-                OrderService.updateTakeAway(takeAway)
+                console.log(takeAway)
+                if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
+                    takeAway.person = { phoneNumber: personUpdate.phoneNumber, name: personUpdate.name }
+                OrderService.updatePerson(order.id, takeAway.person)
                     .catch(err => {
                         setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                     })
             } else {
                 let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
-                OrderService.updateDelivery(delivery).catch(err => {
+                if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
+                    delete delivery.person.id
+                OrderService.updatePerson(delivery.id, delivery.person).catch(err => {
                     setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                 })
             }
@@ -99,18 +116,12 @@ const ExternalOrders = props => {
         setPersonUpdate({})
     }
 
-
-
     const cancelUpdates = () => {
         //setPaymentAmout(0)
         setPersonUpdate({})
         setShowUpdates({ person: false, payment: false })
     }
-    // const onClickCancelPayment = e => {
-    //     e?.preventDefault()
-    //     setPaymentAmout(0)
-    //     setShowUpdates({ ...showUpdates, payment: false })
-    // }
+
     const onChangePersonDetails = (e, order) => {
         let fieldName = e.target.getAttribute("name")
         let fieldValue = e.target.value
@@ -127,33 +138,14 @@ const ExternalOrders = props => {
         }
         setPersonUpdate({ ...details })
     }
-    // const onClickPay = (e, order) => {
-    //     e.preventDefault()
-    //     setShowUpdates({ ...showUpdates, payment: !showUpdates.payment })
-    //     if (showUpdates.payment) {
-    //         OrderService.payment(order.id, paymentAmount)
-    //             .then(res => {
-    //                 setPopupMessage({ title: 'Payment Successful', messages: [`The payment with amount of ${paymentAmount}₪ has been confirmed`, `Remaining Price: ${res.data.totalPriceToPay - res.data.alreadyPaid}₪`] })
-    //             })
-    //             .catch(err => {
-    //                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-    //             })
-    //     }
-    //     else {
-    //         setPaymentAmout(getRemainingAmount(order))
-    //     }
-    // }
-    // const onChangePayment = (e) => {
-    //     e.preventDefault()
-    //     setPaymentAmout(e.target.value)
-    // }
+
     const onClickCancelOrder = (e, order) => {
         e.preventDefault()
         OrderService.deleteOrder(order).catch(err => {
             setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
         })
     }
-    const getRemainingAmount = (order) => Math.max(format2Decimals(order.totalPriceToPay - order.alreadyPaid),0) 
+    const getRemainingAmount = (order) => Math.max(format2Decimals(order.totalPriceToPay - order.alreadyPaid), 0)
     return (
         <div>
             <Accordion>
@@ -337,10 +329,23 @@ const ExternalOrders = props => {
                         status={popupMessage.title === 'Error' ?
                             'error'
                             :
-                            'success'
-
+                            popupMessage.title.toLowerCase().includes('closing') ? 'info' : 'success'
                         }
                         closeOnlyWithBtn
+                        withOk={popupMessage.title.toLowerCase().includes('closing')}
+                        okBtnText={popupMessage.title.toLowerCase().includes('closing') ? 'Yes' : null}
+                        cancelBtnText={popupMessage.title.toLowerCase().includes('closing') ? 'No' : null}
+                        onClickOk={e => {
+                            e.preventDefault()
+                            updateOrderStatus(orderToUpdate, 'Closed')
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+                        onClickCancel={e => {
+                            e.preventDefault()
+                            setOrderToUpdate(null)
+                            setPopupMessage({ title: '', messages: [''] })
+                        }}
+
                     >
                     </PopupMessage>
                     :

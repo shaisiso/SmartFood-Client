@@ -100,6 +100,24 @@
  font-family: "Comic Neue", sans-serif;
  color: #40392f;
 }
+.contact-btn{
+  cursor: pointer;
+  display: inline-block;
+  padding: 8px 16px 10px 16px;
+  font-size: 18px;
+  font-weight: 500;
+  line-height: 1;
+  margin: 0 3px 10px 3px;
+  transition: all ease-in-out 0.3s;
+  color: #fff;
+  background: #ff9900;
+  border: 2px solid #ffb03b;
+  border-radius: 50px;
+ }
+ .contact-btn:hover{
+  color: #fff;
+  background: #ffb74a;
+ }
 /*--------------------------------------------------------------
 # General
 --------------------------------------------------------------*/

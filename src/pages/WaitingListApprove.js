@@ -26,7 +26,11 @@ const WaitingListApprove = () => {
                 console.log(res.data)
                 setReservation(res.data)
             }).catch(err => {
-                setErrorMsg(extractHttpError(err)[0])
+                console.log(err)
+                if (err.response.status === 404)
+                    setErrorMsg('This invitation was already approved')
+                else
+                    setErrorMsg(extractHttpError(err)[0])
             })
         setShowLoader(false)
     }

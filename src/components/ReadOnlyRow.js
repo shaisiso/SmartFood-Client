@@ -1,6 +1,6 @@
 import React from "react";
 
-const ReadOnlyRow = ({ item, withId, handleEditClick, handleDeleteClick, rowColor, handleGenerateClick }) => {
+const ReadOnlyRow = ({ item, withId, handleEditClick, handleDeleteClick, rowColor, handleGenerateClick,disabledActions }) => {
   return (
     <tr style={{ backgroundColor: rowColor ? rowColor : 'default' }}>
       {
@@ -18,7 +18,7 @@ const ReadOnlyRow = ({ item, withId, handleEditClick, handleDeleteClick, rowColo
             }
             {
               handleEditClick ?
-                <button type="button" className="form-control btn btn-info  btn-sm mx-auto " onClick={(event) => handleEditClick(event, item)}
+                <button type="button" className="form-control btn btn-info  btn-sm mx-auto " onClick={(event) => handleEditClick(event, item)} disabled={disabledActions}
                 >
                   Edit
                 </button>
@@ -27,7 +27,7 @@ const ReadOnlyRow = ({ item, withId, handleEditClick, handleDeleteClick, rowColo
             }
             {
               handleDeleteClick ?
-                <button type="button" className="form-control btn btn-danger btn-sm mt-1 mx-auto " onClick={(e) => handleDeleteClick(e, item)}>
+                <button type="button" className="form-control btn btn-danger btn-sm mt-1 mx-auto " onClick={(e) => handleDeleteClick(e, item)} disabled={disabledActions}>
                   Delete
                 </button>
                 : null
