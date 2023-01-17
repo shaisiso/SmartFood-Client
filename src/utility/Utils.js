@@ -1,10 +1,12 @@
 // --- Heroku ---//
 //export const SERVER_PORT = "5000"
 //export const WEB_URL = `http://localhost:${SERVER_PORT}`;
+export const API_URL =`https://smartfood-server.herokuapp.com`;
 
 // --- AWS Server --- //
 //export const API_URL =  "https://cors-anywhere.herokuapp.com/http://smartfood.eu-central-1.elasticbeanstalk.com";
-export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com";
+//export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com";
+
 
 // --- Local Environment --- //
 // export const SERVER_PORT = "8080"
