@@ -6,14 +6,23 @@ import ShitsConfirmation from './ShitsConfirmation';
 const Confirmations = props => {
     const [shifts, setShifts] = useState([]);
     const [cancelRequests, setCancelRequests] = useState([]);
+    const [propsShiftsPrev, setPropsShiftslPrev] = useState([]);
+    const [propsCancelPrev, setPropsCancelPrev] = useState([]);
+
     useEffect(() => {
-        setShifts(props.shifts)
-        setCancelRequests(props.cancelRequests)
-    }, [props.shifts, shifts, cancelRequests, props.cancelRequests]);
+        if (props.shifts !== propsShiftsPrev) {
+            setShifts([...props.shifts])
+            setPropsShiftslPrev(props.shifts)
+        }
+        if (props.cancelRequests !== propsCancelPrev) {
+            setCancelRequests([...props.cancelRequests])
+            setPropsCancelPrev(props.cancelRequests)
+        }
+    }, [props.shifts, shifts, cancelRequests, props.cancelRequests, propsShiftsPrev, propsCancelPrev]);
 
     return (
         <div>
-            <CancelItemsCofiramtions cancelRequests={cancelRequests}/>
+            <CancelItemsCofiramtions cancelRequests={cancelRequests} />
             <ShitsConfirmation shifts={shifts} />
         </div>
     );

@@ -85,7 +85,7 @@ const EmployeeHomepage = (props) => {
                         handleLogout={props.handleLogout}
                         employee={TokenService.getEmployee()}
                     />
-                    <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '93vh', backgroundRepeat: 'repeat' }}>
+                    <div className="container-fluid " style={{ backgroundImage: `url(${WoodImg})`, backgroundPosition: 'top center', minHeight: '94vh', backgroundRepeat: 'repeat' }}>
                         <Routes>
                             <Route exact path="/" element={<Navigate to="/employee/tables" />} />
                             <Route path="/menu" element={<MenuEmployees />} />

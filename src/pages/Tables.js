@@ -5,6 +5,9 @@ import { extractHttpError } from '../utility/Utils';
 import { ColorRing } from 'react-loader-spinner';
 import TableService from '../services/TableService';
 import TableReservationService from '../services/TableReservationService';
+const tableBusyImg = require('../assets/img/table-busy.png');
+const tableFreeImg = require('../assets/img/table-free.png');
+const tableReservedImg = require('../assets/img/table-reserved.png');
 
 const INTERVAL_MS = 60000
 
@@ -45,7 +48,7 @@ const Tables = () => {
     }
     const getCurrentReservations = async () => {
         setLoaded(false)
-        TableReservationService.getCurrentReservations()
+        await TableReservationService.getCurrentReservations()
             .then(res => {
                 setCurrentReservations(res.data)
             }).catch(err => {
@@ -59,19 +62,35 @@ const Tables = () => {
         return answer
     }
     return (
-        <div className='container text-center p-5'>
+        <div className='container text-center'>
+
+            <div className="row pt-3" >
+                <div className="col col-4 "  >
+                    <img className='img-fluid' src={tableFreeImg} alt="background" style={{ height: '3rem', width: '3rem' }} />
+                    <h3>Free Table </h3>
+                </div>
+                <div className="col  col-4  "  >
+                    <img className='img-fluid' src={tableBusyImg} alt="background" style={{ height: '3rem', width: '3rem' }} />
+                    <h3>Busy Table </h3>
+                </div>
+                <div className="col  col-4 "  >
+                    <img className='img-fluid' src={tableReservedImg} alt="background" style={{ height: '3rem', width: '3rem' }} />
+                    <h3>Resrved Table </h3>
+                </div>
+            </div>
             <ColorRing
                 visible={!loaded}
                 ariaLabel="blocks-loading"
                 colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
             />
-            <div className="row">
+            <div className="row py-5">
                 {
                     tables.map((t, index) =>
                         <RestaurantTable className="m-3" table={t} key={index} isReserved={isTableReserved(t)} />
                     )
                 }
             </div>
+
             {
                 errorMessage ?
                     <PopupMessage

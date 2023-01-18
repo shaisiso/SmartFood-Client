@@ -1,7 +1,6 @@
 // --- Heroku ---//
 //export const SERVER_PORT = "5000"
-export const API_URL = `https://smartfood-il.herokuapp.com`  // `https://smartfood-server.herokuapp.com`;
-
+export const API_URL = `https://smartfood-server.herokuapp.com`; // `https://smartfood-il.herokuapp.com`  // 
 // --- AWS Server --- //
 //export const API_URL =  "https://cors-anywhere.herokuapp.com/http://smartfood.eu-central-1.elasticbeanstalk.com";
 //export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com";
@@ -152,6 +151,7 @@ export function toText(str) {
     return str ? str : ""
 }
 export function extractHttpError(err) {
+    console.log(err)
     // var errMsg;
     if (err.response.data) {
         if (err.response.data.message) {

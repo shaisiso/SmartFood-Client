@@ -49,6 +49,9 @@ const OrderPage = () => {
                 phoneNumber: event.target.value
             })
     }
+    const onChangeEmail = event => {
+        setPersonDetails({ ...personDetails, email: event.target.value })
+    }
     const onChangeAddress = event => {
         let fieldName = event.target.name
         let fieldValue = event.target.value
@@ -195,6 +198,14 @@ const OrderPage = () => {
                             <FloatingLabel controlId="floatingInput" label="*Name">
                                 <FormControl type="text" name="name" className="form-control" required placeholder="*Name" disabled={disableForm}
                                     value={personDetails.name} onChange={onChangeName} />
+                            </FloatingLabel>
+                        </div>
+                    </div>
+                    <div className="d-flex justify-content-center form-group mt-3">
+                        <div className="col-md-6 form-group">
+                            <FloatingLabel controlId="floatingInput" label="Email">
+                                <FormControl type="email" name="email" className="form-control" placeholder="Email" disabled={disableForm}
+                                    value={personDetails.email} onChange={onChangeEmail} />
                             </FloatingLabel>
                         </div>
                     </div>

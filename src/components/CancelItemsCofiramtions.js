@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useEffect } from 'react';
 import { Fragment } from 'react';
+import { ColorRing } from 'react-loader-spinner';
 import OrderService from '../services/OrderService';
 import { extractHttpError } from '../utility/Utils';
 import PopupMessage from './PopupMessage';
@@ -8,8 +9,10 @@ import ReadOnlyRow from './ReadOnlyRow';
 
 const CancelItemsCofiramtions = props => {
     const [cancelRequests, setCancelRequests] = useState([]);
+    const [propsCancelPrev, setPropsCancelPrev] = useState([]);
     const [orderOfTables, setOrderOfTables] = useState([])
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState(false)
 
 
     useEffect(() => {
@@ -25,20 +28,29 @@ const CancelItemsCofiramtions = props => {
             }
             setOrderOfTables([...o])
         }
-        setCancelRequests(props.cancelRequests)
-        buildCOrderOfTables()
-    }, [props.cancelRequests, cancelRequests]);
+        if (props.cancelRequests !== propsCancelPrev) {
+            setCancelRequests([...props.cancelRequests])
+            setPropsCancelPrev(props.cancelRequests)
+            buildCOrderOfTables()
+        }
+    }, [props.cancelRequests, cancelRequests, propsCancelPrev]);
 
     const handleRequestForCancelItem = async (e, cr, isApproved) => {
         e.preventDefault();
+        setShowLoader(true)
         let cancelRequest = { ...cancelRequests.find(c => c.id === cr.id), isApproved: isApproved }
         delete cancelRequest.orderOfTable
         delete cancelRequest.itemInOrder
-        OrderService.handleRequestForCancelItem(cancelRequest)
+        await OrderService.handleRequestForCancelItem(cancelRequest)
+            .then(() => {
+                let updatedRequests = [...cancelRequests].filter(c => c.id !== cancelRequest.id)
+                setCancelRequests([...updatedRequests])
+            })
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
 
             })
+        setShowLoader(false)
     }
 
 
@@ -80,6 +92,13 @@ const CancelItemsCofiramtions = props => {
                     ))}
                 </tbody>
             </table>
+            <div className="text-center">
+                <ColorRing
+                    visible={showLoader}
+                    ariaLabel="blocks-loading"
+                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                />
+            </div>
             {
                 popupMessage.title ?
                     <PopupMessage

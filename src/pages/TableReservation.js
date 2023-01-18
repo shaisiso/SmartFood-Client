@@ -77,7 +77,7 @@ const TableReservation = () => {
     const onFocusOutPhone = () => {
         Axios.get(`${API_URL}/api/person/${personDetails.phoneNumber}`)
             .then(res => {
-                setPersonDetails(res.data)
+                setPersonDetails({...res.data})
             }).catch(err => {
                 setPersonDetails({ name: '', phoneNumber: personDetails.phoneNumber, email: '' })
             })
@@ -182,11 +182,6 @@ const TableReservation = () => {
         setShowLoader(false)
     }
     const cleanForm = () => {
-        // setPersonDetails({ name: '', phoneNumber: '', email: '' })
-        // setChosenDate(getCurrentDate())
-        // setChosenHour(`${hoursList[hoursList.length - 1]}`)
-        // setNumberOfDiners(1)
-        // setAdditionalDetails('')
         cleanAll()
     }
     return (
@@ -235,7 +230,7 @@ const TableReservation = () => {
                         </div>
                         <div className="col-md-6 form-group mt-3 mt-md-0">
                             <FloatingLabel label="Choose Hour">
-                                <Form.Select aria-label="Select hour" onChange={onChangeHour} defaultValue={reservationHoursList[reservationHoursList.length - 1]} required>
+                                <Form.Select aria-label="Select hour" onChange={onChangeHour} value={chosenHour} defaultValue={reservationHoursList[reservationHoursList.length - 1]} required>
                                     {
                                         reservationHoursList.map((item, key) => (
                                             <option key={key} value={item} disabled={!isValidDateForReservation(new Date(chosenDate), item)}>{item}</option>

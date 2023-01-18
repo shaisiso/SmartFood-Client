@@ -61,6 +61,7 @@ const Payment = (props) => {
             }
         }
         const applyDiscount = async (regular, members) => {
+            setShowLoader(true)
             await OrderService.applyMemberDiscount(props.order, props.order.person.phoneNumber)
                 .then(res => {
                     setOrder(res.data)
@@ -72,7 +73,7 @@ const Payment = (props) => {
                     else
                         setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
                 })
-
+                setShowLoader(false)
         }
         if (!mounted.current) {
             setOrder(props.order)
@@ -202,11 +203,14 @@ const Payment = (props) => {
                         :
                         null
                 }
-                <ColorRing
-                    visible={showLoader}
-                    ariaLabel="blocks-loading"
-                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
-                />
+                <div className="text-center">
+                    <ColorRing
+                        visible={showLoader}
+                        ariaLabel="blocks-loading"
+                        colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                    />
+                </div>
+
             </div>
             {
                 popupMessage.title ?

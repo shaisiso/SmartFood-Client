@@ -9,14 +9,17 @@ import ShiftService from '../services/ShiftService';
 import { addressToString, enumForClass, enumForReading, extractHttpError, format2Decimals, lastCharIsDigit } from '../utility/Utils';
 import CustomToggle from './CustomToggle';
 import PopupMessage from './PopupMessage';
+import { ColorRing } from 'react-loader-spinner';
 
 const ExternalOrders = props => {
     const [exteranlOrders, setExteranlOrders] = useState([])
+    const [propsOrderPrev, setPropOrdersPrev] = useState([])
     const [statuses, setStatuses] = useState([])
     const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
     const [personUpdate, setPersonUpdate] = useState({})
     const [orderToUpdate, setOrderToUpdate] = useState(null);
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState({ status: false, person: false })
     const [activeDeliveryGuys, setActiveDeliveryGuys] = useState([])
     const mounted = useRef()
     useEffect(() => {
@@ -25,8 +28,12 @@ const ExternalOrders = props => {
             getStatuses()
         }
         getActiveGeliveryGuys()
-        setExteranlOrders(props.exteranlOrders)
-    }, [props.exteranlOrders, exteranlOrders]);
+
+        if (props.exteranlOrders !== propsOrderPrev) {
+            setExteranlOrders([...props.exteranlOrders])
+            setPropOrdersPrev(props.exteranlOrders)
+        }
+    }, [props.exteranlOrders, exteranlOrders, propsOrderPrev]);
 
     const getStatuses = () => {
         OrderService.getAllStatuses()
@@ -56,12 +63,21 @@ const ExternalOrders = props => {
             updateOrderStatus(order, status)
         }
     }
-    const updateOrderStatus = (order, status) => {
+    const updateOrderStatus = async (order, status) => {
+        setShowLoader({ ...showLoader, status: true })
         let o = { ...order, status: enumForClass(status) }
-        OrderService.updateOrderStatus(o).catch(err => {
-            var errMsg = extractHttpError(err)
-            setPopupMessage({ title: 'Error', messages: errMsg })
-        })
+        await OrderService.updateOrderStatus(o)
+            .then(res => {
+                let orderIndex = exteranlOrders.findIndex(o => o.id === order.id)
+                let updatedOrders = [...exteranlOrders]
+                updatedOrders[orderIndex] = { ...order, status: res.data.status }
+                setExteranlOrders([...updatedOrders])
+            })
+            .catch(err => {
+                var errMsg = extractHttpError(err)
+                setPopupMessage({ title: 'Error', messages: errMsg })
+            })
+        setShowLoader({ ...showLoader, status: false })
     }
     const onChangeDeliveryGuy = async (e, order) => {
         let id = Number(e.target.value)
@@ -84,31 +100,43 @@ const ExternalOrders = props => {
         }
         else {
             //send update to api
-            let items = order.items
-            items.forEach(i => delete i.order)
-            console.log('personUpdate ', personUpdate.phoneNumber)
-            console.log('old', exteranlOrders.find(o => o.id === order.id).person.phoneNumber)
-            if (order.type === 'TA') {
-                let takeAway = { id: order.id, person: { ...personUpdate, addres: { ...order.person.address } } }
-                if (takeAway.person.address && (!takeAway.person.address.city || (takeAway.person.address.city && takeAway.person.address.city === '')))
-                    delete takeAway.person.address
-                console.log(takeAway)
-                if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
-                    takeAway.person = { phoneNumber: personUpdate.phoneNumber, name: personUpdate.name }
-                OrderService.updatePerson(order.id, takeAway.person)
-                    .catch(err => {
-                        setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-                    })
-            } else {
-                let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
-                if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
-                    delete delivery.person.id
-                OrderService.updatePerson(delivery.id, delivery.person).catch(err => {
-                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-                })
-            }
+            updatePerson(order)
         }
         setShowUpdates({ ...showUpdates, person: !showUpdates.person })
+    }
+    const updatePerson = async (order) => {
+        setShowLoader({ ...showLoader, person: true })
+        let responseOrder
+        let items = order.items
+        items.forEach(i => delete i.order)
+        if (order.type === 'TA') {
+            let takeAway = { id: order.id, person: { ...personUpdate, addres: { ...order.person.address } } }
+            if (takeAway.person.address && (!takeAway.person.address.city || (takeAway.person.address.city && takeAway.person.address.city === '')))
+                delete takeAway.person.address
+            console.log(takeAway)
+            if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
+                takeAway.person = { phoneNumber: personUpdate.phoneNumber, name: personUpdate.name }
+            await OrderService.updatePerson(order.id, takeAway.person)
+                .then(res => { responseOrder = { ...res.data } })
+                .catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
+        } else {
+            let delivery = { id: order.id, person: { ...personUpdate }, deliveryGuy: order.deliveryGuy }
+            if (personUpdate.phoneNumber !== order.person.phoneNumber) //new person
+                delete delivery.person.id
+            await OrderService.updatePerson(delivery.id, delivery.person)
+                .then(res => { responseOrder = { ...res.data } })
+                .catch(err => {
+                    setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+                })
+        }
+        let orderIndex = exteranlOrders.findIndex(o => o.id === order.id)
+        let updatedOrders = [...exteranlOrders]
+        updatedOrders[orderIndex] = { ...order, person: { ...responseOrder.person } }
+        setExteranlOrders([...updatedOrders])
+        setShowLoader({ ...showLoader, person: false })
+
     }
     const onClickCancelUpdatePerson = e => {
         e?.preventDefault()
@@ -185,6 +213,11 @@ const ExternalOrders = props => {
                                                                         ))
                                                                     }
                                                                 </Form.Select>
+                                                                <ColorRing
+                                                                    visible={showLoader.status}
+                                                                    ariaLabel="blocks-loading"
+                                                                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                                                />
                                                             </td>
                                                         </tr>
                                                         <tr>
@@ -195,7 +228,7 @@ const ExternalOrders = props => {
 
                                                                         <span >
                                                                             <button className="btn btn-danger btn-sm mx-2" onClick={onClickCancelUpdatePerson}>Cancel</button>
-                                                                            <FloatingLabel label="*Phone Number" >
+                                                                            <FloatingLabel label="*Phone Number" className='mt-1'>
                                                                                 <input type="tel" className="col col-xl-2 col-lg-4 form-control" name="phoneNumber" placeholder="*Phone Number" required
                                                                                     value={personUpdate.phoneNumber} onChange={e => onChangePersonDetails(e, order)} />
                                                                             </FloatingLabel>
@@ -229,10 +262,14 @@ const ExternalOrders = props => {
                                                                                     </>
                                                                                     : null
                                                                             }
-
                                                                         </span>
                                                                         : null
                                                                 }
+                                                                <ColorRing
+                                                                    visible={showLoader.person}
+                                                                    ariaLabel="blocks-loading"
+                                                                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                                                />
                                                             </td>
                                                         </tr>
                                                         {

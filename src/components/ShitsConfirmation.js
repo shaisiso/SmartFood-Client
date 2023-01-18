@@ -6,30 +6,48 @@ import ShiftService from '../services/ShiftService';
 import { useState } from 'react';
 import { useEffect } from 'react';
 import PopupMessage from './PopupMessage';
+import { ColorRing } from 'react-loader-spinner';
 
 
 const ShitsConfirmation = props => {
     const [shifts, setShifts] = useState([]);
+    const [propsShiftsPrev, setPropsShiftslPrev] = useState([]);
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
+    const [showLoader, setShowLoader] = useState(false)
 
     useEffect(() => {
-        setShifts(props.shifts)
-    }, [props.shifts, shifts]);
+        if (props.shifts !== propsShiftsPrev) {
+            setShifts([...props.shifts])
+            setPropsShiftslPrev(props.shifts)
+        }
+    }, [props.shifts, shifts, propsShiftsPrev]);
 
-    const onClickApprove = (event, shift) => {
+    const onClickApprove = async (event, shift) => {
         event.preventDefault();
+        setShowLoader(true)
         shift.isApproved = true
-        ShiftService.updateShift(shift)
+        await ShiftService.updateShift(shift)
+            .then(() => {
+                let updatedShifts = shifts.filter(s => s.shiftID !== shift.shiftID)
+                setShifts([...updatedShifts])
+            })
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
     }
-    const onClickDecline = (event, shift) => {
+    const onClickDecline = async (event, shift) => {
         event.preventDefault();
-        ShiftService.deleteShift(shift)
+        setShowLoader(true)
+        await ShiftService.deleteShift(shift)
+            .then(() => {
+                let updatedShifts = shifts.filter(s => s.shiftID !== shift.shiftID)
+                setShifts([...updatedShifts])
+            })
             .catch(err => {
                 setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
             })
+        setShowLoader(false)
     }
     return (
         <div className="row text-center m-1">
@@ -65,6 +83,13 @@ const ShitsConfirmation = props => {
                     ))}
                 </tbody>
             </table>
+            <div className="text-center">
+                <ColorRing
+                    visible={showLoader}
+                    ariaLabel="blocks-loading"
+                    colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                />
+            </div>
             {
                 popupMessage.title ?
                     <PopupMessage
