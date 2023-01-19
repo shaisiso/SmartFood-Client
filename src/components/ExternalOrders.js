@@ -15,12 +15,13 @@ const ExternalOrders = props => {
     const [exteranlOrders, setExteranlOrders] = useState([])
     const [propsOrderPrev, setPropOrdersPrev] = useState([])
     const [statuses, setStatuses] = useState([])
-    const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false })
+    const [showUpdates, setShowUpdates] = useState({ person: false, comments: false, payment: false})
     const [personUpdate, setPersonUpdate] = useState({})
     const [orderToUpdate, setOrderToUpdate] = useState(null);
     const [popupMessage, setPopupMessage] = useState({ title: '', messages: [''] })
-    const [showLoader, setShowLoader] = useState({ status: false, person: false })
+    const [showLoader, setShowLoader] = useState({ status: false, person: false , deliveryGuy: false })
     const [activeDeliveryGuys, setActiveDeliveryGuys] = useState([])
+    const [selectedIndex, setSelectedIndex] = useState(-1);
     const mounted = useRef()
     useEffect(() => {
         if (!mounted.current) {
@@ -80,6 +81,8 @@ const ExternalOrders = props => {
         setShowLoader({ ...showLoader, status: false })
     }
     const onChangeDeliveryGuy = async (e, order) => {
+        setShowLoader({ ...showLoader, deliveryGuy: true })
+
         let id = Number(e.target.value)
         let deliveryGuy
         if (id === -1)
@@ -87,9 +90,17 @@ const ExternalOrders = props => {
         else
             deliveryGuy = activeDeliveryGuys.find(dg => dg.id === id)
         let delivery = { id: order.id, person: order.person, deliveryGuy: deliveryGuy }
-        await OrderService.updateDelivery(delivery).catch(err => {
-            setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
-        })
+        await OrderService.updateDelivery(delivery)
+            .then(res => {
+                let orderIndex = exteranlOrders.findIndex(o => o.id === order.id)
+                let updatedOrders = [...exteranlOrders]
+                updatedOrders[orderIndex] = { ...order, deliveryGuy: { ...res.data.deliveryGuy } }
+                setExteranlOrders([...updatedOrders])
+            })
+            .catch(err => {
+                setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
+            })
+        setShowLoader({ ...showLoader, deliveryGuy: false })
 
     }
     const onClickUpdatePerson = (e, order) => {
@@ -173,6 +184,9 @@ const ExternalOrders = props => {
             setPopupMessage({ title: 'Error', messages: extractHttpError(err) })
         })
     }
+    const onSelectedIndexChanged = (index)=>{
+        setSelectedIndex(index)
+    }
     const getRemainingAmount = (order) => Math.max(format2Decimals(order.totalPriceToPay - order.alreadyPaid), 0)
     return (
         <div>
@@ -184,7 +198,7 @@ const ExternalOrders = props => {
                                 <div className="col col-md-10 col-12 pe-0">
                                     <Card>
                                         <Card.Header>
-                                            <CustomToggle eventKey={key}
+                                            <CustomToggle eventKey={key} index={key} selectedIndex={selectedIndex} onSelectedIndexChanged={onSelectedIndexChanged}
                                                 name={
                                                     <span>
                                                         <span style={{ color: order.type === 'D' ? '#0060ff' : '#e0a000' }}>{`#${order.id}-${order.type}`}</span>
@@ -283,6 +297,11 @@ const ExternalOrders = props => {
                                                                                 ))
                                                                             }
                                                                         </Form.Select>
+                                                                        <ColorRing
+                                                                            visible={showLoader.deliveryGuy}
+                                                                            ariaLabel="blocks-loading"
+                                                                            colors={['#0275d8', '#0275d8', '#0275d8', '#0275d8', '#0275d8']}
+                                                                        />
                                                                     </td>
                                                                 </tr>
                                                                 :

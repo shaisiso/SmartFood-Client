@@ -1,7 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useAccordionButton } from 'react-bootstrap';
 
-function CustomToggle({ children, eventKey, name, onClickToggle }) {
+function CustomToggle({ children, eventKey, name, onClickToggle, selectedIndex, onSelectedIndexChanged }) {
+    useEffect(() => {
+        if (eventKey === selectedIndex)
+            setSign('-')
+        else
+            setSign('+')
+    },[eventKey,selectedIndex])
     const decoratedOnClick = useAccordionButton(eventKey, () => {
         if (sign === '+') {
             setSign('-')
@@ -11,10 +17,13 @@ function CustomToggle({ children, eventKey, name, onClickToggle }) {
         }
         if (onClickToggle)
             onClickToggle()
+        if (onSelectedIndexChanged) {
+            onSelectedIndexChanged(eventKey)
+        }
     });
     const [sign, setSign] = useState('+')
     return (
-        <h5  onClick={decoratedOnClick} style={{ cursor: 'pointer' }}>
+        <h5 onClick={decoratedOnClick} style={{ cursor: 'pointer' }}>
             <span className="mx-2">
                 <button
                     type="button"

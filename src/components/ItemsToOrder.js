@@ -27,7 +27,10 @@ const ItemsToOrder = (props) => {
     const [cancelItemQuantity, setCancelItemQuantity] = useState(1)
     const [cancelReason, setCancelReason] = useState('')
     const [itemToCancel, setItemToCancel] = useState({})
-
+    const [selectedIndex, setSelectedIndex] = useState(-1);
+    const onSelectedIndexChanged = (index)=>{
+        setSelectedIndex(index)
+    }
     const mounted = useRef();
     useEffect(() => {
         if (!mounted.current) {
@@ -261,7 +264,7 @@ const ItemsToOrder = (props) => {
                             categories.map((category, key) =>
                                 <Card key={key}>
                                     <Card.Header>
-                                        <CustomToggle eventKey={key} name={category} />
+                                        <CustomToggle eventKey={key} name={category} selectedIndex={selectedIndex} onSelectedIndexChanged={onSelectedIndexChanged} />
                                     </Card.Header>
                                     <Accordion.Collapse eventKey={key} >
                                         <Table striped bordered hover className="m-0" >
