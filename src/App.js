@@ -50,18 +50,23 @@ function App() {
   }
 
   const getNavbar = () => {
-    if (isEmployeeLogged)
+    console.log('getNavbar')
+    console.log(window.location.pathname)
+    if (isEmployeePage())
       return null
     else
       return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout}/>
   }
   const getHeader = () => {
-    return isEmployeeLogged ? null : <Header />
+    return isEmployeePage() ? null : <Header />
+  }
+  const isEmployeePage= ()=>{
+    return window.location.pathname.includes('/employee') && isEmployeeLogged
   }
   return (
     <Router>
       {getNavbar()}
-      <div style={!isEmployeeLogged ?
+      <div style={!isEmployeePage() ?
         {
           backgroundImage: `url(${RestaurantImg})`, backgroundPosition: 'top center',
           minHeight: '87vh', backgroundRepeat: 'repeat'
