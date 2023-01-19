@@ -39,7 +39,7 @@ function App() {
     window.localStorage.setItem("isEmployeeLogged", true);
     setIsEmployeeLogged(true)
   }
-  const handleMemberLogin = ()=>{
+  const handleMemberLogin = () => {
     window.localStorage.setItem("isMemberLogged", true);
     setIsMemberLogged(true)
   }
@@ -55,12 +55,12 @@ function App() {
     if (isEmployeePage())
       return null
     else
-      return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout}/>
+      return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout} />
   }
   const getHeader = () => {
     return isEmployeePage() ? null : <Header />
   }
-  const isEmployeePage= ()=>{
+  const isEmployeePage = () => {
     return window.location.pathname.includes('/employee') && isEmployeeLogged
   }
   return (
@@ -74,7 +74,8 @@ function App() {
         <div className="container-fluid p-0">
           {getHeader()}
           <Routes>
-            <Route exact path="/" element={isEmployeeLogged ? <Navigate to="/employee" /> : <Homepage />} />
+            {/* <Route exact path="/" element={isEmployeeLogged ? <Navigate to="/employee" /> : <Homepage />} /> */}
+            <Route exact path="/" element={<Homepage />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/reservation" element={<TableReservation />} />
             <Route path="/order" element={<OrderPage />} />
@@ -83,7 +84,7 @@ function App() {
             <Route path="/user/reservations" element={<MyReservations />} />
             <Route path="/user/orders" element={<MyOrders />} />
             <Route path="/sign-up" element={<MemberRegistration />} />
-            <Route path="/login/member" element={<Login type="Members" handleMemberLogin={handleMemberLogin}/>} />
+            <Route path="/login/member" element={<Login type="Members" handleMemberLogin={handleMemberLogin} />} />
             <Route path="/login/employee"
               element={
                 isEmployeeLogged ?
