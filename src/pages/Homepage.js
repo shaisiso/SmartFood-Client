@@ -7,7 +7,11 @@ import { Card } from 'react-bootstrap';
 import { Link } from "react-router-dom";
 
 
-const Homepage = () => {
+const Homepage = (props) => {
+    const onClickNavigate = () => {
+        if (props.render)
+            props.render()
+    }
     return (
         <div className="row mt-5 gy-4 justify-content-center  pb-5">
             <div className="col col-6  col-sm-4  d-flex justify-content-center ">
@@ -32,7 +36,7 @@ const Homepage = () => {
             </div>
             <div className="col col-6 col-sm-4  d-flex justify-content-center ">
                 <Card className="text-center" style={{ width: '18rem' }}>
-                    <Card.Link as={Link} to="/login/employee" style={{ color: 'black' }}>
+                    <Card.Link as={Link} to="/login/employee" style={{ color: 'black' }} onClick={onClickNavigate}>
                         <Card.Img variant="top" src={EmployeeImg} alt="Employees" />
                         <Card.Body>
                             <Card.Title  >Employees Entrance</Card.Title>

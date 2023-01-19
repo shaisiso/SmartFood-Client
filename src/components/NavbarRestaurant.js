@@ -17,6 +17,10 @@ const NavbarRestaurant = (props) => {
         navigate('/')
         cleanAll()
     }
+    const onClickLogin = () => {
+        if (props.render)
+            props.render()
+    }
     return (
         <Navbar className="navbarclient" collapseOnSelect expand="lg" bg="dark" variant="dark" onSelect={handleSelect}>
             <Container>
@@ -62,14 +66,21 @@ const NavbarRestaurant = (props) => {
                                 </Nav.Item>
                             </Nav>
                             :
-                            <Nav className="navbarclient-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
-                                <Nav.Item>
-                                    <Nav.Link eventKey="6" as={Link} to="/login/member">Members Login</Nav.Link>
-                                </Nav.Item>
-                                <Nav.Item >
-                                    <Nav.Link eventKey="7" as={Link} to="/login/employee" > Employee Login</Nav.Link>
-                                </Nav.Item>
-                            </Nav>
+                            props.isEmployeeLogged ?
+                                <Nav className="navbarclient-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
+                                    <Nav.Item >
+                                        <Nav.Link eventKey="7" as={Link} to="/employee" onClick={onClickLogin}> Employees</Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
+                                :
+                                <Nav className="navbarclient-nav ms-auto mb-2 mb-lg-0" activeKey={active}>
+                                    <Nav.Item>
+                                        <Nav.Link eventKey="6" as={Link} to="/login/member">Members Login</Nav.Link>
+                                    </Nav.Item>
+                                    <Nav.Item >
+                                        <Nav.Link eventKey="7" as={Link} to="/login/employee" onClick={onClickLogin}> Employee Login</Nav.Link>
+                                    </Nav.Item>
+                                </Nav>
                     }
 
                 </Navbar.Collapse>

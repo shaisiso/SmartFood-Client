@@ -27,7 +27,7 @@ function App() {
 
   const [isEmployeeLogged, setIsEmployeeLogged] = useState(JSON.parse(window.localStorage.getItem("isEmployeeLogged")) || false)
   const [isMemberLogged, setIsMemberLogged] = useState(JSON.parse(window.localStorage.getItem("isMemberLogged")) || false)
-
+  const [r, setR] = useState(false);
   const mounted = useRef();
   useEffect(() => {
     if (!mounted.current) {
@@ -55,13 +55,16 @@ function App() {
     if (isEmployeePage())
       return null
     else
-      return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout} />
+      return <NavbarRestaurant isMemberLogged={isMemberLogged} handleLogout={handleLogout} isEmployeeLogged={isEmployeeLogged} render={onRender} />
   }
   const getHeader = () => {
     return isEmployeePage() ? null : <Header />
   }
   const isEmployeePage = () => {
     return window.location.pathname.includes('/employee') && isEmployeeLogged
+  }
+  const onRender = () => {
+    setR(!r)
   }
   return (
     <Router>
@@ -75,7 +78,7 @@ function App() {
           {getHeader()}
           <Routes>
             {/* <Route exact path="/" element={isEmployeeLogged ? <Navigate to="/employee" /> : <Homepage />} /> */}
-            <Route exact path="/" element={<Homepage />} />
+            <Route exact path="/" element={<Homepage render={onRender} />} />
             <Route path="/menu" element={<MenuPage />} />
             <Route path="/reservation" element={<TableReservation />} />
             <Route path="/order" element={<OrderPage />} />
@@ -84,7 +87,9 @@ function App() {
             <Route path="/user/reservations" element={<MyReservations />} />
             <Route path="/user/orders" element={<MyOrders />} />
             <Route path="/sign-up" element={<MemberRegistration />} />
-            <Route path="/login/member" element={<Login type="Members" handleMemberLogin={handleMemberLogin} />} />
+            <Route path="/login/member" element={
+              isMemberLogged || isEmployeeLogged ? <Navigate to="/" /> : <Login type="Members" handleMemberLogin={handleMemberLogin} />
+            } />
             <Route path="/login/employee"
               element={
                 isEmployeeLogged ?
@@ -101,11 +106,13 @@ function App() {
               } />
             <Route path="/qr-order/*" element={<QROrder />} />
             <Route path="/waiting-list/*" element={< WaitingListApprove />} />
-            {isEmployeeLogged ?
+            {/* {isEmployeeLogged ?
               <Route path="*" exact={true} element={<EmployeeHomepage handleLogout={handleLogout} />} />
               :
               <Route path="*" exact={true} element={<NotFound404 />} />
-            }
+            } */}
+            <Route path="*" exact={true} element={<NotFound404 />} />
+
           </Routes>
         </div>
       </div>
