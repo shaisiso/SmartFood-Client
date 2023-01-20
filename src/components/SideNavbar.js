@@ -26,9 +26,7 @@ const SideNavbar = (props) => {
             setTasks(props.tasks)
         }
     }, [props.employee, props.tasks]);
-    const onClickTasks = e => {
 
-    }
     const totalTasks = () => tasks.exteranlOrders.length + tasks.shifts.length + tasks.cancelRequests.length
 
     return (
@@ -36,7 +34,6 @@ const SideNavbar = (props) => {
             <Link className=" d-flex align-items-center justify-content-center my-3" to={'/employee'} style={{ fontFamily: 'Pacifico', color: 'white', textDecoration: 'none', fontSize: '1.3rem' }}>
                 <div className="mx-3" >Smart Food </div>
                 <CutlerytSvg width="36" height="36" />
-
             </Link>
 
             <hr className="sidebar-divider my-0" />
@@ -71,7 +68,7 @@ const SideNavbar = (props) => {
             {
                 RoleService.isManager(TokenService.getEmployee()) ?
                     <li className="nav-item">
-                        <Link className="nav-link" to={'/employee/tasks'} onClick={onClickTasks}>
+                        <Link className="nav-link" to={'/employee/tasks'} >
                             <TasksSvg width="24" height="24" />
                             <span className="mx-2">Tasks</span>
                             {
