@@ -133,7 +133,7 @@ const MemberRegistration = () => {
                                 </FloatingLabel>
                             </div>
                             <div className="row mt-3 mx-auto">
-                                <input type="submit" className="btn btn-primary btn-user" value="Login" />
+                                <input type="submit" className="btn btn-primary btn-user" value="Register" />
                             </div>
                         </Form>
                     </div>
