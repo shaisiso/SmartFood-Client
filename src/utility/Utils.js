@@ -1,18 +1,21 @@
-// --- Heroku ---//
-//export const SERVER_PORT = "5000"
-export const API_URL = `https://smartfood-server.herokuapp.com`; // `https://smartfood-il.herokuapp.com`  // 
-// --- AWS Server --- //
-//export const API_URL =  "https://cors-anywhere.herokuapp.com/http://smartfood.eu-central-1.elasticbeanstalk.com";
-//export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com";
+// ------------------------ Environment ------------------------ //
+
+// ------------------------ Deployment  ------------------------ //
+//export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com"; // --- AWS Server --- //
+export const API_URL = `https://smartfood-server.herokuapp.com`; // --- Heroku Server ---//
+export const DOMAIN_URL = `https://www.smartfood-project.link`;
 
 
-// --- Local Environment --- //
-// export const SERVER_PORT = "8080"
-// export const API_URL = `http://localhost:${SERVER_PORT}`; //     `http://10.100.102.20:${SERVER_PORT}`    //
-export const DOMAIN_URL = `https://www.smartfood-project.link`
+// -------------------- Local Environment ---------------------- //
+// export const SERVER_PORT = "8080" // "5000"
+// export const API_URL = `http://localhost:${SERVER_PORT}`; // 
+// export const DOMAIN_URL = `http://localhost:3000`;
+
+
+
+
 
 export const reservationHoursList = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30'];
-
 
 //functions
 export function formatDateForBrowser(date) {
@@ -100,7 +103,7 @@ export function compareDatesHour(date1, hour1, date2, hour2) {
     let splitedHour2 = hour2.split(':')
     date2.setHours(parseInt(splitedHour2[0]))
     date2.setMinutes(parseInt(splitedHour2[1]))
-    return date1.getTime()- date2.getTime()
+    return date1.getTime() - date2.getTime()
 }
 export function isValidDateForReservation(date, time) {
     let currentDate = new Date()
