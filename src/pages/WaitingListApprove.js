@@ -45,7 +45,7 @@ const WaitingListApprove = () => {
                 reservation ?
                     <div className='row'>
                         <h1 className="hRestaurant" style={{ color: "black" }}>Your Reservation is now Approved !!</h1>
-                        <div className='col col-3 mx-auto my-3'>
+                        <div className='col col-md-3 col-sm-6 mx-auto my-3'>
                             <ul className='text-left fw-bold'>
                                 <li>Date: {reservation.date}</li>
                                 <li>Hour: {reservation.hour}</li>
