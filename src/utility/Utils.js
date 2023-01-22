@@ -2,14 +2,14 @@
 
 // ------------------------ Deployment  ------------------------ //
 //export const API_URL =  "http://smartfood.eu-central-1.elasticbeanstalk.com"; // --- AWS Server --- //
-// export const API_URL = `https://smartfood-server.herokuapp.com`; // --- Heroku Server ---//
-// export const DOMAIN_URL = `https://www.smartfood-project.link`;
+export const API_URL = `https://smartfood-server.herokuapp.com`; // --- Heroku Server ---//
+export const DOMAIN_URL = `https://www.smartfood-project.link`;
 
 
 // -------------------- Local Environment ---------------------- //
-export const SERVER_PORT = "8080" // "5000"
-export const API_URL = `http://localhost:${SERVER_PORT}`; // 
-export const DOMAIN_URL = `http://localhost:3000`;
+// export const SERVER_PORT = "8080" // "5000"
+// export const API_URL = `http://localhost:${SERVER_PORT}`; // 
+// export const DOMAIN_URL = `http://localhost:3000`;
 
 
 
