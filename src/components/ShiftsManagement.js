@@ -29,7 +29,6 @@ const ShiftsManagement = () => {
         }
     })
     const onChangeEmployeeId = e => {
-        console.log(e.target.value)
         setEmployeeId(e.target.value)
     }
     const onChangeByEmployee = e => {
@@ -65,7 +64,6 @@ const ShiftsManagement = () => {
             })
     }
     const getShiftByEmployeeAndDates = async (startDateAPI, endDateAPI) => {
-        console.log(employeeId)
         await ShiftService.getShiftByEmployeeIdAndDates(employeeId, startDateAPI, endDateAPI)
             .then(res => {
                 setShifts(res.data)
@@ -95,7 +93,6 @@ const ShiftsManagement = () => {
         }
         else if (fieldName === 'endDate') {
             let date = formatDateForServer(event.target.value)
-            console.log(date)
             fieldValue = `${date} ${getTimeOfLocalDateTimeSt(editFormData.shiftExit)}`
             fieldName = 'shiftExit'
         }
@@ -177,7 +174,7 @@ const ShiftsManagement = () => {
                         <td className="col-md-4 form-group ">
                             <FloatingLabel label="Employee Id">
                                 <input type="number" style={{ textAlign: "left" }} className="form-control" min={1} disabled={!isByEmployee} required
-                                    name="phoneNumber" value={employeeId || ''} onChange={onChangeEmployeeId}
+                                    name="employeeId" value={employeeId || ''} onChange={onChangeEmployeeId}
                                 />
                             </FloatingLabel>
                         </td>
