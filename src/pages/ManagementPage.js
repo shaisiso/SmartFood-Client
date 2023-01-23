@@ -6,6 +6,7 @@ import DiscountManagement from '../components/DiscountManagement';
 import EmployeesManagement from '../components/EmployeesManagement';
 import MenuManagement from '../components/MenuManagement';
 import RestaurantArrangement from '../components/RestaurantArrangement';
+import ShiftsManagement from '../components/ShiftsManagement';
 
 const ManagementPage = () => {
 
@@ -25,7 +26,10 @@ const ManagementPage = () => {
             <Tab eventKey="3" title="Menu Management" tabClassName="text-black font-weight-bold">
                 <MenuManagement />
             </Tab>
-            <Tab eventKey="4" title="Restaurant Arrangement" tabClassName="text-black font-weight-bold">
+            <Tab eventKey="4" title="Shifts Management" tabClassName="text-black font-weight-bold">
+                <ShiftsManagement/>
+            </Tab>
+            <Tab eventKey="5" title="Restaurant Arrangement" tabClassName="text-black font-weight-bold">
                 <RestaurantArrangement/>
             </Tab>
         </Tabs>

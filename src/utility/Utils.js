@@ -13,12 +13,12 @@ export const DOMAIN_URL = `https://www.smartfood-project.link`;
 
 
 
-
-
 export const reservationHoursList = ['11:00', '11:30', '12:00', '12:30', '13:00', '13:30', '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30', '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30', '22:00', '22:30'];
 
 //functions
 export function formatDateForBrowser(date) {
+    if (typeof (date) === 'string')
+        date = new Date(date)
     let year = new Intl.DateTimeFormat('en', { year: 'numeric' }).format(date);
     let month = new Intl.DateTimeFormat('en', { month: '2-digit' }).format(date);
     let day = new Intl.DateTimeFormat('en', { day: '2-digit' }).format(date);
@@ -41,10 +41,8 @@ export function formatDateForServer(date) {
 }
 
 export function formatDateWithSlash(date) {
-    console.log('date ' + date)
     if (typeof (date) === 'string')
         date = new Date(date)
-    console.log('date ' + date)
     let year = date.getFullYear();
     let month = date.getMonth() + 1;
     let day = date.getDate();
