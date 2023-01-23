@@ -147,7 +147,7 @@ const ShiftsManagement = () => {
     };
     return (
         <form onSubmit={getShifts} className="container  py-3 px-5 text-center ">
-            <h2><b><u>My Shifts</u></b></h2>
+            <h2><b><u>Shifts Management</u></b></h2>
             <table className="mx-auto my-4">
                 <tbody>
                     <tr className="align middle text center">
