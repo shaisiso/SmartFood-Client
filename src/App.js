@@ -50,8 +50,6 @@ function App() {
   }
 
   const getNavbar = () => {
-    console.log('getNavbar')
-    console.log(window.location.pathname)
     if (isEmployeePage())
       return null
     else
